@@ -1,7 +1,7 @@
 #!/bin/bash
 HOME=$(echo ~)
 arch=$(arch)
-wget http://www.torproject.org/dist/torbrowser/linux/tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz
+wget http://www.torproject.org/dist/torbrowser/linux/tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz.asc
 wget http://www.torproject.org/dist/torbrowser/linux/tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz
 gpg --verify tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz.asc tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz
 tar -xzf tor-browser-gnu-linux-$arch-1.1.11-dev-en-US.tar.gz
