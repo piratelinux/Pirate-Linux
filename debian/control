@@ -1,0 +1,15 @@
+Source: piratepack
+Section: unknown
+Priority: optional
+Maintainer: ak <akarmn@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://www.pirateparty.ca
+#Vcs-Git: git://git.debian.org/collab-maint/piratepack.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/piratepack.git;a=summary
+
+Package: piratepack
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0-dev, amule
+Description: Pirate Pack
+ Enhances your digital freedom.

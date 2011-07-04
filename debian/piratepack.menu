@@ -1,0 +1,3 @@
+?package(piratepack):needs="X11" section="Applications/Network/File Transfer"\
+  title="piratepack" command="/usr/bin/piratepack"\
+  icon="/usr/share/pixmaps/piratepack.xpm"
