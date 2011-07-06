@@ -140,7 +140,7 @@ cb_execute( GtkButton *button,
 {
  
     GPid        pid;
-    gchar    *argv[2];
+    gchar    *argv[3];
 
     argv[0] = "/usr/bin/piratepack";
     if (strcmp(data->action,"install") == 0) {
@@ -157,6 +157,7 @@ cb_execute( GtkButton *button,
       gtk_widget_set_sensitive(data->button,FALSE);
       gtk_widget_set_sensitive(data->button_remove,FALSE);
     }
+    argv[2]=NULL;
 
     gint        out,
                 err;
