@@ -142,7 +142,7 @@ cb_execute( GtkButton *button,
     GPid        pid;
     gchar    *argv[3];
 
-    argv[0] = "/usr/bin/piratepack";
+    argv[0] = "./piratepack";
     if (strcmp(data->action,"install") == 0) {
       argv[1] = "install";
       gtk_widget_set_sensitive(data->button,FALSE);
@@ -325,30 +325,32 @@ install_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  //install TOR
+  char *installed = malloc(500);
 
-  stderr_string = "Installing TOR";
+  //install tor-browser
+
+  stderr_string = "Installing tor-browser";
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("tor",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("tor-browser",G_FILE_TEST_EXISTS)) {
 
-    strcpy (str,"chmod -R u+rw tor ");
+    strcpy (str,"chmod -R u+rw tor-browser ");
     strcat (str,logpipe);
     system(str);
 
-    strcpy (str,"rm -rf tor ");
+    strcpy (str,"rm -rf tor-browser ");
     strcat (str,logpipe);
     system(str);
   }
   
-  strcpy (str,"mkdir tor ");
+  strcpy (str,"mkdir tor-browser ");
   strcat (str,logpipe);
   system(str);
   
   strcpy (str,"chmod -R u+r ");
   strcat (str,"/usr/lib/piratepack");
-  strcat (str,"/setup/tor/* ");
+  strcat (str,"/setup/tor-browser/* ");
   strcat (str,logpipe);
   system(str);
 
@@ -356,19 +358,21 @@ install_pack( int    argc,
 
   strcpy (str,"cp -r ");
   strcat (str,"/usr/lib/piratepack");
-  strcat (str,"/setup/tor/* . ");
+  strcat (str,"/setup/tor-browser/* . ");
   strcat (str,logpipe);
   system(str);
 
-  strcpy (str,"chmod u+x install_tor.sh ");
+  strcpy (str,"chmod u+x install_tor-browser.sh ");
   strcat (str,logpipe);
   system(str);
 
-  strcpy (str,"./install_tor.sh ");
+  strcpy (str,"./install_tor-browser.sh ");
   strcat (str,logpipe);
   system(str);
 
   chdir("../");
+
+  strcpy(installed,"tor-browser\n");
 
   //install theme
 
@@ -412,7 +416,9 @@ install_pack( int    argc,
   strcpy (str,"./install_theme.sh ");
   strcat (str,logpipe);
   system(str);
- 
+
+  strcat(installed,"theme\n");
+
   //complete installation
 
   chdir(homedir);
@@ -430,6 +436,11 @@ install_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
+  strcpy (str,"echo \"");
+  strcat (str, installed);
+  strcat (str, "\" >> piratepack/logs/.installed 2>> piratepack/logs/piratepack_install.log");
+  system(str);
+
   if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
     strcpy (str,"chmod u+rw piratepack/logs/.removed ");
     strcat (str,logpipe);
@@ -439,7 +450,6 @@ install_pack( int    argc,
     strcat (str,logpipe);
     system(str);
   }
-
 
   stderr_string = "Installation Complete";
   sleep( 1 );
@@ -491,75 +501,71 @@ remove_pack( int    argc,
 
   if (g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
 
-    strcpy (str,"chmod u+r piratepack");
+    strcpy (str,"chmod u+r piratepack ");
     strcat (str,logpipe);
     system(str);
 
     chdir("piratepack");
-  
-    //remove tor
 
-    stderr_string = "Removing TOR";
-    sleep( 1 );
-    fprintf( stderr, "%s\n", stderr_string );
+    char line[100];
+    FILE *fp;
+    fp = fopen("logs/.installed", "r");
+    if(!fp) return 1;
 
-    if (g_file_test("tor",G_FILE_TEST_EXISTS)) {
+    while(fgets(line,sizeof(line),fp) != NULL) {
 
-      chdir("tor");
+      int len = strlen(line)-1;
+      if(line[len] == '\n') 
+	line[len] = 0;
 
-      strcpy (str,"chmod u+x remove_tor.sh ");
-      strcat (str,logpipe);
-      system(str);
+      if (g_file_test(line,G_FILE_TEST_EXISTS)) {
 
-      strcpy (str,"./remove_tor.sh ");
-      strcat (str,logpipe);
-      system(str);
+	strcpy (str,"Removing ");
+        strcat (str,line);
+	sleep( 1 );
+	fprintf( stderr, "%s\n", str );
+	
+	strcpy (str,"chmod u+rx ");
+	strcat (str,line);
+	strcat (str," ");
+	strcat (str,logpipe);
+	system(str);
 
-      chdir("../");
+	chdir(line);
+
+	strcpy (str,"chmod u+rx remove_");
+	strcat (str,line);
+	strcat (str,".sh ");
+        strcat (str,logpipe);
+        system(str);
+
+	strcpy (str,"./remove_");
+        strcat (str,line);
+	strcat (str,".sh ");
+        strcat (str,logpipe);
+        system(str);
+
+	chdir("../");
+
+	if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+	
+	  strcpy (str,"chmod u+rw ");
+	  strcat (str,line);
+	  strcat (str," ");
+	  strcat (str,logpipe);
+	  system(str);
+
+	  strcpy (str,"rm -rf ");
+	  strcat (str,line);
+	  strcat (str," ");
+	  strcat (str,logpipe);
+	  system(str);
+	}
+	
+      }
+
     }
-
-    if (g_file_test("tor",G_FILE_TEST_EXISTS)) {
-    
-      strcpy (str,"chmod u+rw tor ");
-      strcat (str,logpipe);
-      system(str);
-
-      strcpy (str,"rm -rf tor ");
-      strcat (str,logpipe);
-      system(str);
-    }
-    
-    //remove theme
-
-    stderr_string = "Removing theme";
-    sleep( 1 );
-    fprintf( stderr, "%s\n", stderr_string );
-
-    if (g_file_test("theme",G_FILE_TEST_EXISTS)) {
-      chdir("theme");
-      
-      strcpy (str,"chmod u+x remove_theme.sh ");
-      strcat (str,logpipe);
-      system(str);
-
-      strcpy (str,"./remove_theme.sh ");
-      strcat (str,logpipe);
-      system(str);
-
-      chdir("../");
-    }
-
-    if (g_file_test("theme",G_FILE_TEST_EXISTS)) {
-
-      strcpy (str,"chmod u+rw theme ");
-      strcat (str,logpipe);
-      system(str);
-
-      strcpy (str,"rm -rf theme ");
-      strcat (str,logpipe);
-      system(str);
-    }
-    
+    fclose(fp);
     chdir(homedir);
   }
 
@@ -603,7 +609,6 @@ main( int    argc,
       char **argv )
 {
 
-  
   if (argc > 1) {
     if (strcmp(argv[1],"install")==0) {
       return install_pack(argc,argv);
@@ -643,7 +648,7 @@ main( int    argc,
     gtk_table_attach( GTK_TABLE( table2 ), logo, 1, 2, 1, 2,
                       GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 5, 5 );
 
-    message = gtk_label_new("The Pirate Pack enhances\nyour digital freedom.\nLearn more at www.pirateparty.ca");
+    message = gtk_label_new("The Pirate Pack enhances your digital freedom.\nGet the latest version at www.piratelinux.org");
     gtk_label_set_justify(message,GTK_JUSTIFY_CENTER);
     gtk_widget_set_size_request(message,-1,80);
     gtk_misc_set_alignment(message,0.5,1);
