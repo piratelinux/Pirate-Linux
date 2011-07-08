@@ -1,3 +1,9 @@
+piratepack (1.1-2) unstable; urgency=low
+
+  * Fixed problem that occured on 32 bit machines
+
+ -- ak <akarmn@gmail.com> Wed, 6 Jul 2011 18:13:11 -0600
+
 piratepack (1.1-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>

@@ -93,7 +93,7 @@ cb_err_watch( GIOChannel   *channel,
       }
     }
     else if (strcmp(data->action,"reinstall")==0) {
-      if (g_strcmp0("Installation Complete\n",gtk_label_get_label(data->message)) == 0) {
+      if (g_strcmp0("Reinstallation Complete\n",gtk_label_get_label(data->message)) == 0) {
 
         gtk_container_remove(data->hbuttonbox,data->button);
 	gtk_container_remove(data->hbuttonbox,data->button_remove);
@@ -142,13 +142,13 @@ cb_execute( GtkButton *button,
     GPid        pid;
     gchar    *argv[3];
 
-    argv[0] = "./piratepack";
+    argv[0] = "/usr/bin/piratepack";
     if (strcmp(data->action,"install") == 0) {
       argv[1] = "install";
       gtk_widget_set_sensitive(data->button,FALSE);
     }
     else if (strcmp(data->action,"reinstall") == 0) {
-      argv[1] = "install";
+      argv[1] = "reinstall";
       gtk_widget_set_sensitive(data->button,FALSE);
       gtk_widget_set_sensitive(data->button_remove,FALSE);
     }
@@ -315,15 +315,15 @@ install_pack( int    argc,
 
   char *str = malloc(2*strlen(homedir)+strlen(curpath)+100);
 
+  strcpy (str,"echo \"[$(date)]\" ");
+  strcat (str,logpipe);
+  system(str);
+
   strcpy (str,"chmod u+r piratepack");
   strcat (str,logpipe);
   system(str);
 
   chdir("piratepack");
-
-  strcpy (str,"echo \"[$(date)]\" ");
-  strcat (str,logpipe);
-  system(str);
 
   char *installed = malloc(500);
 
@@ -354,7 +354,7 @@ install_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  chdir("tor");
+  chdir("tor-browser");
 
   strcpy (str,"cp -r ");
   strcat (str,"/usr/lib/piratepack");
@@ -452,6 +452,304 @@ install_pack( int    argc,
   }
 
   stderr_string = "Installation Complete";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+ 
+  return( 0 );
+}
+
+int
+reinstall_pack( int    argc,
+      char **argv )
+{
+
+  char *stderr_string;
+
+  //start setup
+
+  stderr_string = "Reinstalling";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  char *curpath = g_get_current_dir();
+  char *homedir = g_get_home_dir();
+
+  char *logpipe = malloc(2*strlen(homedir)+100);
+  
+  chdir(homedir);
+
+  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+    system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
+    chdir("piratepack");
+    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+      system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
+    }
+    chdir(homedir);
+  }
+
+  strcpy (logpipe,">> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_remove.log 2>> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_remove.log");
+
+  char *str = malloc(2*strlen(homedir)+strlen(curpath)+100);
+
+  strcpy (str,"echo \"[$(date)]\" ");
+  strcat (str,logpipe);
+  system(str);
+
+  if (g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+
+    strcpy (str,"chmod u+r piratepack ");
+    strcat (str,logpipe);
+    system(str);
+
+    chdir("piratepack");
+
+    char line[100];
+    FILE *fp;
+    fp = fopen("logs/.installed", "r");
+    if(!fp) return 1;
+
+    while(fgets(line,sizeof(line),fp) != NULL) {
+
+      int len = strlen(line)-1;
+      if(line[len] == '\n') 
+	line[len] = 0;
+
+      if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+
+	strcpy (str,"Removing ");
+        strcat (str,line);
+	sleep( 1 );
+	fprintf( stderr, "%s\n", str );
+	
+	strcpy (str,"chmod u+rx ");
+	strcat (str,line);
+	strcat (str," ");
+	strcat (str,logpipe);
+	system(str);
+
+	chdir(line);
+
+	strcpy (str,"chmod u+rx remove_");
+	strcat (str,line);
+	strcat (str,".sh ");
+        strcat (str,logpipe);
+        system(str);
+
+	strcpy (str,"./remove_");
+        strcat (str,line);
+	strcat (str,".sh ");
+        strcat (str,logpipe);
+        system(str);
+
+	chdir("../");
+
+	if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+	
+	  strcpy (str,"chmod u+rw ");
+	  strcat (str,line);
+	  strcat (str," ");
+	  strcat (str,logpipe);
+	  system(str);
+
+	  strcpy (str,"rm -rf ");
+	  strcat (str,line);
+	  strcat (str," ");
+	  strcat (str,logpipe);
+	  system(str);
+	}
+	
+      }
+
+    }
+    fclose(fp);
+    chdir(homedir);
+  }
+
+  //complete removal
+
+  chdir(homedir);
+
+  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+    system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
+    chdir("piratepack");
+    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+      system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
+    }
+    chdir(homedir);
+  }
+
+  strcpy (str,"touch piratepack/logs/.removed ");
+  strcat (str,logpipe);
+  system(str);
+
+  if (g_file_test("piratepack/logs/.installed",G_FILE_TEST_EXISTS)) {
+    strcpy (str,"chmod u+rw piratepack/logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm piratepack/logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  //Start Install
+
+  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+    system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
+    chdir("piratepack");
+    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+      system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
+    }
+    chdir(homedir);
+  }
+
+  strcpy (logpipe,">> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_install.log 2>> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_install.log");
+
+  strcpy (str,"echo \"[$(date)]\" ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+r piratepack");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("piratepack");
+
+  char *installed = malloc(500);
+
+  //install tor-browser
+
+  stderr_string = "Installing tor-browser";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("tor-browser",G_FILE_TEST_EXISTS)) {
+
+    strcpy (str,"chmod -R u+rw tor-browser ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf tor-browser ");
+    strcat (str,logpipe);
+    system(str);
+  }
+  
+  strcpy (str,"mkdir tor-browser ");
+  strcat (str,logpipe);
+  system(str);
+  
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/tor-browser/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("tor-browser");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/tor-browser/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_tor-browser.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_tor-browser.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  strcpy(installed,"tor-browser\n");
+
+  //install theme
+
+  stderr_string = "Installing theme";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("theme",G_FILE_TEST_EXISTS)) {
+
+    strcpy (str,"chmod -R u+rw theme ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf theme ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"mkdir theme ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/theme/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("theme");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/theme/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_theme.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_theme.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcat(installed,"theme\n");
+
+  //complete installation
+
+  chdir(homedir);
+
+  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+    system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
+    chdir("piratepack");
+    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+      system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
+    }
+    chdir(homedir);
+  }
+
+  strcpy (str,"touch piratepack/logs/.installed ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"echo \"");
+  strcat (str, installed);
+  strcat (str, "\" >> piratepack/logs/.installed 2>> piratepack/logs/piratepack_install.log");
+  system(str);
+
+  if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
+    strcpy (str,"chmod u+rw piratepack/logs/.removed ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm piratepack/logs/.removed ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  stderr_string = "Reinstallation Complete";
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
  
@@ -612,6 +910,9 @@ main( int    argc,
   if (argc > 1) {
     if (strcmp(argv[1],"install")==0) {
       return install_pack(argc,argv);
+    }
+    else if (strcmp(argv[1],"reinstall")==0) {
+      return reinstall_pack(argc,argv);
     }
     else if (strcmp(argv[1],"remove")==0) {
       return remove_pack(argc,argv);
