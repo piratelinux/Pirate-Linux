@@ -325,7 +325,19 @@ install_pack( int    argc,
 
   chdir("piratepack");
 
-  char *installed = malloc(500);
+  if (g_file_test("logs/.installed",G_FILE_TEST_EXISTS)) {
+    strcpy (str,"chmod -R u+rw logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"touch logs/.installed ");
+  strcat (str,logpipe);
+  system(str);
 
   //install tor-browser
 
@@ -372,7 +384,54 @@ install_pack( int    argc,
 
   chdir("../");
 
-  strcpy(installed,"tor-browser\n");
+  system("echo tor-browser >> logs/.installed 2>> logs/piratepack_install.log");
+
+  //install firefox-mods
+
+  stderr_string = "Installing firefox-mods";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("firefox-mods",G_FILE_TEST_EXISTS)) {
+
+    strcpy (str,"chmod -R u+rw firefox-mods ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf firefox-mods ");
+    strcat (str,logpipe);
+    system(str);
+  }
+  
+  strcpy (str,"mkdir firefox-mods ");
+  strcat (str,logpipe);
+  system(str);
+  
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/firefox-mods/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("firefox-mods");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/firefox-mods/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_firefox-mods.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_firefox-mods.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
 
   //install theme
 
@@ -417,7 +476,11 @@ install_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  strcat(installed,"theme\n");
+  chdir("../");
+
+  system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
+
+  system("echo >> logs/.installed 2>> logs/piratepack_install.log");
 
   //complete installation
 
@@ -431,15 +494,6 @@ install_pack( int    argc,
     }
     chdir(homedir);
   }
-
-  strcpy (str,"touch piratepack/logs/.installed ");
-  strcat (str,logpipe);
-  system(str);
-
-  strcpy (str,"echo \"");
-  strcat (str, installed);
-  strcat (str, "\" >> piratepack/logs/.installed 2>> piratepack/logs/piratepack_install.log");
-  system(str);
 
   if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
     strcpy (str,"chmod u+rw piratepack/logs/.removed ");
@@ -623,7 +677,19 @@ reinstall_pack( int    argc,
 
   chdir("piratepack");
 
-  char *installed = malloc(500);
+  if (g_file_test("logs/.installed",G_FILE_TEST_EXISTS)) {
+    strcpy (str,"chmod -R u+rw logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf logs/.installed ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"touch logs/.installed ");
+  strcat (str,logpipe);
+  system(str);
 
   //install tor-browser
 
@@ -670,7 +736,55 @@ reinstall_pack( int    argc,
 
   chdir("../");
 
-  strcpy(installed,"tor-browser\n");
+  system("echo tor-browser >> logs/.installed 2>> logs/piratepack_install.log");
+
+  //install firefox-mods
+
+  stderr_string = "Installing firefox-mods";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("firefox-mods",G_FILE_TEST_EXISTS)) {
+
+    strcpy (str,"chmod -R u+rw firefox-mods ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf firefox-mods ");
+    strcat (str,logpipe);
+    system(str);
+  }
+  
+  strcpy (str,"mkdir firefox-mods ");
+  strcat (str,logpipe);
+  system(str);
+  
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/firefox-mods/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("firefox-mods");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/firefox-mods/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_firefox-mods.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_firefox-mods.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
+  system("echo >> logs/.installed 2>> logs/piratepack_install.log");
 
   //install theme
 
@@ -715,7 +829,9 @@ reinstall_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  strcat(installed,"theme\n");
+  chdir("../");
+
+  system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
 
   //complete installation
 
@@ -729,15 +845,6 @@ reinstall_pack( int    argc,
     }
     chdir(homedir);
   }
-
-  strcpy (str,"touch piratepack/logs/.installed ");
-  strcat (str,logpipe);
-  system(str);
-
-  strcpy (str,"echo \"");
-  strcat (str, installed);
-  strcat (str, "\" >> piratepack/logs/.installed 2>> piratepack/logs/piratepack_install.log");
-  system(str);
 
   if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
     strcpy (str,"chmod u+rw piratepack/logs/.removed ");
@@ -989,11 +1096,9 @@ main( int    argc,
 			G_CALLBACK( cb_execute_install ), data );
       gtk_container_add(GTK_HBUTTON_BOX( hbuttonbox ),GTK_BUTTON( button ));
     }
-
     
     gtk_table_attach( GTK_TABLE( table1 ), GTK_HBUTTON_BOX( hbuttonbox ), 1, 2, 3, 4,
                       0, 0, 5, 5 );
-
 
     data->message = GTK_LABEL( message );
     data->progress = GTK_PROGRESS_BAR( progress );
