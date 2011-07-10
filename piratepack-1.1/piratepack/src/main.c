@@ -298,10 +298,10 @@ install_pack( int    argc,
   
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -345,7 +345,7 @@ install_pack( int    argc,
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("tor-browser",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("tor-browser",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw tor-browser ");
     strcat (str,logpipe);
@@ -392,7 +392,7 @@ install_pack( int    argc,
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("firefox-mods",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("firefox-mods",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw firefox-mods ");
     strcat (str,logpipe);
@@ -433,13 +433,107 @@ install_pack( int    argc,
 
   system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
 
+  //install file-manager
+
+  stderr_string = "Installing file-manager";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("file-manager",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw file-manager ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf file-manager ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"mkdir file-manager ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/file-manager/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("file-manager");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/file-manager/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_file-manager.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_file-manager.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo file-manager >> logs/.installed 2>> logs/piratepack_install.log");
+
+  //install ppcavpn
+
+  stderr_string = "Installing ppcavpn";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("ppcavpn",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw ppcavpn ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf ppcavpn ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"mkdir ppcavpn ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/ppcavpn/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("ppcavpn");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/ppcavpn/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_ppcavpn.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_ppcavpn.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
+
   //install theme
 
   stderr_string = "Installing theme";
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("theme",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("theme",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw theme ");
     strcat (str,logpipe);
@@ -486,7 +580,7 @@ install_pack( int    argc,
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
     if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
@@ -532,10 +626,10 @@ reinstall_pack( int    argc,
   
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -553,7 +647,7 @@ reinstall_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  if (g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod u+r piratepack ");
     strcat (str,logpipe);
@@ -572,7 +666,7 @@ reinstall_pack( int    argc,
       if(line[len] == '\n') 
 	line[len] = 0;
 
-      if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+      if (g_file_test(line,G_FILE_TEST_IS_DIR)) {
 
 	strcpy (str,"Removing ");
         strcat (str,line);
@@ -601,7 +695,7 @@ reinstall_pack( int    argc,
 
 	chdir("../");
 
-	if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+	if (g_file_test(line,G_FILE_TEST_IS_DIR)) {
 	
 	  strcpy (str,"chmod u+rw ");
 	  strcat (str,line);
@@ -627,10 +721,10 @@ reinstall_pack( int    argc,
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -652,10 +746,10 @@ reinstall_pack( int    argc,
 
   //Start Install
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -697,7 +791,7 @@ reinstall_pack( int    argc,
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("tor-browser",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("tor-browser",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw tor-browser ");
     strcat (str,logpipe);
@@ -744,7 +838,7 @@ reinstall_pack( int    argc,
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("firefox-mods",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("firefox-mods",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw firefox-mods ");
     strcat (str,logpipe);
@@ -784,7 +878,100 @@ reinstall_pack( int    argc,
   chdir("../");
 
   system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
-  system("echo >> logs/.installed 2>> logs/piratepack_install.log");
+
+  //install file-manager
+
+  stderr_string = "Installing file-manager";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("file-manager",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw file-manager ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf file-manager ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"mkdir file-manager ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/file-manager/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("file-manager");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/file-manager/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_file-manager.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_file-manager.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo file-manager >> logs/.installed 2>> logs/piratepack_install.log");
+
+  //install ppcavpn
+
+  stderr_string = "Installing ppcavpn";
+  sleep( 1 );
+  fprintf( stderr, "%s\n", stderr_string );
+
+  if (g_file_test("ppcavpn",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw ppcavpn ");
+    strcat (str,logpipe);
+    system(str);
+
+    strcpy (str,"rm -rf ppcavpn ");
+    strcat (str,logpipe);
+    system(str);
+  }
+
+  strcpy (str,"mkdir ppcavpn ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod -R u+r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/ppcavpn/* ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("ppcavpn");
+
+  strcpy (str,"cp -r ");
+  strcat (str,"/usr/lib/piratepack");
+  strcat (str,"/setup/ppcavpn/* . ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"chmod u+x install_ppcavpn.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  strcpy (str,"./install_ppcavpn.sh ");
+  strcat (str,logpipe);
+  system(str);
+
+  chdir("../");
+
+  system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
 
   //install theme
 
@@ -792,7 +979,7 @@ reinstall_pack( int    argc,
   sleep( 1 );
   fprintf( stderr, "%s\n", stderr_string );
 
-  if (g_file_test("theme",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("theme",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod -R u+rw theme ");
     strcat (str,logpipe);
@@ -833,14 +1020,16 @@ reinstall_pack( int    argc,
 
   system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
 
+  system("echo >> logs/.installed 2>> logs/piratepack_install.log");
+
   //complete installation
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -883,10 +1072,10 @@ remove_pack( int    argc,
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -904,7 +1093,7 @@ remove_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  if (g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
 
     strcpy (str,"chmod u+r piratepack ");
     strcat (str,logpipe);
@@ -923,7 +1112,7 @@ remove_pack( int    argc,
       if(line[len] == '\n') 
 	line[len] = 0;
 
-      if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+      if (g_file_test(line,G_FILE_TEST_IS_DIR)) {
 
 	strcpy (str,"Removing ");
         strcat (str,line);
@@ -952,7 +1141,7 @@ remove_pack( int    argc,
 
 	chdir("../");
 
-	if (g_file_test(line,G_FILE_TEST_EXISTS)) {
+	if (g_file_test(line,G_FILE_TEST_IS_DIR)) {
 	
 	  strcpy (str,"chmod u+rw ");
 	  strcat (str,line);
@@ -978,10 +1167,10 @@ remove_pack( int    argc,
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
@@ -1008,6 +1197,63 @@ remove_pack( int    argc,
   return( 0 );
 }
 
+int
+open_pirate_file( int    argc,
+	     char **argv )
+{
+
+  char *curpath = g_get_current_dir();
+  char *homedir = g_get_home_dir();
+
+  char *logpipe = malloc(2*strlen(homedir)+200);
+
+  chdir(homedir);
+
+  if (!g_file_test("piratepack/logs/.installed",G_FILE_TEST_EXISTS)) {
+    return ( 0 );
+  }
+
+  strcpy (logpipe,">> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_open.log 2>> ");
+  strcat (logpipe,homedir);
+  strcat (logpipe,"/piratepack/logs/piratepack_open.log");
+
+  chdir("piratepack");
+
+  char *file = argv[2];
+
+  char *str = malloc(2*strlen(homedir)+2*strlen(file)+200);
+
+  if (!g_file_test("tmp",G_FILE_TEST_IS_DIR)) {
+    strcpy(str,"mkdir tmp ");
+    strcat(str,logpipe);
+    system(str);
+  }
+
+  chdir(curpath);
+
+  strcpy(str,"cp ");
+  strcat(str,file);
+  strcat(str," ~/piratepack/tmp ");
+  strcat(str,logpipe);
+  system(str);
+
+  chdir(homedir);
+  chdir("piratepack/tmp");
+  
+  strcpy(str,"chmod u+rx ../file-manager/install_file.sh ");
+  strcat(str,logpipe);
+  system(str);
+
+  strcpy(str,"../file-manager/install_file.sh $(find *.pirate) ");
+  strcat(str,logpipe);
+  system(str);
+
+  return( 0 );
+
+}
+
  
 int
 main( int    argc,
@@ -1023,6 +1269,9 @@ main( int    argc,
     }
     else if (strcmp(argv[1],"remove")==0) {
       return remove_pack(argc,argv);
+    }
+    else if (strcmp(argv[1],"--pirate")==0) {
+      return open_pirate_file(argc,argv);
     }
   }
 
