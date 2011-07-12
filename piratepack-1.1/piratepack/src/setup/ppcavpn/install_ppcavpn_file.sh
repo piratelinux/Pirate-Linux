@@ -1,13 +1,12 @@
 #!/bin/bash
 
-chmod u+r ppcavpn.tar.gz
-
 if [ -d ppcavpn  ]
 then
     chmod u+rx remove_ppcavpn_file.sh
     ./remove_ppcavpn_file.sh
 fi
 
+chmod u+r ppcavpn.tar.gz
 tar -xzf ppcavpn.tar.gz
 cd ppcavpn
 

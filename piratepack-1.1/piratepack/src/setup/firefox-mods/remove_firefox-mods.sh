@@ -4,7 +4,7 @@ do
     if [ -e $line ]
     then 
 	chmod -R u+rw $line
-	rm -r $line
+	rm -rf $line
     fi
 done <.installed 
 chmod -R u+rw *

@@ -18,29 +18,66 @@ unzip firefox@ghostery.com.xpi -d firefox@ghostery.com
 #wget http://www.piratelinux.org/repo/john@velvetcache.org.json
 
 cd
-cd .mozilla/firefox/*.default
-if [ ! -d extensions ]
- then mkdir extensions
+
+fullversion=$(firefox -version)
+
+version="4"
+if [[ $fullversion == *"Mozilla Firefox 3"* ]]
+then
+    version="3"
 fi
-chmod u+rw extensions
-cd extensions
-extdir=$(pwd)
-mkdir staged
-chmod u+rw staged
-cd $curdir
-find *.xpi | while read line; do
-    if [ ! -e $extdir/$line ]
+
+if [ -d .mozilla/firefox/*.default ]
+then 
+    cd .mozilla/firefox/*.default
+    if [ ! -d extensions ]
     then
-        linelen=${#line}
-        linelensub=$(($linelen - 4))
-	if [ -d ${line:0:$linelensub} ]
-	then
-	    cp -r ${line:0:$linelensub} $extdir/staged
-	    echo $extdir/${line:0:$linelensub} >> .installed
-	else
-	    cp $line $extdir/staged
-	    echo $extdir/$line >> .installed
-	fi
-	cp ${line:0:$linelensub}.json $extdir/staged
+	mkdir extensions
     fi
-done
+    chmod u+rw extensions
+    cd extensions
+    extdir=$(pwd)
+    if [[ $version != "3" ]] 
+    then
+	mkdir staged
+	chmod u+rwx staged
+    fi
+    cd $curdir
+    find *.xpi | while read line; do
+	linelen=${#line}
+        linelensub=$(($linelen - 4))
+	if [ ! -f $extdir/$line ] && [ ! -d $extdir/${line:0:$linelensub} ]
+	then
+	    if [ -d ${line:0:$linelensub} ]
+	    then
+		if [[ $version == "3" ]]
+		then
+		    mkdir $extdir/${line:0:$linelensub}
+		    chmod u+rwx $extdir/${line:0:$linelensub}
+		    cp -r $line $extdir/${line:0:$linelensub}
+		    echo $extdir/${line:0:$linelensub} >> .installed
+		else
+		    cp -r ${line:0:$linelensub} $extdir/staged
+                    echo $extdir/${line:0:$linelensub} >> .installed
+		fi
+	    else
+		if [[ $version == "3" ]]
+                then
+		    mkdir $extdir/${line:0:$linelensub}
+                    chmod u+rwx $extdir/${line:0:$linelensub}
+                    cp -r $line $extdir/${line:0:$linelensub}
+		    chmod u+r $extdir/${line:0:$linelensub}/$line
+		    unzip $extdir/${line:0:$linelensub}/$line
+		    echo $extdir/${line:0:$linelensub} >> .installed
+                else
+		    cp $line $extdir/staged
+		    echo $extdir/$line >> .installed
+		fi
+	    fi
+	    if [[ $version != "3" ]]
+	    then
+		cp ${line:0:$linelensub}.json $extdir/staged
+	    fi
+	fi
+    done
+fi

@@ -325,7 +325,7 @@ install_pack( int    argc,
 
   chdir("piratepack");
 
-  if (g_file_test("logs/.installed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("logs/.installed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod -R u+rw logs/.installed ");
     strcat (str,logpipe);
     system(str);
@@ -583,13 +583,13 @@ install_pack( int    argc,
   if (!g_file_test("piratepack",G_FILE_TEST_IS_DIR)) {
     system("mkdir piratepack >> .piratepack.temp 2>> .piratepack.temp");
     chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_EXISTS)) {
+    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
       system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
     }
     chdir(homedir);
   }
 
-  if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw piratepack/logs/.removed ");
     strcat (str,logpipe);
     system(str);
@@ -734,7 +734,7 @@ reinstall_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  if (g_file_test("piratepack/logs/.installed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw piratepack/logs/.installed ");
     strcat (str,logpipe);
     system(str);
@@ -771,7 +771,7 @@ reinstall_pack( int    argc,
 
   chdir("piratepack");
 
-  if (g_file_test("logs/.installed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("logs/.installed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod -R u+rw logs/.installed ");
     strcat (str,logpipe);
     system(str);
@@ -1035,7 +1035,7 @@ reinstall_pack( int    argc,
     chdir(homedir);
   }
 
-  if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw piratepack/logs/.removed ");
     strcat (str,logpipe);
     system(str);
@@ -1180,7 +1180,7 @@ remove_pack( int    argc,
   strcat (str,logpipe);
   system(str);
 
-  if (g_file_test("piratepack/logs/.installed",G_FILE_TEST_EXISTS)) {
+  if (g_file_test("piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw piratepack/logs/.installed ");
     strcat (str,logpipe);
     system(str);
@@ -1209,7 +1209,7 @@ open_pirate_file( int    argc,
 
   chdir(homedir);
 
-  if (!g_file_test("piratepack/logs/.installed",G_FILE_TEST_EXISTS)) {
+  if (!g_file_test("piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
     return ( 0 );
   }
 
@@ -1225,8 +1225,16 @@ open_pirate_file( int    argc,
 
   char *str = malloc(2*strlen(homedir)+2*strlen(file)+200);
 
+  strcpy (str,"echo \"[$(date)]\" ");
+  strcat (str,logpipe);
+  system(str);
+
   if (!g_file_test("tmp",G_FILE_TEST_IS_DIR)) {
     strcpy(str,"mkdir tmp ");
+    strcat(str,logpipe);
+    system(str);
+
+    strcpy(str,"chmod u+rwx tmp ");
     strcat(str,logpipe);
     system(str);
   }
@@ -1325,7 +1333,7 @@ main( int    argc,
 
     hbuttonbox = gtk_hbutton_box_new();
    
-    if (g_file_test(str,G_FILE_TEST_EXISTS)) {
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
       button = gtk_button_new_with_label( "Reinstall" );
       gtk_widget_set_size_request(button,120,-1);
       g_signal_connect( G_OBJECT( button ), "clicked",
