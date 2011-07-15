@@ -10,6 +10,6 @@ Homepage: http://www.pirateparty.ca
 
 Package: piratepack
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0-dev, amule
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0-dev, seahorse-plugins, network-manager-openvpn, pidgin-otr, amule
 Description: Pirate Pack
  Enhances your digital freedom.

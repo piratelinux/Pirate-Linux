@@ -19,27 +19,33 @@ unzip firefox@ghostery.com.xpi -d firefox@ghostery.com
 
 cd
 
-fullversion=$(firefox -version)
-
-version="4"
-if [[ $fullversion == *"Mozilla Firefox 3"* ]]
-then
-    version="3"
-fi
-
 if [ -d .mozilla/firefox/*.default ]
 then 
     cd .mozilla/firefox/*.default
+
+    version=4
+    while read line    
+    do    
+	if [[ "$line" == *"Version=3"* ]]
+	then 
+	    version=3
+	    break
+	fi
+    done <compatibility.ini 
+
     if [ ! -d extensions ]
     then
 	mkdir extensions
     fi
-    chmod u+rw extensions
+    chmod u+rwx extensions
     cd extensions
     extdir=$(pwd)
     if [[ $version != "3" ]] 
     then
-	mkdir staged
+	if [ ! -d staged ]
+	then
+	    mkdir staged
+	fi
 	chmod u+rwx staged
     fi
     cd $curdir
@@ -48,35 +54,35 @@ then
         linelensub=$(($linelen - 4))
 	if [ ! -f $extdir/$line ] && [ ! -d $extdir/${line:0:$linelensub} ]
 	then
-	    if [ -d ${line:0:$linelensub} ]
+	    if [ ! -f $extdir/staged/${line:0:$linelensub}.* ] && [ ! -d $extdir/staged/${line:0:$linelensub} ] 
 	    then
-		if [[ $version == "3" ]]
+		if [ -d ${line:0:$linelensub} ]
 		then
-		    mkdir $extdir/${line:0:$linelensub}
-		    chmod u+rwx $extdir/${line:0:$linelensub}
-		    cp -r $line $extdir/${line:0:$linelensub}
-		    echo $extdir/${line:0:$linelensub} >> .installed
+		    if [[ $version == "3" ]]
+		    then
+			chmod u+r $line
+			unzip $line -d $extdir/${line:0:$linelensub}
+			echo $extdir/${line:0:$linelensub} >> .installed
+		    else
+			chmod u+r $line
+			unzip $line -d $extdir/staged/${line:0:$linelensub}
+			echo $extdir/${line:0:$linelensub} >> .installed
+		    fi
 		else
-		    cp -r ${line:0:$linelensub} $extdir/staged
-                    echo $extdir/${line:0:$linelensub} >> .installed
+		    if [[ $version == "3" ]]
+                    then
+			chmod u+r $line
+			unzip $line -d $extdir/${line:0:$linelensub}
+			echo $extdir/${line:0:$linelensub} >> .installed
+                    else
+			cp $line $extdir/staged
+			echo $extdir/$line >> .installed
+		    fi
 		fi
-	    else
-		if [[ $version == "3" ]]
-                then
-		    mkdir $extdir/${line:0:$linelensub}
-                    chmod u+rwx $extdir/${line:0:$linelensub}
-                    cp -r $line $extdir/${line:0:$linelensub}
-		    chmod u+r $extdir/${line:0:$linelensub}/$line
-		    unzip $extdir/${line:0:$linelensub}/$line
-		    echo $extdir/${line:0:$linelensub} >> .installed
-                else
-		    cp $line $extdir/staged
-		    echo $extdir/$line >> .installed
+		if [[ $version != "3" ]]
+		then
+		    cp ${line:0:$linelensub}.json $extdir/staged
 		fi
-	    fi
-	    if [[ $version != "3" ]]
-	    then
-		cp ${line:0:$linelensub}.json $extdir/staged
 	    fi
 	fi
     done
