@@ -1,0 +1,13 @@
+Source: piratepack
+Section: admin
+Priority: optional
+Maintainer: Andrew K <akarmn@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://www.piratelinux.org
+
+Package: piratepack
+Architecture: all
+Depends: ${misc:Depends}, libgtk2.0-dev, libqt4-dev, libevent-dev, libssl-dev, cmake, seahorse-plugins, network-manager-openvpn, pidgin-otr, amule, firefox
+Description: Pirate Pack
+ Enhances your digital freedom.

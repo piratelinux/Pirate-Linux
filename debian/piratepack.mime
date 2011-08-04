@@ -1,0 +1,1 @@
+application/x-pirate; piratepack %s; description="Pirate Pack"; test=test -n "$DISPLAY"
