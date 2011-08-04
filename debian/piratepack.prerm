@@ -19,14 +19,9 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-	chmod -R u+rw /usr/lib/piratepack
-	rm -rf /usr/lib/piratepack
-	chmod u+rw /usr/bin/piratepack
-	rm /usr/bin/piratepack
-	chmod u+rw /usr/share/pixmaps/piratepack.xpm
-	rm /usr/share/pixmaps/piratepack.xpm
-	chmod u+rw /usr/share/applications/piratepack.desktop
-	rm /usr/share/applications/piratepack.desktop
+	cd /usr/lib/piratepack
+	chmod u+x remove_piratepack.sh
+	./remove_piratepack.sh
     ;;
 
     failed-upgrade)

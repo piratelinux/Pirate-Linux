@@ -20,20 +20,13 @@ set -e
 
 case "$1" in
     configure)
-	cd /usr/lib
-	chmod -R a+r piratepack
-	cd piratepack
-	tar -xzf piratepack.tar.gz
-	chmod -R u+r piratepack
-	cd piratepack
-	mv src/graphics /usr/lib/piratepack
-	mv src/setup /usr/lib/piratepack
-	./configure
-	make
-	cp src/piratepack /usr/bin
-	cd ..
-	chmod -R u+rw piratepack
-	rm -rf piratepack
+	cd /usr/lib/piratepack
+	chmod a-x install_piratepack.sh
+        chmod a-x remove_piratepack.sh
+	chmod u+x install_piratepack.sh
+	./install_piratepack.sh
+	chmod a-x install_piratepack.sh
+	chmod a-x remove_piratepack.sh
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
