@@ -117,6 +117,8 @@ then
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    else
 			unzip "$line" -d "$extdir"/staged/"${line:0:$linelensub}"
+			echo "$extdir"/"$line" >> "$localdir"/.installed
+                        echo "$extdir"/staged/"$line" >> "$localdir"/.installed
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
 			echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    fi
@@ -129,6 +131,8 @@ then
 			cp "$line" "$extdir"/staged
 			echo "$extdir"/"$line" >> "$localdir"/.installed
 			echo "$extdir"/staged/"$line" >> "$localdir"/.installed
+			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
+			echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    fi
 		fi
 		if [[ "$version" != "3" ]]
@@ -196,6 +200,14 @@ then
 fi
 
 cp -r "$curdir/.polipo" ~/
+
+cd "$curdir"
+cp purple.tar.gz "$localdir"
+cd "$localdir"
+tar -xzf purple.tar.gz
+rm purple.tar.gz
+
+cd
 
 if [ ! -d .local ]
  then mkdir .local

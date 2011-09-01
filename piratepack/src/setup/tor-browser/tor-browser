@@ -1,0 +1,29 @@
+#!/bin/bash
+
+cd
+HOME="$(pwd)"
+
+if [[ $(pidof polipo) == "" ]]
+then
+    polipo &
+fi
+
+if [[ $(pidof vidalia) == "" ]]
+then
+    vidalia &
+fi
+
+pid=""
+
+if [ -e "$HOME"/.piratepack/tor-browser/.purple ]
+then
+    pidgin --config="$HOME"/.piratepack/tor-browser/.purple &
+    pid=$!
+fi
+
+firefox -P tor -no-remote
+
+if [[ "$pid" != "" ]]
+then
+    kill $pid
+fi

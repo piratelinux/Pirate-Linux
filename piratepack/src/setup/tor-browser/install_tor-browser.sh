@@ -57,8 +57,6 @@ then
     ln -s "$maindir"/tor-browser/vidalia/vidalia "$maindir"/bin/vidalia
 fi
 
-cp "firefox-tor" "$maindir"/bin/
-
 echo "socksParentProxy = localhost:9050" > .polipo
 echo "diskCacheRoot=\"\"" >> .polipo
 echo "disableLocalInterface=true" >> .polipo
@@ -66,17 +64,13 @@ echo "disableLocalInterface=true" >> .polipo
 cp ".polipo" "$maindir/share/tor-browser/"
 
 echo "[General]" > .vidalia/vidalia.conf
-echo "BrowserExecutable=$maindir/bin/firefox-tor" >> .vidalia/vidalia.conf
 echo "LanguageCode=en" >> .vidalia/vidalia.conf
+echo 'InterfaceStyle=GTK+' >> .vidalia/vidalia.conf
+echo 'ShowMainWindowAtStart=false' >> .vidalia/vidalia.conf
 
 cp -r ".vidalia" "$maindir/share/tor-browser/"
 
-echo "#!/bin/bash" > "$maindir/bin/tor-browser"
-echo "export PATH=\"$maindir/bin\":\"$PATH\"" >> "$maindir/bin/tor-browser"
-echo "$maindir/bin/polipo &" >> "$maindir/bin/tor-browser"
-echo "$maindir/bin/vidalia" >> "$maindir/bin/tor-browser"
-echo "kill \"\$(pidof polipo)\"" >> "$maindir/bin/tor-browser"
-
+cp tor-browser "$maindir/bin"
 chmod a+x "$maindir/bin/tor-browser"
 
 cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .

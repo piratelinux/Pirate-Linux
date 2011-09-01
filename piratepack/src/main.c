@@ -1,7 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <gtk/gtk.h>
+
+//FIX SIZEOF PROBLEM
 
 typedef struct _Data Data;
 struct _Data
@@ -54,18 +60,13 @@ gchar* substring(const gchar* str, size_t begin, size_t len)
 gchar* exec(gchar* cmd, gint size) {
   FILE* pipe = popen(cmd, "r");
   if (!pipe) return "ERROR";
-  gchar buffer[128];
   gchar * result = g_malloc(size);
   strcpy(result,"");
-  while(!feof(pipe)) {
-    if(fgets(buffer, 128, pipe) != 0) {
-      if ((strlen(result)+strlen(buffer))<size){
-	strcat(result,buffer);
-      }
-      else {
-	break;
-      }
-    }
+  gchar * ret = fgets(result,size,pipe);
+  while(ret != 0) {
+    size = size*2;
+    result = g_realloc(result,size);
+    ret = fgets(result,size,pipe);
   }
   pclose(pipe);
   return result;
@@ -103,6 +104,82 @@ gchar * get_dirname(gchar * path) {
   index = index - 1;
   len = len - 1;
   return substring(path,0,len);
+
+}
+
+gint getargi(gchar * target, int argc, char ** argv) {
+  int i = 1;
+  while (i < argc) {
+    if (strcmp(target,argv[i]) == 0) {
+      return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
+int numDigits(int num)
+{
+  int dig = 0;
+  if (num < 0) dig = 1; // remove this line if '-' counts as a digit
+  while (num) {
+    num /= 10;
+    dig++;
+  }
+  return dig;
+}
+
+static void
+release_locks(gchar * str, gchar * pid_str, gchar * homedir) {
+
+  strcpy(str,homedir);
+  strcat(str,"/.piratepack/.lock-");
+  strcat(str,pid_str);
+  remove(str);
+
+  strcpy(str,homedir);
+  strcat(str,"/.piratepack/.lock");
+  FILE * f = fopen (str , "r");
+
+  if (f == 0) {
+
+    fprintf(stderr,"Error opening file");
+
+  }
+
+  else {
+
+    gint size = 20;
+    gchar * line = g_malloc(20);
+    strcpy(line,"");
+
+    while (!feof(f)) {
+
+      if(fgets(line, size, f) != 0) {
+
+	gchar * endchar = line + strlen(line) - 1;
+	
+	if (*endchar == '\n') {
+
+	  *endchar = '\0';
+	  break;
+
+	}
+	
+      }
+
+    }
+    
+    if (strcmp(line,pid_str) == 0) {
+
+      remove(str);
+
+    }
+
+    g_free(line);
+    fclose(f);
+
+  }
 
 }
  
@@ -167,6 +244,7 @@ cb_err_watch( GIOChannel   *channel,
 	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+	g_free(data->action);
       }
     }
     else if (strcmp(data->action,"update")==0) {
@@ -175,6 +253,7 @@ cb_err_watch( GIOChannel   *channel,
 	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+	g_free(data->action);
       }
     }
     else if (strcmp(data->action,"remove")==0) {
@@ -188,6 +267,7 @@ cb_err_watch( GIOChannel   *channel,
 	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+	g_free(data->action);
       }
     }
     else if (strcmp(data->action,"install_pirate_file")==0) {
@@ -202,6 +282,7 @@ cb_err_watch( GIOChannel   *channel,
 	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+	g_free(data->action);
       }
     }
     return( TRUE );
@@ -223,57 +304,65 @@ cb_execute( GtkButton *button,
 
     GPid        pid;
     gchar    **argv;
+    gint argc = -1;
 
     if (strcmp(data->action,"install") == 0) {
+      argc = 3;
       argv = malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
-      argv[1] = "--install";
-      argv[2] = "--async";
+      argv[1] = strdup("--install");
+      argv[2] = strdup("--async");
       argv[3] = 0;
       gtk_widget_set_sensitive((GtkWidget *)data->button_enable,FALSE);
     }
     else if (strcmp(data->action,"reinstall") == 0) {
+      argc = 3;
       argv = malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
-      argv[1] = "--reinstall";
-      argv[2] = "--async";
-      argv[3]= 0;
+      argv[1] = strdup("--reinstall");
+      argv[2] = strdup("--async");
+      argv[3] = 0;
     }
     else if (strcmp(data->action,"update") == 0) {
+      argc = 3;
       argv = malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
-      argv[1] = "--update";
-      argv[2] = "--async";
-      argv[3]= 0;
+      argv[1] = strdup("--update");
+      argv[2] = strdup("--async");
+      argv[3] = 0;
       gtk_widget_set_sensitive((GtkWidget *)data->button_disable,FALSE);
     }
     else if (strcmp(data->action,"remove") == 0) {
+      argc = 3;
       argv = malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
-      argv[1] = "--remove";
-      argv[2] = "--async";
+      argv[1] = strdup( "--remove");
+      argv[2] = strdup("--async");
       argv[3] = 0;
       gtk_widget_set_sensitive((GtkWidget *)data->button_disable,FALSE);
     }
     else if (strcmp(data->action,"install_pirate_file") == 0) {
+      argc = 6;
       argv = malloc(sizeof(gchar*) * 7);
       argv[0] = strdup(data->processpath);
-      argv[1] = "--install-pirate-file";
+      argv[1] = strdup("--install-pirate-file");
       argv[2] = strdup(data->curpath);
       argv[3] = strdup(data->file);
       argv[4] = strdup(data->targetname);
-      argv[5] = "--async";
+      argv[5] = strdup("--async");
       argv[6] = 0;
       gtk_widget_set_sensitive((GtkWidget *)data->button_yes,FALSE);
       gtk_widget_set_sensitive((GtkWidget *)data->button_no,FALSE);
     }
     else if (strcmp(data->action,"start_version") == 0) {
-      argv = malloc(sizeof(gchar*) * data->argc);
+      argc = data->argc;
+      argv = malloc(sizeof(gchar*) * (data->argc + 1));
       argv[0] = strdup(data->versionpath);
       int i;
       for (i=1; i < (data->argc); i++) {
 	argv[i] = strdup((data->argv)[i]);
       }
+      argv[(data->argc - 1)] = 0;
     }
 
     gint in, out, err;
@@ -309,6 +398,21 @@ cb_execute( GtkButton *button,
     /* Install timeout function that will move the progress bar */
     data->timeout_id = g_timeout_add( 100, (GSourceFunc)cb_timeout, data );
 
+    int pid_len = numDigits(pid);
+    gchar * pid_str = g_malloc(pid_len+1);
+    sprintf(pid_str,"%d",pid);
+    gchar * str = g_malloc(strlen(data->homedir)+100);
+    strcpy(str,data->homedir);
+    strcat(str,"/.piratepack/.lock-");
+    strcat(str,pid_str);
+    FILE * f;
+    f = fopen (str,"w");
+    if (f != 0) {
+      fclose(f);
+    }
+    g_free(str);
+    g_free(pid_str);
+
     gsize * bytes_written = 0;
     GError * error = 0;
     g_io_channel_write_chars(in_ch, "ready\n", -1, bytes_written, &error);
@@ -317,7 +421,12 @@ cb_execute( GtkButton *button,
     g_free(bytes_written);
     g_free(error);
     g_io_channel_unref(in_ch);
-    free(argv);
+    int i=0;
+    while (i < argc) {
+      g_free(argv[i]);
+      i++;
+    }
+    g_free(argv);
 }
 
 static void cb_execute_install( GtkButton *button,
@@ -381,16 +490,6 @@ install_pack(int argc, char **argv, Data * data)
 
   int ret;
 
-  if (argc >= 3) {
-    if (strcmp(argv[2],"--async") == 0) {
-      gchar * strin = g_malloc(100);
-      while ((strin == 0) || (strcmp(strin,"ready") != 0)) {
-	ret = scanf("%s",strin);
-      }
-      g_free(strin);
-    }
-  }
-
   gchar * processpath = data->processpath;
   gchar * basedir = data->basedir;
   gchar * maindir = data->maindir;
@@ -408,13 +507,16 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
@@ -627,13 +729,16 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir("piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   if (g_file_test(".piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw .piratepack/logs/.removed ");
@@ -672,16 +777,6 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   int ret;
 
-  if (argc >= 3) {
-    if (strcmp(argv[2],"--async") == 0) {
-      gchar * strin = g_malloc(100);
-      while ((strin == 0) || (strcmp(strin,"ready") != 0)) {
-	ret = scanf("%s",strin);
-      }
-      g_free(strin);
-    }
-  }
-
   gchar * processpath=data->processpath;
   gchar * basedir=data->basedir;
   gchar * maindir=data->maindir;
@@ -700,13 +795,16 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
@@ -730,7 +828,7 @@ reinstall_pack(int argc, char **argv, Data * data)
     fp = fopen("logs/.installed", "r");
     if(!fp) return 1;
 
-    while((!feof(fp)) && (fgets(line,sizeof(line),fp) != 0)) {
+    while((!feof(fp)) && (fgets(line,200,fp) != 0)) {
 
       gint len = strlen(line)-1;
       if(line[len] == '\n') 
@@ -789,13 +887,16 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (str,"touch .piratepack/logs/.removed ");
   strcat (str,logpipe);
@@ -813,14 +914,19 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   //Start Install
 
+  ret = chdir(homedir);
+
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
@@ -1033,13 +1139,16 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   if (g_file_test(".piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
     strcpy (str,"chmod u+rw .piratepack/logs/.removed ");
@@ -1060,7 +1169,6 @@ reinstall_pack(int argc, char **argv, Data * data)
     strcat (str,logpipe);
     ret = system(str);
   }
-
 
   strcpy(str,"Updated");
   fprintf( stderr, "%s\n", str );
@@ -1084,16 +1192,6 @@ int remove_pack(int argc, char **argv, Data * data) {
 
   int ret;
 
-  if (argc >= 3) {
-    if (strcmp(argv[2],"--async") == 0) {
-      gchar * strin = g_malloc(100);
-      while ((strin == 0) || (strcmp(strin,"ready") != 0)) {
-	ret = scanf("%s",strin);
-      }
-      g_free(strin);
-    }
-  }
-  
   gchar * basedir=data->basedir;
   gchar * maindir=data->maindir;
 
@@ -1111,13 +1209,16 @@ int remove_pack(int argc, char **argv, Data * data) {
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
@@ -1141,7 +1242,7 @@ int remove_pack(int argc, char **argv, Data * data) {
     fp = fopen("logs/.installed", "r");
     if(!fp) return 1;
 
-    while( (!feof(fp)) && (fgets(line,sizeof(line),fp) != 0) ) {
+    while( (!feof(fp)) && (fgets(line,200,fp) != 0) ) {
 
       gint len = strlen(line)-1;
       if(line[len] == '\n') 
@@ -1198,15 +1299,18 @@ int remove_pack(int argc, char **argv, Data * data) {
   //complete removal
   
   ret = chdir(homedir);
-  
+
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
-    ret = system("mkdir .piratepack >> .piratepack.temp 2>> .piratepack.temp");
-    ret = chdir(".piratepack");
-    if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
-      ret = system("mkdir logs >> .piratepack.temp 2>> .piratepack.temp");
-    }
-    ret = chdir(homedir);
+    ret = system("mkdir .piratepack >> /dev/null 2>> /dev/null");
   }
+
+  ret = chdir(".piratepack");
+
+  if (!g_file_test("logs",G_FILE_TEST_IS_DIR)) {
+    ret = system("mkdir logs >> /dev/null 2>> /dev/null");
+  }
+
+  ret = chdir(homedir);
 
   strcpy (str,"touch .piratepack/logs/.removed ");
   strcat (str,logpipe);
@@ -1434,16 +1538,6 @@ int install_pirate_file(int argc, char **argv, Data * data) {
 
   int ret;
 
-  if (argc >= 6) {
-    if (strcmp(argv[5],"--async") == 0) {
-      gchar * strin = g_malloc(100);
-      while ((strin == 0) || (strcmp(strin,"ready") != 0)) {
-	ret = scanf("%s",strin);
-      }
-      g_free(strin);
-    }
-  }
-  
   gchar * maindir = data->maindir;
 
   gchar *callingdir = argv[2];
@@ -1639,12 +1733,12 @@ int gui_status(int argc, char ** argv, Data * data) {
 int
 main( int argc, char ** argv ) {
 
-
   int ret;
   gchar * curpath = g_get_current_dir();
 
   gchar * procpath = g_malloc(32);
-  sprintf(procpath, "/proc/%d/exe", getpid());
+  gint pid = getpid();
+  sprintf(procpath, "/proc/%d/exe", pid);
 
   gchar * processpath = (gchar *) get_readlink(procpath);
 
@@ -1670,6 +1764,30 @@ main( int argc, char ** argv ) {
   
   gchar * str = g_malloc(strlen(homedir)+strlen(processpath)+300);
 
+  ret = system("kill $(pidof tor) >> /dev/null 2>> /dev/null");
+
+  gchar * pids = exec("pidof vidalia",100);
+  gchar * rest;
+  gchar * tok;
+  gchar * ptr = pids;
+  gchar match = 0;
+
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+
+    ret = system("polipo &");
+    ret = system("vidalia &");
+    
+  }
+  g_free(pids);
+
+  if (getargi("--async",argc,argv) != -1) {
+    gchar * strin = g_malloc(100);
+    while ((strin == 0) || (strcmp(strin,"ready") != 0)) {
+      ret = scanf("%s",strin);
+    }
+    g_free(strin);
+  }
+
   strcpy(str,maindir);
   strcat(str,"/.lock");
  
@@ -1681,6 +1799,196 @@ main( int argc, char ** argv ) {
     g_free(curpath);
     g_free(str);
     return(0);
+  }
+
+  int pid_len = numDigits(pid);
+
+  gchar * pid_str = g_malloc(pid_len+1);
+  sprintf(pid_str,"%d",pid);
+
+  gchar locked = 1;
+
+  strcpy(str,homedir);
+  strcat(str,"/.piratepack");
+
+  if (!g_file_test(str,G_FILE_TEST_IS_DIR)) {
+
+    if (g_file_test(str,G_FILE_TEST_EXISTS)) {
+      
+      remove(str);
+
+    }
+    
+    ret = mkdir(str, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  }
+
+  strcat(str,"/.lock");
+  int pfd = open(str, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+  if (pfd == -1) {
+
+    strcat(str,"-");
+    strcat(str,pid_str);
+
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+
+      locked = 0;
+
+    }
+
+    else {
+
+      strcpy(str,homedir);
+      strcat(str,"/.piratepack/.lock");
+      struct stat st;
+      ret = stat (str, &st);
+      time_t locktime = st.st_mtime;
+      time_t curtime = time(0);
+
+      //check time of file and make sure its more than a second before current time
+      if ((curtime - locktime) < 1) {
+	sleep(1);
+      }
+
+      FILE * f = fopen (str , "r");
+      gint size = 20;
+      gchar * line = g_malloc(20);
+      strcpy(line,"");
+      
+      if (f == 0) {
+
+	fprintf(stderr,"Error opening file\n");
+
+      }
+
+      else {
+
+	while (!feof(f)) {
+
+	  if(fgets(line, size, f) != 0) {
+
+	    gchar * endchar = line + strlen(line) - 1;
+
+	    if (*endchar == '\n') {
+
+	      *endchar = '\0';
+	      break;
+
+	    }
+
+	  }
+
+	}
+
+	fclose(f);
+
+      }
+
+      pids = exec("pidof piratepack",100);
+      ptr = pids;
+      match = 0;
+
+      while(tok = strtok_r(ptr, " \n", &rest)) {
+
+	if (strcmp(tok,line) == 0) {
+
+	  match = 1;
+	  break;
+
+	}
+
+	ptr = rest;
+
+      }
+
+      g_free(pids);
+      g_free(line);
+
+      if (match == 0) {
+
+	ret = stat (str, &st);
+	time_t locktime2 = st.st_mtime;
+	
+	if (locktime2 == locktime) {
+
+	  gchar * cmd = g_malloc(strlen(str)+50);
+	  strcpy(cmd,"rm -f ");
+	  strcat(cmd,str);
+	  strcat(cmd,"* >> /dev/null 2>> /dev/null");
+	  ret = system(cmd);
+	  g_free(cmd);
+	  int pfd = open(str, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+	  if (pfd != -1) {
+
+	    locked = 0;
+	    FILE * f = fopen(str,"w");
+
+	    if (f != 0) {
+
+	      fputs(pid_str,f);
+	      fputs("\n",f);
+	      fclose (f);
+
+	    }
+
+	    strcat(str,"-");
+	    strcat(str,pid_str);
+	    f = fopen(str,"w");
+
+	    if (f != 0) {
+
+	      fclose (f);
+
+	    }
+
+	  }
+
+	}
+
+      }
+
+    }
+
+  }                                                       
+
+  else {
+
+    locked = 0;
+    FILE * f = fopen(str,"w");
+
+    if (f != 0) {
+
+      fputs(pid_str,f);
+      fputs("\n",f);
+      fclose (f);
+
+    }
+
+    strcat(str,"-");
+    strcat(str,pid_str);
+    f = fopen(str,"w");
+
+    if (f != 0) {
+
+      fclose (f);
+
+    }
+
+  }
+
+  if (locked == 1) {
+
+    printf("locked\n");
+    g_free(processpath);
+    g_free(processpathdir);
+    g_free(basedir);
+    g_free(maindir);
+    g_free(curpath);
+    g_free(str);
+    return(0);
+
   }
 
   strcpy (str,homedir);
@@ -1713,8 +2021,9 @@ main( int argc, char ** argv ) {
     }
 
     //check what version was installed for the user
-    int size = 100;
-    gchar * versionpath = g_malloc(size+strlen(basedir)+10);
+    gint size = 100;
+    int vpsize = size+strlen(basedir)+10;
+    gchar * versionpath = g_malloc(vpsize);
     strcpy(versionpath,basedir);
     strcat(versionpath,"/");
     FILE * file;
@@ -1733,7 +2042,6 @@ main( int argc, char ** argv ) {
 	      strcat(versionpath,linesub);
 	      gchar* index = line + strlen(line) - 1;
 	      if(*index != '\n') {
-		int vpsize=sizeof(versionpath);
 		while(!feof(file)) {
 		  if(fgets(line, size, file) != 0) {
 		    index = line + strlen(line) - 1;
@@ -1781,7 +2089,25 @@ main( int argc, char ** argv ) {
 	}
       }
       else if (g_file_test(versionpath,G_FILE_TEST_IS_REGULAR)) {
-	cb_execute_start_version(0,data);
+	gint cmdlen = strlen(versionpath);
+	gint i=1;
+	while (i < argc) {
+	  cmdlen = cmdlen + strlen(argv[i]);
+	  i=i+1;
+	}
+	cmdlen = cmdlen + 10;
+	gchar * cmd = g_malloc(cmdlen);
+	strcpy(cmd,versionpath);
+	i=1;
+	while (i < argc) {
+	  strcat(cmd," ");
+	  strcat(cmd,argv[i]);
+	  i=i+1;
+	}
+	strcat(cmd," &");
+	
+	ret = system(cmd);
+	g_free(cmd);
       }
       else {
 	strcpy (str,homedir);
@@ -1853,8 +2179,10 @@ main( int argc, char ** argv ) {
     }
   }
 
+  release_locks(str,pid_str,homedir);
 
   g_free(str);
+  g_free(pid_str);
   g_free(processpathdir);
 
   g_free(data->processpath);
@@ -1864,7 +2192,8 @@ main( int argc, char ** argv ) {
   g_free(data->homedir);
   g_free(data->file);
   g_free(data->targetname);
-  g_free(data->action);
   g_free(data);
+
   return(0);
+
 }

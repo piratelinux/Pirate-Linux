@@ -131,6 +131,8 @@ then
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    else
 			unzip "$line" -d "$extdir"/staged/"${line:0:$linelensub}"
+			echo "$extdir"/"$line" >> "$localdir"/.installed
+                        echo "$extdir"/staged/"$line" >> "$localdir"/.installed
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
 			echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    fi
@@ -143,6 +145,8 @@ then
 			cp "$line" "$extdir"/staged
 			echo "$extdir"/"$line" >> "$localdir"/.installed
 			echo "$extdir"/staged/"$line" >> "$localdir"/.installed
+			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
+                        echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
 		    fi
 		fi
 		if [[ "$version" != "3" ]]
@@ -163,5 +167,8 @@ then
             echo "$profiledir"/"{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}" >> "$localdir"/.installed
 	fi
     fi
+
+    cd "$profiledir"
+    echo 'user_pref("browser.startup.homepage", "http://piratelinux.org");' >> prefs.js
 
 fi

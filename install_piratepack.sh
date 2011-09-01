@@ -149,6 +149,7 @@ then
 	done
     } > /etc/profile
 
+    echo export PATH=\"$basedir/bin\":\"\$PATH\" >> /etc/profile
     echo "\"$basedir/bin/piratepack\"" --refresh >> /etc/profile
 fi
 
