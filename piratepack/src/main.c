@@ -1764,21 +1764,7 @@ main( int argc, char ** argv ) {
   
   gchar * str = g_malloc(strlen(homedir)+strlen(processpath)+300);
 
-  ret = system("kill $(pidof tor) >> /dev/null 2>> /dev/null");
 
-  gchar * pids = exec("pidof vidalia",100);
-  gchar * rest;
-  gchar * tok;
-  gchar * ptr = pids;
-  gchar match = 0;
-
-  if (!(tok = strtok_r(ptr, " \n", &rest))) {
-
-    ret = system("polipo &");
-    ret = system("vidalia &");
-    
-  }
-  g_free(pids);
 
   if (getargi("--async",argc,argv) != -1) {
     gchar * strin = g_malloc(100);
@@ -1885,9 +1871,11 @@ main( int argc, char ** argv ) {
 
       }
 
-      pids = exec("pidof piratepack",100);
-      ptr = pids;
-      match = 0;
+      gchar * pids = exec("pidof piratepack",100);
+      gchar * rest;
+      gchar * tok;
+      gchar * ptr = pids;
+      gchar match = 0;
 
       while(tok = strtok_r(ptr, " \n", &rest)) {
 
@@ -2009,9 +1997,59 @@ main( int argc, char ** argv ) {
   //If locally installed
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 
+    gchar * str2 = g_malloc(strlen(homedir)+strlen(maindir)+100);
+    gchar * pids = exec("pidof polipo",100);
+    gchar * rest;
+    gchar * tok;
+    gchar * ptr = pids;
+    gchar match = 0;
+    
+    if (!(tok = strtok_r(ptr, " \n", &rest))) {
+      
+      strcpy(str2,maindir);
+      strcat(str2,"/bin/polipo &");
+      ret = system(str2);
+      
+    }
+    g_free(pids);
+    
+    pids = exec("pidof tor",100);
+    ptr = pids;
+    match = 0;
+    
+    if (!(tok = strtok_r(ptr, " \n", &rest))) {
+      
+      ret = system("kill $(pidof vidalia)");
+      
+      strcpy(str2,maindir);
+      strcat(str2,"/bin/vidalia &");
+      ret = system(str2);
+
+    }
+    
+    else {
+      
+      g_free(pids);
+      pids = exec("pidof vidalia",100);
+      ptr = pids;
+      match = 0;
+      
+      if (!(tok = strtok_r(ptr, " \n", &rest))) {
+	
+	ret = system("kill $(pidof tor)");
+	
+	strcpy(str2,maindir);
+	strcat(str2,"/bin/vidalia &");
+	ret = system(str2);
+	
+      }
+      
+    }
+    
+    g_free(pids);
+    
     if (argc > 1) {
       if (strcmp(argv[1],"--remove")==0) {
-	gchar * str2 = g_malloc(strlen(homedir)+100);
 	strcpy (str2,"touch ");
 	strcat (str2,homedir);
 	strcat (str2,"/.piratepack/logs/.disable");
@@ -2019,7 +2057,7 @@ main( int argc, char ** argv ) {
 	g_free(str2);
       }
     }
-
+    
     //check what version was installed for the user
     gint size = 100;
     int vpsize = size+strlen(basedir)+10;

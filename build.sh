@@ -3,7 +3,7 @@
 set -e
 
 ver="1.2"
-subver="12"
+subver="14"
 
 tar -czf piratepack.tar.gz piratepack
 cp piratepack.tar.gz ../deb/piratepack-"$ver"-"$subver"
