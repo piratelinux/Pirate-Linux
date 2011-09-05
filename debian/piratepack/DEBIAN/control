@@ -1,0 +1,14 @@
+Package: piratepack
+Version: 1.2-14
+Architecture: all
+Maintainer: Andrew K <akarmn@gmail.com>
+Installed-Size: 12316
+Depends: libgtk2.0-dev, libqt4-dev, libevent-dev, libssl-dev, cmake, firefox, pidgin-otr, seahorse-plugins, network-manager-openvpn
+Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence
+Conflicts: ttf-mscorefonts-installer
+Replaces: ttf-mscorefonts-installer
+Section: admin
+Priority: optional
+Homepage: http://www.piratelinux.org
+Description: Pirate Pack
+ Enhances your digital freedom.

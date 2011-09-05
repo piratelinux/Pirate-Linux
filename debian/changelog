@@ -1,3 +1,33 @@
+piratepack (1.2-14) unstable; urgency=low
+
+  * more tor management
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 03 Sep 2011 12:25:40 -0600
+
+piratepack (1.2-13) unstable; urgency=low
+
+  * fixed tor management
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 03 Sep 2011 11:05:47 -0600
+
+piratepack (1.2-12) unstable; urgency=low
+
+  * added tor-im
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 27 Aug 2011 20:48:37 -0600
+
+piratepack (1.2-11) unstable; urgency=low
+
+  * added restricted-extras
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 20 Aug 2011 04:26:54 -0600
+
+piratepack (1.2-10) unstable; urgency=low
+
+  * added locking mechanism
+
+ -- Andrew K <akarmn@gmail.com>  Fri, 19 Aug 2011 03:44:58 -0600
+
 piratepack (1.2-9) unstable; urgency=low
 
   * fixed debian errors/warnings
