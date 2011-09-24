@@ -20,7 +20,7 @@ then
 
     tar -xzf tor-0.2.1.30.tar.gz
     cd tor-0.2.1.30
-    ./configure --prefix="$maindir"/tor-browser/tor
+    ./configure --prefix=/usr
     set +e
     make
     make install
@@ -47,9 +47,9 @@ then
     ln -s "$maindir"/tor-browser/polipo/polipo "$maindir"/bin/polipo
 fi
 
-if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor ]
+if [ -d /usr/bin ] && [ ! -e "$maindir"/bin/tor ]
 then
-    ln -s "$maindir"/tor-browser/tor/bin/tor "$maindir"/bin/tor
+    ln -s /usr/bin/tor "$maindir"/bin/tor
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/vidalia ]

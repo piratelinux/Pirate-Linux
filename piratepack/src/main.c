@@ -182,6 +182,64 @@ release_locks(gchar * str, gchar * pid_str, gchar * homedir) {
   }
 
 }
+
+static void
+refresh_tor(gchar * maindir) {
+
+  int ret;
+
+  gchar * str2 = g_malloc(strlen(maindir)+100);
+  gchar * pids = exec("pidof polipo",100);
+  gchar * rest;
+  gchar * tok;
+  gchar * ptr = pids;
+  gchar match = 0;
+  
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+    
+    strcpy(str2,maindir);
+    strcat(str2,"/bin/polipo >> /dev/null 2>> /dev/null &");
+    ret = system(str2);
+    
+  }
+  g_free(pids);
+  
+  pids = exec("pidof tor",100);
+  ptr = pids;
+  match = 0;
+  
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+    
+    ret = system("kill $(pidof vidalia) >> /dev/null 2>> /dev/null");
+    
+    strcpy(str2,maindir);
+    strcat(str2,"/bin/vidalia >> /dev/null 2>> /dev/null &");
+    ret = system(str2);
+    
+  }
+  
+  else {
+    
+    g_free(pids);
+    pids = exec("pidof vidalia",100);
+    ptr = pids;
+    match = 0;
+    
+    if (!(tok = strtok_r(ptr, " \n", &rest))) {
+      
+      ret = system("kill $(pidof tor) >> /dev/null 2>> /dev/null");
+      
+      strcpy(str2,maindir);
+      strcat(str2,"/bin/vidalia >> /dev/null 2>> /dev/null &");
+      ret = system(str2);
+      
+    }
+    
+  }
+  
+  g_free(pids);
+  g_free(str2);
+}
  
 static void
 cb_child_watch( GPid  pid,
@@ -690,6 +748,40 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
 
+//install bitcoin
+
+  //strcpy(str,"bitcoin");
+  //fprintf( stderr, "%s\n", str );
+
+  if (g_file_test("bitcoin",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw bitcoin ");
+    strcat (str,logpipe);
+    ret = system(str);
+
+    strcpy (str,"rm -rf bitcoin ");
+    strcat (str,logpipe);
+    ret = system(str);
+  }
+
+  strcpy (str,"mkdir bitcoin ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  strcpy(str,maindir);
+  strcat(str,"/share/bitcoin");
+
+  ret = chdir(str);
+
+  strcpy (str,"./install_bitcoin.sh ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  ret = chdir(homedir);
+  ret = chdir(".piratepack");
+
+  ret = system("echo bitcoin >> logs/.installed 2>> logs/piratepack_install.log");
+
   //install theme
 
   //strcpy(str,"theme");
@@ -767,6 +859,8 @@ install_pack(int argc, char **argv, Data * data)
   g_free( curpath );
   g_free( logpipe );
   g_free( str );
+
+  refresh_tor(maindir);
  
   return( 0 );
 }
@@ -1100,6 +1194,40 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
 
+//install bitcoin
+
+  //strcpy(str,"bitcoin");
+  //fprintf( stderr, "%s\n", str );
+
+  if (g_file_test("bitcoin",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw bitcoin ");
+    strcat (str,logpipe);
+    ret = system(str);
+
+    strcpy (str,"rm -rf bitcoin ");
+    strcat (str,logpipe);
+    ret = system(str);
+  }
+
+  strcpy (str,"mkdir bitcoin ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  strcpy(str,maindir);
+  strcat(str,"/share/bitcoin");
+
+  ret = chdir(str);
+
+  strcpy (str,"./install_bitcoin.sh ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  ret = chdir(homedir);
+  ret = chdir(".piratepack");
+
+  ret = system("echo bitcoin >> logs/.installed 2>> logs/piratepack_install.log");
+
   //install theme
 
   //strcpy(str,"theme");
@@ -1177,6 +1305,8 @@ reinstall_pack(int argc, char **argv, Data * data)
   g_free( curpath );
   g_free( logpipe );
   g_free( str );
+
+  refresh_tor(maindir);
  
   return( 0 );
 }
@@ -1997,59 +2127,9 @@ main( int argc, char ** argv ) {
   //If locally installed
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 
-    gchar * str2 = g_malloc(strlen(homedir)+strlen(maindir)+100);
-    gchar * pids = exec("pidof polipo",100);
-    gchar * rest;
-    gchar * tok;
-    gchar * ptr = pids;
-    gchar match = 0;
-    
-    if (!(tok = strtok_r(ptr, " \n", &rest))) {
-      
-      strcpy(str2,maindir);
-      strcat(str2,"/bin/polipo &");
-      ret = system(str2);
-      
-    }
-    g_free(pids);
-    
-    pids = exec("pidof tor",100);
-    ptr = pids;
-    match = 0;
-    
-    if (!(tok = strtok_r(ptr, " \n", &rest))) {
-      
-      ret = system("kill $(pidof vidalia)");
-      
-      strcpy(str2,maindir);
-      strcat(str2,"/bin/vidalia &");
-      ret = system(str2);
-
-    }
-    
-    else {
-      
-      g_free(pids);
-      pids = exec("pidof vidalia",100);
-      ptr = pids;
-      match = 0;
-      
-      if (!(tok = strtok_r(ptr, " \n", &rest))) {
-	
-	ret = system("kill $(pidof tor)");
-	
-	strcpy(str2,maindir);
-	strcat(str2,"/bin/vidalia &");
-	ret = system(str2);
-	
-      }
-      
-    }
-    
-    g_free(pids);
-    
     if (argc > 1) {
       if (strcmp(argv[1],"--remove")==0) {
+	gchar * str2 = g_malloc(strlen(homedir)+100);
 	strcpy (str2,"touch ");
 	strcat (str2,homedir);
 	strcat (str2,"/.piratepack/logs/.disable");
@@ -2167,6 +2247,9 @@ main( int argc, char ** argv ) {
 	  strcat (str,"/.piratepack/logs/.disable");
 	  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 	    ret = remove_pack(argc,argv,data);
+	  }
+	  else {
+	    refresh_tor(data->maindir);
 	  }
 	}
 	else if (strcmp(argv[1],"--reinstall")==0) {

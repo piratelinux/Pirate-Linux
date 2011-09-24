@@ -24,9 +24,11 @@ case "$1" in
 	chmod a-x install_piratepack.sh
         chmod a-x remove_piratepack.sh
 	chmod u+x install_piratepack.sh
+	chmod u+x debuild
 	./install_piratepack.sh
 	chmod a-x install_piratepack.sh
 	chmod a-x remove_piratepack.sh
+	chmod u-x debuild
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

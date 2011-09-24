@@ -1,0 +1,16 @@
+Source: piratepack
+Section: admin
+Priority: optional
+Maintainer: Andrew K <akarmn@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://www.piratelinux.org
+
+Package: piratepack
+Architecture: any
+Depends: ${misc:Depends}, libgcc1, libqt4-network, libqt4-xml, libqtcore4, libqtgui4, libssl0.9.8, libstdc++6, libgtk2.0-0, firefox, pidgin-otr, seahorse-plugins, network-manager-openvpn
+Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence
+Conflicts: ttf-mscorefonts-installer, tor
+Replaces: ttf-mscorefonts-installer, tor
+Description: Pirate Pack
+ Enhances your digital freedom.

@@ -17,4 +17,6 @@ fi
 set +e
 chmod -Rf u+rw "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
 rm -rf "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
+rm -f .local/share/applications/ppcavpn.desktop
+rm -f .local/share/icons/ppcavpn.png
 set -e

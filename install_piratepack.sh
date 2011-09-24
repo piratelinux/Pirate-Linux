@@ -99,12 +99,17 @@ if [[ "$continue" == "1" ]]
 then
     cd "$maindir"
     mkdir bin
-    mkdir share
+    mkdir bin-pack
     mkdir src
     mkdir tor-browser
+    mkdir bitcoin
 
     cd $curdir/piratepack
-    cp -r src/share/* "$maindir/share"
+
+    cp README "$maindir"
+
+    cp -r src/share "$maindir/"
+    cp -r src/share "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main 
     
     ./configure
     make
@@ -122,16 +127,74 @@ then
 
     cd ..
 
+    cd bitcoin
+    ./install_bitcoin.sh "$maindir"
+
+    cd ..
+
     cd "$curdir"
     cp piratepack.tar.gz "$maindir/src"
+    cp install_piratepack.sh "$maindir/src"
+    cp remove_piratepack.sh "$maindir/src"
 
     ln -s "$maindir/bin" "$basedir/bin_tmp"
-
     mv -Tf "$basedir/bin_tmp" "$basedir/bin"
+    ln -s "$maindir/bin-pack" "$basedir/bin-pack_tmp"
+    mv -Tf "$basedir/bin-pack_tmp" "$basedir/bin-pack"
 
 fi
 
-cd "$curdir"
+if [[ "$continue" == "1" ]]
+then
+
+    cp "$maindir"/bin/piratepack "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main/bin/
+    cp -r "$maindir"/tor-browser/polipo "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
+
+    cp -r /usr/bin/tor "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
+    cp -r /usr/bin/tor-gencert "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
+    cp -r /usr/bin/torify "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
+    cp -r /usr/bin/tor-resolve "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
+    cp -r /usr/etc/tor "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/etc
+    cp -r /usr/share/man/man1/tor.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
+    cp -r /usr/share/man/man1/tor-gencert.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
+    cp -r /usr/share/man/man1/torify.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
+    cp -r /usr/share/man/man1/tor-resolve.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
+
+    cp -r "$maindir"/tor-browser/vidalia "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
+    cp "$maindir"/bitcoin/bitcoin "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cd "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
+    echo 'Version: '"$version"'bin' > README
+    cd ../..
+    tar -czf piratepack.tar.gz piratepack
+    rm -r piratepack
+    cd ..
+    mv piratepack piratepack-"$version"bin
+    i=0
+    n=${#version}
+    subver=""
+    while (( i < $n ))
+    do
+	char=${version:$i:1}
+	if [[ "$char" == "-" ]]
+	then
+	    subver=${version:0:$i}
+	    break
+	fi
+	let i=i+1
+    done
+    tar -czf piratepack-"$subver".tar.gz piratepack-"$version"bin
+    rm -r piratepack-"$version"bin
+    cp piratepack-"$subver".tar.gz piratepack_"$subver".orig.tar.gz
+    tar -xzf piratepack_"$subver".orig.tar.gz
+    mv debian piratepack-"$version"bin
+    cd piratepack-"$version"bin
+    "$curdir"/debuild -us -uc
+    cd ..
+    mv *.deb "$maindir"/bin-pack
+    
+    cd "$curdir"
+    
+fi
 
 if [[ "$continue" == "1" ]]
 then
@@ -184,5 +247,10 @@ then
     
 fi
 
-ln -s "$basedir/bin/piratepack" "/usr/bin/piratepack-tmp"
-mv -Tf "/usr/bin/piratepack-tmp" "/usr/bin/piratepack"
+if [[ "$continue" == "1" ]]
+then
+
+    ln -s "$basedir/bin/piratepack" "/usr/bin/piratepack-tmp"
+    mv -Tf "/usr/bin/piratepack-tmp" "/usr/bin/piratepack"
+
+fi

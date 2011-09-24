@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+curdir="$(pwd)"
+maindir="$1"
+
+echo "Exec=$maindir/bin/bitcoin" >> bitcoin.desktop
+cp bitcoin.desktop "$maindir/share/bitcoin/"
+cp bitcoin.png "$maindir/share/bitcoin/"

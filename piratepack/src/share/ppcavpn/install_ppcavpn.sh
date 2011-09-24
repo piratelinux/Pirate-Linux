@@ -53,3 +53,22 @@ then
 	rm -rf tmp/*
     fi
 fi
+
+cd
+
+if [ ! -d .local ]
+ then mkdir .local
+fi
+cd .local
+if [ ! -d share ]
+ then mkdir share
+fi
+cd share
+if [ ! -d icons ]
+ then mkdir icons
+fi
+cp "$curdir/ppcavpn.png" icons
+if [ ! -d applications ]
+ then mkdir applications
+fi
+cp "$curdir/ppcavpn.desktop" applications
