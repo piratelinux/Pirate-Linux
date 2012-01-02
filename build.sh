@@ -3,17 +3,17 @@
 set -e
 
 ver="1.3"
-subver="1"
+subver="6"
 
+rm -rf ../deb/piratepack-"$ver"-"$subver"
+mkdir ../deb/piratepack-"$ver"-"$subver"
 tar -czf piratepack.tar.gz piratepack
 cp piratepack.tar.gz ../deb/piratepack-"$ver"-"$subver"
 cp install_piratepack.sh ../deb/piratepack-"$ver"-"$subver"
 cp remove_piratepack.sh ../deb/piratepack-"$ver"-"$subver"
 cp README ../deb/piratepack-"$ver"-"$subver"
 cp debuild ../deb/piratepack-"$ver"-"$subver"
-cd ../deb/piratepack-"$ver"-"$subver"
-rm -r debian
-cd ..
+cd ../deb
 tar -czf piratepack-"$ver".tar.gz piratepack-"$ver"-"$subver"
 cp piratepack-"$ver".tar.gz piratepack_"$ver".orig.tar.gz
 rm -r piratepack-"$ver"-"$subver"

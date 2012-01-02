@@ -101,6 +101,7 @@ then
     mkdir bin
     mkdir bin-pack
     mkdir src
+    mkdir tmp
     mkdir tor-browser
     mkdir bitcoin
 
@@ -137,8 +138,8 @@ then
     cp install_piratepack.sh "$maindir/src"
     cp remove_piratepack.sh "$maindir/src"
 
-    ln -s "$maindir/bin" "$basedir/bin_tmp"
-    mv -Tf "$basedir/bin_tmp" "$basedir/bin"
+    mkdir -p "$basedir"/bin
+    ln -s "$maindir"/bin/piratepack "$basedir"/bin/piratepack
     ln -s "$maindir/bin-pack" "$basedir/bin-pack_tmp"
     mv -Tf "$basedir/bin-pack_tmp" "$basedir/bin-pack"
 
@@ -161,7 +162,14 @@ then
     cp -r /usr/share/man/man1/tor-resolve.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
 
     cp -r "$maindir"/tor-browser/vidalia "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-    cp "$maindir"/bitcoin/bitcoin "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp "$maindir"/bitcoin/bitcoin-qt "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp "$maindir"/bitcoin/bitcoind "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp "$maindir"/bitcoin/cwallet "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+
+    mv "$maindir"/tmp/db_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+
+    mv "$maindir"/tmp/miniupnpc_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+
     cd "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
     echo 'Version: '"$version"'bin' > README
     cd ../..
@@ -192,6 +200,11 @@ then
     cd ..
     mv *.deb "$maindir"/bin-pack
     
+    rm -r "$maindir"/tmp
+
+    apt-key add "$curdir"/piratepack/src/setup/public.key
+    cp "$curdir"/piratepack/src/setup/pirate.list /etc/apt/sources.list.d/
+    
     cd "$curdir"
     
 fi
@@ -203,15 +216,8 @@ then
 	rm -r piratepack
     fi
 
-    file=$(</etc/profile)
-    echo "$file" | {
-	while read line; do
-	    if [[ "$line" != *"$basedir"* ]]; then
-		echo "$line"
-	    fi
-	done
-    } > /etc/profile
-
+    grep -v "$basedir" /etc/profile > /etc/profile_tmp
+    mv /etc/profile_tmp /etc/profile
     echo export PATH=\"$basedir/bin\":\"\$PATH\" >> /etc/profile
     echo "\"$basedir/bin/piratepack\"" --refresh >> /etc/profile
 fi
@@ -222,7 +228,7 @@ if [[ "$continue" == "1" ]]
 then
     while read -r line
     do
-	if [[ "$line" != "$maindir" ]]
+	if [[ "$line" != "$maindir" ]] && [[ "$line" == "$basedir"/"ver-"* ]]
 	then
 	    busy="0"
 	    touch "$line"/.lock
@@ -239,7 +245,7 @@ then
 	    done
 	    if [[ "$busy" == "0" ]]
 	    then
-		rm -r "$line/bin"
+		rm -rf "$line/bin"
 		rm -r "$line"
 	    fi
 	fi

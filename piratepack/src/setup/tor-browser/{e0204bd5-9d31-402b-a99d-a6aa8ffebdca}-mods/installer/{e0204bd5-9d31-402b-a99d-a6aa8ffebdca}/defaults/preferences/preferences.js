@@ -26,6 +26,8 @@ pref("extensions.torbutton.locked_mode",false);
 pref("extensions.torbutton.test_url","https://check.torproject.org/?TorButton=true");
 pref("extensions.torbutton.test_failed",false);
 pref("extensions.torbutton.no_proxies_on","127.0.0.1");
+pref("extensions.torbutton.versioncheck_url","https://check.torproject.org/RecommendedTBBVersions");
+pref("extensions.torbutton.versioncheck_enabled",true);
 
 // XXX: wtf prefs? These seem not actually connected, but govern
 // if user wants own tor proxy settings
@@ -147,6 +149,7 @@ pref("extensions.torbutton.block_ntforms",false);
 pref("extensions.torbutton.clear_http_auth",true);
 pref("extensions.torbutton.close_tor",false);
 pref("extensions.torbutton.close_nontor",false);
+pref("extensions.torbutton.close_newnym",true);
 pref("extensions.torbutton.block_js_history",true);
 pref("extensions.torbutton.resize_on_toggle",true);
 pref("extensions.torbutton.resize_new_windows",true);

@@ -18,18 +18,18 @@ then
     cd ..
     rm -rf polipo-1.0.4
 
-    tar -xzf tor-0.2.1.30.tar.gz
-    cd tor-0.2.1.30
+    tar -xzf tor-0.2.2.35.tar.gz
+    cd tor-0.2.2.35
     ./configure --prefix=/usr
     set +e
     make
     make install
     set -e
     cd ..
-    rm -rf tor-0.2.1.30
+    rm -rf tor-0.2.2.35
     
-    tar -xzf vidalia-0.2.12.tar.gz
-    cd vidalia-0.2.12
+    tar -xzf vidalia-0.2.15.tar.gz
+    cd vidalia-0.2.15
     mkdir build
     cd build
     set +e
@@ -39,7 +39,7 @@ then
     mkdir "$maindir"/tor-browser/vidalia
     cp src/vidalia/vidalia "$maindir"/tor-browser/vidalia/
     cd ../..
-    rm -rf vidalia-0.2.12
+    rm -rf vidalia-0.2.15
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/polipo ]
@@ -124,19 +124,6 @@ rm "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
 cp {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi "$maindir"/share/tor-browser/
 cd ..
 rm -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
-
-cp "$maindir"/share/tor-browser/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi .
-unzip {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi -d {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}
-cp -r {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods/installer/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}/* {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}
-cd {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}
-zip -r {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi .
-rm ../{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi
-rm "$maindir"/share/tor-browser/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi
-cp {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}.xpi "$maindir"/share/tor-browser/
-cd ..
-rm -r {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}
-mkdir "$maindir"/share/tor-browser/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods
-cp -r {d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods/profile "$maindir"/share/tor-browser/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods
 
 cd "$maindir"
 cd ..

@@ -95,7 +95,7 @@ then
     version="4"
     versioncmd="$(firefox -version)"
 
-    if [[ "$versioncmd" == *"Firefox 3"* ]]
+    if [[ "$versioncmd" == *"Firefox 3"* ]] || [[ "$versioncmd" == *"Iceweasel 3"* ]]
     then
 	version="3"
     fi
@@ -159,16 +159,8 @@ then
     done
 
     cd "$curdir"
-    if [ -d "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods/profile/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}" ]
-    then
-	if [ ! -d "$profiledir"/"{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}" ]
-	then
-            cp -r "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}-mods/profile/{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}" "$profiledir"
-            echo "$profiledir"/"{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}" >> "$localdir"/.installed
-	fi
-    fi
 
     cd "$profiledir"
-    echo 'user_pref("browser.startup.homepage", "http://piratelinux.org");' >> prefs.js
+    echo 'user_pref("browser.startup.homepage", "http://piratelinux.org/start");' >> prefs.js
 
 fi

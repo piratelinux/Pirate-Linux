@@ -7,8 +7,6 @@
 #include <time.h>
 #include <gtk/gtk.h>
 
-//FIX SIZEOF PROBLEM
-
 typedef struct _Data Data;
 struct _Data
 {
@@ -555,7 +553,7 @@ install_pack(int argc, char **argv, Data * data)
   gchar * curpath = g_get_current_dir();
   gchar * homedir = data->homedir;
 
-  gchar * str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(basedir)+strlen(processpath)+300);
+  gchar * str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(basedir)+strlen(maindir)+strlen(processpath)+300);
 
   //strcpy(str,"Enabling");
   //fprintf( stderr, "%s\n", str );
@@ -748,7 +746,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
 
-//install bitcoin
+  //install bitcoin
 
   //strcpy(str,"bitcoin");
   //fprintf( stderr, "%s\n", str );
@@ -816,6 +814,18 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
 
+  strcpy(str,maindir);
+  strcat(str,"/share");
+  ret = chdir(str);
+
+  strcpy(str,"./addpath.sh '");
+  strcat(str,basedir);
+  strcat(str,"' '");
+  strcat(str,maindir);
+  strcat(str,"' ");
+  strcat(str,logpipe);
+  ret = system(str);
+
   //complete installation
 
   ret = chdir(homedir);
@@ -878,7 +888,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   gchar * curpath = g_get_current_dir();
   gchar * homedir = data->homedir;
 
-  gchar * str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(processpath)+200);
+  gchar * str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(processpath)+strlen(basedir)+strlen(maindir)+200);
 
   //start setup                                                                                                                                                                                                                            
   //strcpy(str,"Updating");
@@ -977,6 +987,18 @@ reinstall_pack(int argc, char **argv, Data * data)
   }
 
   //complete removal
+
+  strcpy(str,maindir);
+  strcat(str,"/share");
+  ret = chdir(str);
+
+  strcpy(str,"./removepath.sh '");
+  strcat(str,basedir);
+  strcat(str,"' '");
+  strcat(str,maindir);
+  strcat(str,"' ");
+  strcat(str,logpipe);
+  ret = system(str);
 
   ret = chdir(homedir);
 
@@ -1261,6 +1283,18 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(".piratepack");
 
   ret = system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
+
+  strcpy(str,maindir);
+  strcat(str,"/share");
+  ret = chdir(str);
+
+  strcpy(str,"./addpath.sh '");
+  strcat(str,basedir);
+  strcat(str,"' '");
+  strcat(str,maindir);
+  strcat(str,"' ");
+  strcat(str,logpipe);
+  ret = system(str);
   
   //complete installation
 
@@ -1327,7 +1361,7 @@ int remove_pack(int argc, char **argv, Data * data) {
 
   gchar *curpath = g_get_current_dir();
   gchar *homedir = data->homedir;
-  gchar *str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(basedir)+300);
+  gchar *str = g_malloc(2*strlen(homedir)+strlen(curpath)+strlen(basedir)+strlen(maindir)+300);
 
   //start removal
 
@@ -1428,6 +1462,18 @@ int remove_pack(int argc, char **argv, Data * data) {
   
   //complete removal
   
+  strcpy(str,maindir);
+  strcat(str,"/share");
+  ret = chdir(str);
+
+  strcpy(str,"./removepath.sh '");
+  strcat(str,basedir);
+  strcat(str,"' '");
+  strcat(str,maindir);
+  strcat(str,"' ");
+  strcat(str,logpipe);
+  ret = system(str);
+
   ret = chdir(homedir);
 
   if (!g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
@@ -1893,8 +1939,6 @@ main( int argc, char ** argv ) {
   gchar * homedir = strdup(getenv("HOME"));
   
   gchar * str = g_malloc(strlen(homedir)+strlen(processpath)+300);
-
-
 
   if (getargi("--async",argc,argv) != -1) {
     gchar * strin = g_malloc(100);

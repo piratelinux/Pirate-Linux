@@ -119,8 +119,11 @@ then
 
     cd ..
 
-    ln -s "$maindir/bin" "$basedir/bin_tmp"
-    mv -Tf "$basedir/bin_tmp" "$basedir/bin"
+    mkdir -p "$basedir"/bin
+    ln -s "$maindir"/bin/piratepack "$basedir"/bin/piratepack
+
+    apt-key add "$curdir"/piratepack/setup/public.key
+    cp "$curdir"/piratepack/setup/pirate.list /etc/apt/sources.list.d/
 
     cd "$curdir"
 
@@ -133,15 +136,8 @@ then
 	rm -r piratepack
     fi
 
-    file=$(</etc/profile)
-    echo "$file" | {
-	while read line; do
-	    if [[ "$line" != *"$basedir"* ]]; then
-		echo "$line"
-	    fi
-	done
-    } > /etc/profile
-
+    grep -v "$basedir" /etc/profile > /etc/profile_tmp
+    mv /etc/profile_tmp /etc/profile
     echo export PATH=\"$basedir/bin\":\"\$PATH\" >> /etc/profile
     echo "\"$basedir/bin/piratepack\"" --refresh >> /etc/profile
 fi
@@ -152,7 +148,7 @@ if [[ "$continue" == "1" ]]
 then
     while read -r line
     do
-	if [[ "$line" != "$maindir" ]]
+	if [[ "$line" != "$maindir" ]] && [[ "$line" == "$basedir"/"ver-"* ]]
 	then
 	    busy="0"
 	    touch "$line"/.lock
@@ -169,7 +165,7 @@ then
 	    done
 	    if [[ "$busy" == "0" ]]
 	    then
-		rm -r "$line/bin"
+		rm -rf "$line/bin"
 		rm -r "$line"
 	    fi
 	fi

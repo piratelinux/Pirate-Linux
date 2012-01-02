@@ -5,3 +5,4 @@ Terminal=false
 Type=Application
 Categories=Network;P2P;
 Comment=P2P Currency
+Exec=/home/ak/pirate/git/piratepack/src/setup/bitcoin/maindir/bin/bitcoin-qt
