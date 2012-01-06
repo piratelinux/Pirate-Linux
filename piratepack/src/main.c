@@ -60,11 +60,17 @@ gchar* exec(gchar* cmd, gint size) {
   if (!pipe) return "ERROR";
   gchar * result = g_malloc(size);
   strcpy(result,"");
-  gchar * ret = fgets(result,size,pipe);
-  while(ret != 0) {
-    size = size*2;
-    result = g_realloc(result,size);
-    ret = fgets(result,size,pipe);
+  gchar * retch = fgets(result,size,pipe);
+  gchar * resultmov = result;
+  int totsize = size;
+  while((retch != 0) && (!feof(pipe))) {
+    int reslen = strlen(resultmov);
+    if (reslen == (size-1)) {
+      totsize = totsize+size;
+      result = g_realloc(result,totsize);
+    }
+    resultmov = resultmov + reslen;
+    retch = fgets(resultmov,size,pipe);
   }
   pclose(pipe);
   return result;
@@ -181,17 +187,38 @@ release_locks(gchar * str, gchar * pid_str, gchar * homedir) {
 
 }
 
-static void
-refresh_tor(gchar * maindir) {
+int refresh_tor(gchar * maindir) {
 
   int ret;
-
   gchar * str2 = g_malloc(strlen(maindir)+100);
-  gchar * pids = exec("pidof polipo",100);
-  gchar * rest;
-  gchar * tok;
-  gchar * ptr = pids;
-  gchar match = 0;
+  gchar * pids = 0;
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = 0;
+  
+  gchar * issue = exec("cat /etc/issue",20);
+  gchar * issuesub = substring(issue,0,12);
+  if (strcmp(issuesub,"Ubuntu 11.10")==0) {
+    pids = exec("pidof unity-panel-service",100);
+    rest = 0;
+    tok = 0;
+    ptr = pids;
+    while (!(tok = strtok_r(ptr, " \n", &rest))) {
+      sleep(1);
+      pids = exec("pidof unity-panel-service",100);
+      rest = 0;
+      tok = 0;
+      ptr = pids;
+    }
+    g_free(pids);
+  }
+  g_free(issuesub);
+  g_free(issue);
+
+  pids = exec("pidof polipo",100);
+  rest = 0;
+  tok = 0;
+  ptr = pids;
   
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     
@@ -203,8 +230,9 @@ refresh_tor(gchar * maindir) {
   g_free(pids);
   
   pids = exec("pidof tor",100);
+  rest = 0;
+  tok = 0;
   ptr = pids;
-  match = 0;
   
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     
@@ -221,7 +249,6 @@ refresh_tor(gchar * maindir) {
     g_free(pids);
     pids = exec("pidof vidalia",100);
     ptr = pids;
-    match = 0;
     
     if (!(tok = strtok_r(ptr, " \n", &rest))) {
       
@@ -237,6 +264,8 @@ refresh_tor(gchar * maindir) {
   
   g_free(pids);
   g_free(str2);
+
+  return(0);
 }
  
 static void
@@ -410,6 +439,14 @@ cb_execute( GtkButton *button,
       gtk_widget_set_sensitive((GtkWidget *)data->button_yes,FALSE);
       gtk_widget_set_sensitive((GtkWidget *)data->button_no,FALSE);
     }
+    else if (strcmp(data->action,"refresh_tor") == 0) {
+      argc = 3;
+      argv = malloc(sizeof(gchar*) * 4);
+      argv[0] = strdup(data->processpath);
+      argv[1] = strdup("--refresh-tor");
+      argv[2] = strdup("--async");
+      argv[3] = 0;
+    }
     else if (strcmp(data->action,"start_version") == 0) {
       argc = data->argc;
       argv = malloc(sizeof(gchar*) * (data->argc + 1));
@@ -527,6 +564,15 @@ static void cb_execute_install_pirate_file ( GtkButton *button,
 {
 
   data->action = strdup("install_pirate_file");
+  cb_execute(button,data);
+
+}
+
+static void cb_execute_refresh_tor ( GtkButton *button,
+					     Data      *data)
+{
+
+  data->action = strdup("refresh_tor");
   cb_execute(button,data);
 
 }
@@ -805,7 +851,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_theme.sh ");
+  strcpy (str,"./install_theme.sh & ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -870,7 +916,7 @@ install_pack(int argc, char **argv, Data * data)
   g_free( logpipe );
   g_free( str );
 
-  refresh_tor(maindir);
+  cb_execute_refresh_tor(0,data);
  
   return( 0 );
 }
@@ -1275,7 +1321,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_theme.sh ");
+  strcpy (str,"./install_theme.sh & ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1340,7 +1386,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   g_free( logpipe );
   g_free( str );
 
-  refresh_tor(maindir);
+  cb_execute_refresh_tor(0,data);
  
   return( 0 );
 }
@@ -2153,9 +2199,6 @@ main( int argc, char ** argv ) {
 
   }
 
-  strcpy (str,homedir);
-  strcat (str,"/.piratepack/logs/.installed");
-
   Data * data = g_malloc(sizeof(Data));
   data->processpath = processpath;
   data->basedir = basedir;
@@ -2168,6 +2211,9 @@ main( int argc, char ** argv ) {
   data->argv = argv;
   data->argc = argc;
 
+  strcpy (str,homedir);
+  strcat (str,"/.piratepack/logs/.installed");
+
   //If locally installed
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 
@@ -2179,6 +2225,9 @@ main( int argc, char ** argv ) {
 	strcat (str2,"/.piratepack/logs/.disable");
 	ret = system (str2);
 	g_free(str2);
+      }
+      else if (strcmp(argv[1],"--refresh-tor")==0) {
+	ret = refresh_tor(data->maindir);
       }
     }
     
@@ -2293,7 +2342,7 @@ main( int argc, char ** argv ) {
 	    ret = remove_pack(argc,argv,data);
 	  }
 	  else {
-	    refresh_tor(data->maindir);
+	    cb_execute_refresh_tor(0,data);
 	  }
 	}
 	else if (strcmp(argv[1],"--reinstall")==0) {

@@ -9,8 +9,14 @@ localdir="$homedir"/.piratepack/theme
 
 issue=$(cat /etc/issue)
 
-if [[ "$issue" == *"Ubuntu"*"11.10"* ]]
+if [[ "$issue" == *"Ubuntu 11.10"* ]]
 then
+
+    while [[ $(pidof vidalia) == "" ]]
+    do
+	sleep 1
+    done
+
     gsettings set org.gnome.desktop.background color-shading-type "solid"
     gsettings set org.gnome.desktop.background draw-background "true"
     gsettings set org.gnome.desktop.background picture-opacity "100"

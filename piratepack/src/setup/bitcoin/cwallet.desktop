@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Cwallet
+Icon=cwallet.png
+Terminal=false
+Type=Application
+Categories=Utility
+Comment=Backup bitcoin to paper

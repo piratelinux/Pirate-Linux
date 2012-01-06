@@ -19,7 +19,9 @@ if [ ! -d icons ]
  then mkdir icons
 fi
 cp "$curdir/bitcoin.png" icons
+cp "$curdir/cwallet.png" icons
 if [ ! -d applications ]
  then mkdir applications
 fi
 cp "$curdir/bitcoin.desktop" applications
+cp "$curdir/cwallet.desktop" applications

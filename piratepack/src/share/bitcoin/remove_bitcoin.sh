@@ -26,4 +26,7 @@ rm -rf "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
 rm -f .local/share/applications/bitcoin.desktop
 rm -f .local/share/icons/bitcoin.png
 
+rm -f .local/share/applications/cwallet.desktop
+rm -f .local/share/icons/cwallet.png
+
 set -e

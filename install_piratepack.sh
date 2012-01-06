@@ -162,9 +162,8 @@ then
     cp -r /usr/share/man/man1/tor-resolve.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
 
     cp -r "$maindir"/tor-browser/vidalia "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-    cp "$maindir"/bitcoin/bitcoin-qt "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
-    cp "$maindir"/bitcoin/bitcoind "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
-    cp "$maindir"/bitcoin/cwallet "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp -r "$maindir"/bitcoin/client "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp -r "$maindir"/bitcoin/cwallet "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
 
     mv "$maindir"/tmp/db_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
 

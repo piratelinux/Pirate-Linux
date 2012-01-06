@@ -46,42 +46,59 @@ then
     qmake
     make
     set -e
-    cp bitcoin-qt "$maindir"/bitcoin/
+    mkdir "$maindir"/bitcoin/client
+    cp bitcoin-qt "$maindir"/bitcoin/client/
     cd src
     cp ../../makefile.unix .
     set +e
     make -f makefile.unix
     set -e
-    cp bitcoind "$maindir"/bitcoin/
+    cp bitcoind "$maindir"/bitcoin/client/
     cd ../..
     rm -rf bitcoin-bitcoin-5623ee7
 
     tar -xzf cwallet.tar.gz
     cd cwallet
+    ./configure
     set +e
     make
     set -e
-    cp cwallet "$maindir"/bitcoin/
-    cd ..
-    rm -r cwallet
+    cd src
+    mkdir "$maindir"/bitcoin/cwallet
+    cp cwallet "$maindir"/bitcoin/cwallet/
+    cp cwallet-gui "$maindir"/bitcoin/cwallet/
+    cp logo.png "$maindir"/bitcoin/cwallet/
+    cp icon.png "$maindir"/bitcoin/cwallet/
+    cp icon.png ../../cwallet.png
+    cd ../..
+    rm -rf cwallet
 
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/bitcoin-qt ]
     then
-	ln -s "$maindir"/bitcoin/bitcoin-qt "$maindir"/bin/bitcoin-qt
+	ln -s "$maindir"/bitcoin/client/bitcoin-qt "$maindir"/bin/bitcoin-qt
     fi
     
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/bitcoind ]
     then
-        ln -s "$maindir"/bitcoin/bitcoind "$maindir"/bin/bitcoind
+        ln -s "$maindir"/bitcoin/client/bitcoind "$maindir"/bin/bitcoind
     fi
 
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/cwallet ]
     then
-        ln -s "$maindir"/bitcoin/cwallet "$maindir"/bin/cwallet
+        ln -s "$maindir"/bitcoin/cwallet/cwallet "$maindir"/bin/cwallet
+    fi
+
+    if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/cwallet-gui ]
+    then
+        ln -s "$maindir"/bitcoin/cwallet/cwallet-gui "$maindir"/bin/cwallet-gui
     fi
 
     echo "Exec=$maindir/bin/bitcoin-qt" >> bitcoin.desktop
     cp bitcoin.desktop "$maindir/share/bitcoin/"
     cp bitcoin.png "$maindir/share/bitcoin/"
+
+    echo "Exec=$maindir/bin/cwallet-gui" >> cwallet.desktop
+    cp cwallet.desktop "$maindir/share/bitcoin/"
+    cp cwallet.png "$maindir/share/bitcoin/"
 
 fi
