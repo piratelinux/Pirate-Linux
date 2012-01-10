@@ -1,3 +1,15 @@
+piratepack (1.3-9) unstable; urgency=low
+
+  * Fixed bitcoin qt make file linking problem
+
+ -- Andrew K <akarmn@gmail.com>  Mon, 09 Jan 2012 22:49:04 -0700
+
+piratepack (1.3-8) unstable; urgency=low
+
+  * Change linking process
+
+ -- Andrew K <akarmn@gmail.com>  Mon, 09 Jan 2012 03:54:34 -0700
+
 piratepack (1.3-7) unstable; urgency=low
 
   * Added cwallet-gui

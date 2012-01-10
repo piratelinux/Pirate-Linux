@@ -5,18 +5,6 @@ set -e
 curdir="$(pwd)"
 maindir="$1"
 
-cd db_build
-cp -r bin/* /usr/bin
-cp -r include/* /usr/include
-cp -r lib/* /usr/lib
-cd ..
-
-cd miniupnpc_build
-cp -r bin/* /usr/bin
-cp -r include/* /usr/include
-cp -r lib/* /usr/lib
-cd ..
-
 if [ -d "$maindir"/bitcoin ] && [ ! "$(ls -A $maindir/bitcoin)" ]
 then
     mv -f client "$maindir"/bitcoin/

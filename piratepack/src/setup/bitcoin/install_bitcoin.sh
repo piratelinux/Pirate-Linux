@@ -10,41 +10,35 @@ then
 
     tar -xzf db-4.8.30.tar.gz
     cd db-4.8.30/build_unix
-    ../dist/configure --prefix="$curdir"/db_build --enable-cxx
+    ../dist/configure --prefix=/usr/local --enable-cxx
     set +e
     make
     make install
     set -e
     cd ../..
-    cd db_build
-    cp -r bin/* /usr/bin
-    cp -r include/* /usr/include
-    cp -r lib/* /usr/lib
-    rm -r docs
-    cd ..
-    mv db_build "$maindir"/tmp
-    rm -rf db-4.8.30    
-    
+    rm -rf db-4.8.30
+
     tar -xzf miniupnpc-1.6.tar.gz
     cd miniupnpc-1.6
     set +e
-    INSTALLPREFIX="$curdir"/miniupnpc_build make install
+    INSTALLPREFIX=/usr/local make install
     set -e
     cd ..
-    cd miniupnpc_build
-    cp -r bin/* /usr/bin
-    cp -r include/* /usr/include
-    cp -r lib/* /usr/lib
-    cd ..
-    mv miniupnpc_build "$maindir"/tmp
     rm -rf miniupnpc-1.6
+
+    tar -xzf boost_1_46_1.tar.gz
+    cd boost_1_46_1
+    ./bootstrap.sh --prefix=/usr/local --with-libraries=filesystem,program_options,system,thread
+    ./bjam install
+    cd ..
+    rm -r boost_1_46_1
 
     tar -xzf bitcoin-bitcoin-v0.5.1-0-gb12fc3e.tar.gz
     cd bitcoin-bitcoin-5623ee7
     cp ../bitcoin-qt.pro .
     set +e
     qmake
-    make
+    SUBLIBS=-L/usr/local/lib make
     set -e
     mkdir "$maindir"/bitcoin/client
     cp bitcoin-qt "$maindir"/bitcoin/client/
@@ -52,18 +46,20 @@ then
     cp ../../makefile.unix .
     set +e
     make -f makefile.unix
+    strip bitcoind
     set -e
     cp bitcoind "$maindir"/bitcoin/client/
     cd ../..
     rm -rf bitcoin-bitcoin-5623ee7
 
-    tar -xzf cwallet.tar.gz
-    cd cwallet
+    tar -xzf cwallet-0.1.tar.gz
+    cd cwallet-0.1
     ./configure
     set +e
     make
-    set -e
     cd src
+    make -f makefile.static
+    set -e
     mkdir "$maindir"/bitcoin/cwallet
     cp cwallet "$maindir"/bitcoin/cwallet/
     cp cwallet-gui "$maindir"/bitcoin/cwallet/
@@ -71,7 +67,7 @@ then
     cp icon.png "$maindir"/bitcoin/cwallet/
     cp icon.png ../../cwallet.png
     cd ../..
-    rm -rf cwallet
+    rm -rf cwallet-0.1
 
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/bitcoin-qt ]
     then

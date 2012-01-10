@@ -12,22 +12,75 @@ then
     cd polipo-1.0.4
     set +e
     make all
+    make install
     set -e
-    mkdir "$maindir"/tor-browser/polipo
-    cp polipo "$maindir"/tor-browser/polipo/
     cd ..
     rm -rf polipo-1.0.4
+    cd /usr/share
+    mkdir -p "$maindir"/tmp/polipo_build/usr/share
+    cp -r polipo "$maindir"/tmp/polipo_build/usr/share/
+    cd ../local/man/man1
+    mkdir -p "$maindir"/tmp/polipo_build/usr/local/share/man/man1
+    cp polipo.1 "$maindir"/tmp/polipo_build/usr/local/share/man/man1/
+    cd ../../bin
+    mkdir -p "$maindir"/tmp/polipo_build/usr/local/bin
+    cp polipo "$maindir"/tmp/polipo_build/usr/local/bin/
+    cd ../info
+    mkdir -p "$maindir"/tmp/polipo_build/usr/local/info
+    cp polipo.info "$maindir"/tmp/polipo_build/usr/local/info/
+    if [ -e dir ]
+    then
+	cp dir "$maindir"/tmp/polipo_build/usr/local/info/
+    fi
+    cd "$curdir"
+
+    tar -xzf openssl-1.0.0f.tar.gz
+    cd openssl-1.0.0f
+    ./config --prefix=/usr/local shared
+    make
+    make install
+    cd ..
+    rm -rf openssl-1.0.0f
+
+    tar -xzf libevent-2.0.16-stable.tar.gz
+    cd libevent-2.0.16-stable
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ..
+    rm -rf libevent-2.0.16-stable
 
     tar -xzf tor-0.2.2.35.tar.gz
     cd tor-0.2.2.35
-    ./configure --prefix=/usr
+    ./configure --prefix=/usr/local --with-openssl-dir=/usr/local/lib --with-libevent-dir=/usr/local/lib --enable-static-openssl --enable-static-libevent
     set +e
     make
     make install
     set -e
     cd ..
     rm -rf tor-0.2.2.35
-    
+    cd /usr/local/etc
+    mkdir -p "$maindir"/tmp/tor_build/usr/local/etc
+    cp -r tor "$maindir"/tmp/tor_build/usr/local/etc/
+    cd ../share/doc
+    mkdir -p "$maindir"/tmp/tor_build/usr/local/share/doc
+    cp -r tor "$maindir"/tmp/tor_build/usr/local/share/doc/
+    cd ../man/man1
+    mkdir -p "$maindir"/tmp/tor_build/usr/local/share/man/man1
+    cp tor-resolve.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
+    cp torify.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
+    cp tor-gencert.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
+    cp tor.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
+    cd ../..
+    cp -r tor "$maindir"/tmp/tor_build/usr/local/share/
+    cd ../bin
+    mkdir -p "$maindir"/tmp/tor_build/usr/local/bin
+    cp tor "$maindir"/tmp/tor_build/usr/local/bin/
+    cp tor-resolve "$maindir"/tmp/tor_build/usr/local/bin/
+    cp tor-gencert "$maindir"/tmp/tor_build/usr/local/bin/
+    cp torify "$maindir"/tmp/tor_build/usr/local/bin/
+    cd "$curdir"
+
     tar -xzf vidalia-0.2.15.tar.gz
     cd vidalia-0.2.15
     mkdir build
@@ -44,12 +97,12 @@ fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/polipo ]
 then
-    ln -s "$maindir"/tor-browser/polipo/polipo "$maindir"/bin/polipo
+    ln -s /usr/local/bin/polipo "$maindir"/bin/polipo
 fi
 
-if [ -d /usr/bin ] && [ ! -e "$maindir"/bin/tor ]
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor ]
 then
-    ln -s /usr/bin/tor "$maindir"/bin/tor
+    ln -s /usr/local/bin/tor "$maindir"/bin/tor
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/vidalia ]
@@ -111,8 +164,16 @@ echo 'then' >> tor-browser
 echo 'kill $pid' >> tor-browser
 echo 'fi' >> tor-browser
 
-cp tor-browser "$maindir/bin"
-chmod a+x "$maindir/bin/tor-browser"
+if [ -d "$maindir"/tor-browser ]
+then
+    cp tor-browser  "$maindir"/tor-browser/
+    chmod a+x "$maindir"/tor-browser/tor-browser
+fi
+
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
+then
+    ln -s "$maindir"/tor-browser/tor-browser "$maindir"/bin/tor-browser
+fi
 
 cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
 unzip {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi -d {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
@@ -124,10 +185,6 @@ rm "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
 cp {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi "$maindir"/share/tor-browser/
 cd ..
 rm -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
-
-cd "$maindir"
-cd ..
-basedir="$(pwd)"
 
 cd "$curdir"
 

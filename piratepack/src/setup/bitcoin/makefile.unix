@@ -2,6 +2,10 @@
 # Distributed under the MIT/X11 software license, see the accompanying
 # file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
+BOOST_INCLUDE_PATH=/usr/local/include
+BDB_INCLUDE_PATH=/usr/local/include
+BOOST_LIB_PATH=/usr/local/lib
+BDB_LIB_PATH=/usr/local/lib
 BDB_LIB_SUFFIX=-4.8
 
 USE_UPNP:=0
@@ -9,9 +13,9 @@ USE_UPNP:=0
 DEFS=-DNOPCH
 
 DEFS += $(addprefix -I,$(BOOST_INCLUDE_PATH) $(BDB_INCLUDE_PATH) $(OPENSSL_INCLUDE_PATH))
-LIBS += $(addprefix -l,$(BOOST_LIB_PATH) $(BDB_LIB_PATH) $(OPENSSL_LIB_PATH))
+LIBS += $(addprefix -L,$(BOOST_LIB_PATH) $(BDB_LIB_PATH) $(OPENSSL_LIB_PATH))
 
-LMODE = dynamic
+LMODE = static
 LMODE2 = dynamic
 ifdef STATIC
 	LMODE = static
@@ -21,7 +25,7 @@ ifdef STATIC
 endif
 
 # for boost 1.37, add -mt to the boost libraries
-LIBS= \
+LIBS += \
  -Wl,-B$(LMODE) \
    -l boost_system$(BOOST_LIB_SUFFIX) \
    -l boost_filesystem$(BOOST_LIB_SUFFIX) \

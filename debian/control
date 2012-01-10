@@ -8,9 +8,7 @@ Homepage: http://www.piratelinux.org
 
 Package: piratepack
 Architecture: all
-Depends: ${misc:Depends}, build-essential, libgtk2.0-dev, libqt4-dev, libevent-dev, libssl-dev, libboost-dev, libboost-system-dev, libboost-filesystem-dev, libboost-program-options-dev, libboost-thread-dev, cmake, firefox | iceweasel, pidgin-otr, dpkg-dev, perl, zip, unzip, uuid-runtime, ffmpeg, qrencode, imagemagick
+Depends: ${misc:Depends}, build-essential, dpkg-dev, zlib1g, libgtk2.0-dev, libqt4-dev, cmake, firefox | iceweasel, pidgin-otr, perl (>= 5), zip, unzip, uuid-runtime, ffmpeg, qrencode, imagemagick, texinfo
 Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence, seahorse-plugins, network-manager-openvpn
-Conflicts: tor
-Replaces: tor, libdb4.8-dev, libdb4.8++-dev, libminiupnpc-dev
 Description: Pirate Pack
  Enhances your digital freedom.

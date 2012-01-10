@@ -5,23 +5,27 @@ set -e
 curdir="$(pwd)"
 maindir="$1"
 
-if [ -d "$maindir"/tor-browser ] && [ ! "$(ls -A $maindir/tor-browser)" ]
+cd polipo_build
+cp -rf * /
+cd ..
+
+cd tor_build
+cp -rf * /
+cd ..
+
+if [ -d "$maindir"/tor-browser ]
 then
-    cp -r polipo "$maindir"/tor-browser/
-
-    cp -rf tor/* /usr
-
     cp -r vidalia "$maindir"/tor-browser/
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/polipo ]
 then
-    ln -s "$maindir"/tor-browser/polipo/polipo "$maindir"/bin/polipo
+    ln -s /usr/local/bin/polipo "$maindir"/bin/polipo
 fi
 
-if [ -d /usr/bin ] && [ ! -e "$maindir"/bin/tor ]
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor ]
 then
-    ln -s /usr/bin/tor "$maindir"/bin/tor
+    ln -s /usr/local/bin/tor "$maindir"/bin/tor
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/vidalia ]
@@ -83,8 +87,17 @@ echo 'then' >> tor-browser
 echo 'kill $pid' >> tor-browser
 echo 'fi' >> tor-browser
 
-cp tor-browser "$maindir/bin"
-chmod a+x "$maindir/bin/tor-browser"
+
+if [ -d "$maindir"/tor-browser ]
+then
+    cp tor-browser  "$maindir"/tor-browser/
+    chmod a+x "$maindir"/tor-browser/tor-browser
+fi
+
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
+then
+    ln -s "$maindir"/tor-browser/tor-browser "$maindir"/bin/tor-browser
+fi
 
 cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
 unzip {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi -d {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}

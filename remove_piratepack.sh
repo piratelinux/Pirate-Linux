@@ -9,9 +9,12 @@ then
     basedir="/opt/piratepack"
 fi
 
-rm -r "$basedir"
+if [ -e "$basedir" ]
+then
+    rm -r "$basedir"
+fi
 
-rm /usr/bin/piratepack
+rm -f /usr/bin/piratepack
 
 file=$(</etc/profile)
 echo "$file" | {

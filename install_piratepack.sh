@@ -149,25 +149,11 @@ if [[ "$continue" == "1" ]]
 then
 
     cp "$maindir"/bin/piratepack "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main/bin/
-    cp -r "$maindir"/tor-browser/polipo "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-
-    cp -r /usr/bin/tor "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
-    cp -r /usr/bin/tor-gencert "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
-    cp -r /usr/bin/torify "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
-    cp -r /usr/bin/tor-resolve "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/bin
-    cp -r /usr/etc/tor "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/etc
-    cp -r /usr/share/man/man1/tor.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
-    cp -r /usr/share/man/man1/tor-gencert.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
-    cp -r /usr/share/man/man1/torify.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
-    cp -r /usr/share/man/man1/tor-resolve.1 "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/tor/share/man/man1
-
+    mv "$maindir"/tmp/polipo_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
+    mv "$maindir"/tmp/tor_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
     cp -r "$maindir"/tor-browser/vidalia "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
     cp -r "$maindir"/bitcoin/client "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
     cp -r "$maindir"/bitcoin/cwallet "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
-
-    mv "$maindir"/tmp/db_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
-
-    mv "$maindir"/tmp/miniupnpc_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
 
     cd "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
     echo 'Version: '"$version"'bin' > README

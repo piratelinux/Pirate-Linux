@@ -1,10 +1,11 @@
 TEMPLATE = app
 TARGET =
 VERSION = 0.5.1
-INCLUDEPATH += src src/json src/qt
+INCLUDEPATH += src src/json src/qt /usr/local/include
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB
 CONFIG += no_include_pwd
 
+RELEASE=1
 BDB_LIB_SUFFIX=-4.8
 
 # for boost 1.37, add -mt to the boost libraries 
