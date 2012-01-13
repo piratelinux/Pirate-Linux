@@ -2,17 +2,11 @@
 
 set -e
 
-basedir="$1"
+basedir="/opt/piratepack"
 
-if [[ "$basedir" == "" ]]
-then
-    basedir="/opt/piratepack"
-fi
-
-if [ -e "$basedir" ]
-then
-    rm -r "$basedir"
-fi
+set +e
+rm -r "$basedir"
+set -e
 
 rm -f /usr/bin/piratepack
 

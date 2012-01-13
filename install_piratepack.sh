@@ -50,6 +50,7 @@ then
 fi
 
 maindir=""
+versionfull="$version"
 
 if [[ "$continue" == "1" ]]
 then
@@ -64,7 +65,6 @@ then
 	    mkdir "$basedir"
 	fi
     fi
-
 
     maindir="$basedir/ver-$version"
 	
@@ -85,7 +85,8 @@ then
     
     maxnumadd=$(($maxnum + 1))
     maindir="$maindir"_"$maxnumadd"
-    
+    versionfull="$version"_"$maxnumadd"
+
     if [ ! -d "$maindir" ]
     then
 	mkdir "$maindir"
@@ -101,19 +102,17 @@ then
     mkdir bin
     mkdir bin-pack
     mkdir src
-    mkdir tmp
-    mkdir tor-browser
-    mkdir bitcoin
 
     cd $curdir/piratepack
 
     cp README "$maindir"
 
     cp -r src/share "$maindir/"
-    cp -r src/share "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main 
-    
+
+    set +e
     ./configure
     make
+    set -e
     cp src/piratepack "$maindir/bin"
     
     cd src/setup
@@ -139,8 +138,9 @@ then
     cp remove_piratepack.sh "$maindir/src"
 
     mkdir -p "$basedir"/bin
-    ln -s "$maindir"/bin/piratepack "$basedir"/bin/piratepack
-    ln -s "$maindir/bin-pack" "$basedir/bin-pack_tmp"
+    ln -sf "$maindir"/bin/piratepack "$basedir"/bin/piratepack-tmp
+    mv -Tf "$basedir/bin/piratepack-tmp" "$basedir/bin/piratepack"
+    ln -sf "$maindir/bin-pack" "$basedir/bin-pack_tmp"
     mv -Tf "$basedir/bin-pack_tmp" "$basedir/bin-pack"
 
 fi
@@ -148,15 +148,11 @@ fi
 if [[ "$continue" == "1" ]]
 then
 
-    cp "$maindir"/bin/piratepack "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main/bin/
-    mv "$maindir"/tmp/polipo_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-    mv "$maindir"/tmp/tor_build "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-    cp -r "$maindir"/tor-browser/vidalia "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/tor-browser/
-    cp -r "$maindir"/bitcoin/client "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
-    cp -r "$maindir"/bitcoin/cwallet "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/setup/bitcoin/
+    cp -r "$maindir"/share "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
+    cp -r "$maindir"/bin "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main    
 
     cd "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
-    echo 'Version: '"$version"'bin' > README
+    echo "Version: $versionfull" > README
     cd ../..
     tar -czf piratepack.tar.gz piratepack
     rm -r piratepack
@@ -181,12 +177,10 @@ then
     tar -xzf piratepack_"$subver".orig.tar.gz
     mv debian piratepack-"$version"bin
     cd piratepack-"$version"bin
-    "$curdir"/debuild -us -uc
+    dpkg-buildpackage -us -uc
     cd ..
     mv *.deb "$maindir"/bin-pack
     
-    rm -r "$maindir"/tmp
-
     apt-key add "$curdir"/piratepack/src/setup/public.key
     cp "$curdir"/piratepack/src/setup/pirate.list /etc/apt/sources.list.d/
     
@@ -198,7 +192,7 @@ if [[ "$continue" == "1" ]]
 then
     if [ -e piratepack ]
     then
-	rm -r piratepack
+	rm -rf piratepack
     fi
 
     grep -v "$basedir" /etc/profile > /etc/profile_tmp
@@ -241,7 +235,7 @@ fi
 if [[ "$continue" == "1" ]]
 then
 
-    ln -s "$basedir/bin/piratepack" "/usr/bin/piratepack-tmp"
+    ln -sf "$basedir/bin/piratepack" "/usr/bin/piratepack-tmp"
     mv -Tf "/usr/bin/piratepack-tmp" "/usr/bin/piratepack"
 
 fi

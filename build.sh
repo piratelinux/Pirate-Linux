@@ -3,7 +3,7 @@
 set -e
 
 ver="1.3"
-subver="9"
+subver="10"
 
 rm -rf ../deb/piratepack-"$ver"-"$subver"
 mkdir ../deb/piratepack-"$ver"-"$subver"
@@ -12,7 +12,7 @@ cp piratepack.tar.gz ../deb/piratepack-"$ver"-"$subver"
 cp install_piratepack.sh ../deb/piratepack-"$ver"-"$subver"
 cp remove_piratepack.sh ../deb/piratepack-"$ver"-"$subver"
 cp README ../deb/piratepack-"$ver"-"$subver"
-cp debuild ../deb/piratepack-"$ver"-"$subver"
+#cp debuild ../deb/piratepack-"$ver"-"$subver"
 cd ../deb
 tar -czf piratepack-"$ver".tar.gz piratepack-"$ver"-"$subver"
 cp piratepack-"$ver".tar.gz piratepack_"$ver".orig.tar.gz
@@ -23,3 +23,5 @@ cd piratepack-"$ver"-"$subver"
 debuild
 cd ..
 gpg --default-key "<akarmn@gmail.com>" -ab piratepack_"$ver"-"$subver"_all.deb
+cp piratepack_"$ver"-"$subver"_all.deb ../repo/deb/pool/testing/main/
+cp piratepack_"$ver"-"$subver"_all.deb.asc ../repo/deb/pool/testing/main/

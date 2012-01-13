@@ -9,9 +9,11 @@ then
     basedir="/opt/piratepack"
 fi
 
-if [ -e "$basedir" ]
+if [[ "$basedir" != "/" ]]
 then
+    set +e
     rm -r "$basedir"
+    set -e
 fi
 
 rm -f /usr/bin/piratepack

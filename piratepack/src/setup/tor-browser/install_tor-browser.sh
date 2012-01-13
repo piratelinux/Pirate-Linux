@@ -5,81 +5,48 @@ set -e
 curdir="$(pwd)"
 maindir="$1"
 
-if [ -d "$maindir"/tor-browser ] && [ ! "$(ls -A $maindir/tor-browser)" ]
+if [ -d "$maindir" ]
 then 
 
     tar -xzf polipo-1.0.4.tar.gz
     cd polipo-1.0.4
+    cp ../polipo_Makefile Makefile
     set +e
-    make all
-    make install
+    make PREFIX="$maindir"/share/polipo_build all
+    make PREFIX="$maindir"/share/polipo_build install
     set -e
     cd ..
     rm -rf polipo-1.0.4
-    cd /usr/share
-    mkdir -p "$maindir"/tmp/polipo_build/usr/share
-    cp -r polipo "$maindir"/tmp/polipo_build/usr/share/
-    cd ../local/man/man1
-    mkdir -p "$maindir"/tmp/polipo_build/usr/local/share/man/man1
-    cp polipo.1 "$maindir"/tmp/polipo_build/usr/local/share/man/man1/
-    cd ../../bin
-    mkdir -p "$maindir"/tmp/polipo_build/usr/local/bin
-    cp polipo "$maindir"/tmp/polipo_build/usr/local/bin/
-    cd ../info
-    mkdir -p "$maindir"/tmp/polipo_build/usr/local/info
-    cp polipo.info "$maindir"/tmp/polipo_build/usr/local/info/
-    if [ -e dir ]
-    then
-	cp dir "$maindir"/tmp/polipo_build/usr/local/info/
-    fi
-    cd "$curdir"
 
     tar -xzf openssl-1.0.0f.tar.gz
     cd openssl-1.0.0f
-    ./config --prefix=/usr/local shared
+    ./config --prefix="$maindir"/share/ssl_build shared
+    set +e
     make
     make install
+    set -e
     cd ..
     rm -rf openssl-1.0.0f
 
     tar -xzf libevent-2.0.16-stable.tar.gz
     cd libevent-2.0.16-stable
-    ./configure --prefix=/usr/local
+    ./configure --prefix="$maindir"/share/event_build
+    set +e
     make
     make install
+    set -e
     cd ..
     rm -rf libevent-2.0.16-stable
 
     tar -xzf tor-0.2.2.35.tar.gz
     cd tor-0.2.2.35
-    ./configure --prefix=/usr/local --with-openssl-dir=/usr/local/lib --with-libevent-dir=/usr/local/lib --enable-static-openssl --enable-static-libevent
+    ./configure --prefix="$maindir"/share/tor_build --with-openssl-dir="$maindir"/share/ssl_build --with-libevent-dir="$maindir"/share/event_build --enable-static-openssl --enable-static-libevent
     set +e
     make
     make install
     set -e
     cd ..
     rm -rf tor-0.2.2.35
-    cd /usr/local/etc
-    mkdir -p "$maindir"/tmp/tor_build/usr/local/etc
-    cp -r tor "$maindir"/tmp/tor_build/usr/local/etc/
-    cd ../share/doc
-    mkdir -p "$maindir"/tmp/tor_build/usr/local/share/doc
-    cp -r tor "$maindir"/tmp/tor_build/usr/local/share/doc/
-    cd ../man/man1
-    mkdir -p "$maindir"/tmp/tor_build/usr/local/share/man/man1
-    cp tor-resolve.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
-    cp torify.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
-    cp tor-gencert.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
-    cp tor.1 "$maindir"/tmp/tor_build/usr/local/share/man/man1/
-    cd ../..
-    cp -r tor "$maindir"/tmp/tor_build/usr/local/share/
-    cd ../bin
-    mkdir -p "$maindir"/tmp/tor_build/usr/local/bin
-    cp tor "$maindir"/tmp/tor_build/usr/local/bin/
-    cp tor-resolve "$maindir"/tmp/tor_build/usr/local/bin/
-    cp tor-gencert "$maindir"/tmp/tor_build/usr/local/bin/
-    cp torify "$maindir"/tmp/tor_build/usr/local/bin/
-    cd "$curdir"
 
     tar -xzf vidalia-0.2.15.tar.gz
     cd vidalia-0.2.15
@@ -89,25 +56,25 @@ then
     cmake ..
     make
     set -e
-    mkdir "$maindir"/tor-browser/vidalia
-    cp src/vidalia/vidalia "$maindir"/tor-browser/vidalia/
+    mkdir "$maindir"/share/vidalia_build
+    cp src/vidalia/vidalia "$maindir"/share/vidalia_build/
     cd ../..
     rm -rf vidalia-0.2.15
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/polipo ]
 then
-    ln -s /usr/local/bin/polipo "$maindir"/bin/polipo
+    ln -s "$maindir"/share/polipo_build/bin/polipo "$maindir"/bin/polipo
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor ]
 then
-    ln -s /usr/local/bin/tor "$maindir"/bin/tor
+    ln -s "$maindir"/share/tor_build/bin/tor "$maindir"/bin/tor
 fi
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/vidalia ]
 then
-    ln -s "$maindir"/tor-browser/vidalia/vidalia "$maindir"/bin/vidalia
+    ln -s "$maindir"/share/vidalia_build/vidalia "$maindir"/bin/vidalia
 fi
 
 echo "socksParentProxy = localhost:9050" > .polipo
@@ -164,15 +131,13 @@ echo 'then' >> tor-browser
 echo 'kill $pid' >> tor-browser
 echo 'fi' >> tor-browser
 
-if [ -d "$maindir"/tor-browser ]
-then
-    cp tor-browser  "$maindir"/tor-browser/
-    chmod a+x "$maindir"/tor-browser/tor-browser
-fi
+mkdir "$maindir"/share/tor-browser_build
+cp tor-browser  "$maindir"/share/tor-browser_build/
+chmod a+x "$maindir"/share/tor-browser_build/tor-browser
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
 then
-    ln -s "$maindir"/tor-browser/tor-browser "$maindir"/bin/tor-browser
+    ln -s "$maindir"/share/tor-browser_build/tor-browser "$maindir"/bin/tor-browser
 fi
 
 cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
