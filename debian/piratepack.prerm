@@ -20,7 +20,7 @@ set -e
 case "$1" in
     remove|upgrade|deconfigure)
 	cd /usr/lib/piratepack
-	chmod u+x remove_piratepack.sh
+	chmod u+rx remove_piratepack.sh
 	./remove_piratepack.sh
     ;;
 

@@ -79,8 +79,10 @@ then
     cd "$profiledir"
 
     version="4"
+    set +e
     versioncmd=$(firefox -version)
-    
+    set -e
+
     if [[ "$versioncmd" == *"Firefox 3"* ]] || [[ "$versioncmd" == *"Iceweasel 3"* ]]
     then
         version="3"

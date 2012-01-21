@@ -23,10 +23,12 @@ case "$1" in
 	cd /usr/lib/piratepack
 	chmod a-x install_piratepack.sh
         chmod a-x remove_piratepack.sh
-	chmod u+x install_piratepack.sh
+	chmod u+rx install_piratepack.sh
 	./install_piratepack.sh
 	chmod a-x install_piratepack.sh
 	chmod a-x remove_piratepack.sh
+	rm -f piratepack.tar.gz
+        rm -f install_piratepack.sh
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

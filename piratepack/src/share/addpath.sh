@@ -12,5 +12,5 @@ localdir="$homedir"/.piratepack
 cd "$homedir"
 
 grep -v "$basedir" .bashrc > .bashrc_tmp
-mv .bashrc_tmp .bashrc
+mv -f .bashrc_tmp .bashrc
 echo export PATH=\"$maindir/bin\":\"\$PATH\" >> .bashrc

@@ -134,15 +134,21 @@ int numDigits(int num)
 }
 
 static void
-release_locks(gchar * str, gchar * pid_str, gchar * homedir) {
+release_locks(gchar * str, gchar * pid_str, gchar * homedir, gchar * prefix) {
+
+  int ret = 0;
 
   strcpy(str,homedir);
-  strcat(str,"/.piratepack/.lock-");
+  strcat(str,"/.piratepack/");
+  strcat(str,prefix);
+  strcat(str,".lock-");
   strcat(str,pid_str);
-  remove(str);
+  ret = remove(str);
 
   strcpy(str,homedir);
-  strcat(str,"/.piratepack/.lock");
+  strcat(str,"/.piratepack/");
+  strcat(str,prefix);
+  strcat(str,".lock");
   FILE * f = fopen (str , "r");
 
   if (f == 0) {
@@ -176,7 +182,7 @@ release_locks(gchar * str, gchar * pid_str, gchar * homedir) {
     
     if (strcmp(line,pid_str) == 0) {
 
-      remove(str);
+      ret = remove(str);
 
     }
 
@@ -196,25 +202,6 @@ int refresh_tor(gchar * maindir) {
   gchar * tok = 0;
   gchar * ptr = 0;
   
-  gchar * issue = exec("cat /etc/issue",20);
-  gchar * issuesub = substring(issue,0,12);
-  if (strcmp(issuesub,"Ubuntu 11.10")==0) {
-    pids = exec("pidof unity-panel-service",100);
-    rest = 0;
-    tok = 0;
-    ptr = pids;
-    while (!(tok = strtok_r(ptr, " \n", &rest))) {
-      sleep(1);
-      pids = exec("pidof unity-panel-service",100);
-      rest = 0;
-      tok = 0;
-      ptr = pids;
-    }
-    g_free(pids);
-  }
-  g_free(issuesub);
-  g_free(issue);
-
   pids = exec("pidof polipo",100);
   rest = 0;
   tok = 0;
@@ -227,8 +214,10 @@ int refresh_tor(gchar * maindir) {
     ret = system(str2);
     
   }
-  g_free(pids);
-  
+  if (pids != 0) {
+    g_free(pids);
+  }
+
   pids = exec("pidof tor",100);
   rest = 0;
   tok = 0;
@@ -246,7 +235,9 @@ int refresh_tor(gchar * maindir) {
   
   else {
     
-    g_free(pids);
+    if (pids != 0) {
+      g_free(pids);
+    }
     pids = exec("pidof vidalia",100);
     ptr = pids;
     
@@ -257,14 +248,41 @@ int refresh_tor(gchar * maindir) {
       strcpy(str2,maindir);
       strcat(str2,"/bin/vidalia >> /dev/null 2>> /dev/null &");
       ret = system(str2);
-      
     }
-    
   }
-  
-  g_free(pids);
+  if (pids != 0) {
+    g_free(pids);
+  }
   g_free(str2);
+  return(0);
+}
 
+int refresh_theme(gchar * maindir, const gchar * homedir, gchar * option) {
+
+  int ret = 0;
+  gchar * str = g_malloc(strlen(maindir)+strlen(homedir)+100);
+
+  strcpy(str,homedir);
+  strcat(str,"/.piratepack/theme/.installed");
+  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+    g_free(str);
+    return(0);
+  }
+
+  strcpy(str,homedir);
+  strcat(str,"/.piratepack/theme");
+  while (!g_file_test(str,G_FILE_TEST_IS_DIR)) {
+    sleep(1);
+  }
+
+  strcpy(str,maindir);
+  strcat(str,"/share/theme");
+  ret = chdir(str);
+
+  strcpy (str,"./install_theme.sh");
+  ret = system(str);
+
+  g_free(str);
   return(0);
 }
  
@@ -393,7 +411,7 @@ cb_execute( GtkButton *button,
 
     if (strcmp(data->action,"install") == 0) {
       argc = 3;
-      argv = malloc(sizeof(gchar*) * 4);
+      argv = g_malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup("--install");
       argv[2] = strdup("--async");
@@ -402,7 +420,7 @@ cb_execute( GtkButton *button,
     }
     else if (strcmp(data->action,"reinstall") == 0) {
       argc = 3;
-      argv = malloc(sizeof(gchar*) * 4);
+      argv = g_malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup("--reinstall");
       argv[2] = strdup("--async");
@@ -410,7 +428,7 @@ cb_execute( GtkButton *button,
     }
     else if (strcmp(data->action,"update") == 0) {
       argc = 3;
-      argv = malloc(sizeof(gchar*) * 4);
+      argv = g_malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup("--update");
       argv[2] = strdup("--async");
@@ -419,7 +437,7 @@ cb_execute( GtkButton *button,
     }
     else if (strcmp(data->action,"remove") == 0) {
       argc = 3;
-      argv = malloc(sizeof(gchar*) * 4);
+      argv = g_malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup( "--remove");
       argv[2] = strdup("--async");
@@ -428,7 +446,7 @@ cb_execute( GtkButton *button,
     }
     else if (strcmp(data->action,"install_pirate_file") == 0) {
       argc = 6;
-      argv = malloc(sizeof(gchar*) * 7);
+      argv = g_malloc(sizeof(gchar*) * 7);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup("--install-pirate-file");
       argv[2] = strdup(data->curpath);
@@ -441,15 +459,22 @@ cb_execute( GtkButton *button,
     }
     else if (strcmp(data->action,"refresh_tor") == 0) {
       argc = 3;
-      argv = malloc(sizeof(gchar*) * 4);
+      argv = g_malloc(sizeof(gchar*) * 4);
       argv[0] = strdup(data->processpath);
       argv[1] = strdup("--refresh-tor");
       argv[2] = strdup("--async");
       argv[3] = 0;
     }
+    else if (strcmp(data->action,"refresh_theme") == 0) {
+      argc = 2;
+      argv = g_malloc(sizeof(gchar*) * 3);
+      argv[0] = strdup(data->processpath);
+      argv[1] = strdup("--refresh-theme");
+      argv[2] = 0;
+    }
     else if (strcmp(data->action,"start_version") == 0) {
       argc = data->argc;
-      argv = malloc(sizeof(gchar*) * (data->argc + 1));
+      argv = g_malloc(sizeof(gchar*) * (data->argc + 1));
       argv[0] = strdup(data->versionpath);
       int i;
       for (i=1; i < (data->argc); i++) {
@@ -491,28 +516,31 @@ cb_execute( GtkButton *button,
     /* Install timeout function that will move the progress bar */
     data->timeout_id = g_timeout_add( 100, (GSourceFunc)cb_timeout, data );
 
-    int pid_len = numDigits(pid);
-    gchar * pid_str = g_malloc(pid_len+1);
-    sprintf(pid_str,"%d",pid);
-    gchar * str = g_malloc(strlen(data->homedir)+100);
-    strcpy(str,data->homedir);
-    strcat(str,"/.piratepack/.lock-");
-    strcat(str,pid_str);
-    FILE * f;
-    f = fopen (str,"w");
-    if (f != 0) {
-      fclose(f);
+    if ((strcmp(data->action,"refresh_theme")!=0)&&(strcmp(data->action,"refresh_tor")!=0)) {
+      int pid_len = numDigits(pid);
+      gchar * pid_str = g_malloc(pid_len+1);
+      sprintf(pid_str,"%d",pid);
+      gchar * str = g_malloc(strlen(data->homedir)+100);
+      strcpy(str,data->homedir);
+      strcat(str,"/.piratepack/.lock-");
+      strcat(str,pid_str);
+      FILE * f;
+      f = fopen (str,"w");
+      if (f != 0) {
+	fclose(f);
+      }
+      g_free(str);
+      g_free(pid_str);
+      
+      gsize * bytes_written = 0;
+      GError * error = 0;
+      g_io_channel_write_chars(in_ch, "ready\n", -1, bytes_written, &error);
+      g_io_channel_flush(in_ch, &error);
+      
+      g_free(bytes_written);
+      g_free(error);
     }
-    g_free(str);
-    g_free(pid_str);
 
-    gsize * bytes_written = 0;
-    GError * error = 0;
-    g_io_channel_write_chars(in_ch, "ready\n", -1, bytes_written, &error);
-    g_io_channel_flush(in_ch, &error);
-    
-    g_free(bytes_written);
-    g_free(error);
     g_io_channel_unref(in_ch);
     int i=0;
     while (i < argc) {
@@ -573,6 +601,15 @@ static void cb_execute_refresh_tor ( GtkButton *button,
 {
 
   data->action = strdup("refresh_tor");
+  cb_execute(button,data);
+
+}
+
+static void cb_execute_refresh_theme ( GtkButton *button,
+				     Data      *data)
+{
+
+  data->action = strdup("refresh_theme");
   cb_execute(button,data);
 
 }
@@ -846,14 +883,7 @@ install_pack(int argc, char **argv, Data * data)
   strcat (str,logpipe);
   ret = system(str);
 
-  strcpy(str,maindir);
-  strcat(str,"/share/theme");
-
-  ret = chdir(str);
-
-  strcpy (str,"./install_theme.sh & ");
-  strcat (str,logpipe);
-  ret = system(str);
+  //cb_execute_refresh_theme(0,data);
 
   ret = chdir(homedir);
   ret = chdir(".piratepack");
@@ -916,8 +946,6 @@ install_pack(int argc, char **argv, Data * data)
   g_free( logpipe );
   g_free( str );
 
-  cb_execute_refresh_tor(0,data);
- 
   return( 0 );
 }
 
@@ -1316,14 +1344,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (str,logpipe);
   ret = system(str);
 
-  strcpy(str,maindir);
-  strcat(str,"/share/theme");
-
-  ret = chdir(str);
-
-  strcpy (str,"./install_theme.sh & ");
-  strcat (str,logpipe);
-  ret = system(str);
+  //cb_execute_refresh_theme(0,data);
 
   ret = chdir(homedir);
   ret = chdir(".piratepack");
@@ -1386,8 +1407,6 @@ reinstall_pack(int argc, char **argv, Data * data)
   g_free( logpipe );
   g_free( str );
 
-  cb_execute_refresh_tor(0,data);
- 
   return( 0 );
 }
 
@@ -1414,7 +1433,7 @@ int remove_pack(int argc, char **argv, Data * data) {
   //strcpy(str,"Disabling");
   //fprintf( stderr, "%s\n", str );
 
-  gchar *logpipe = malloc(2*strlen(homedir)+200);
+  gchar *logpipe = g_malloc(2*strlen(homedir)+200);
 
   ret = chdir(homedir);
 
@@ -1984,7 +2003,7 @@ main( int argc, char ** argv ) {
   
   gchar * homedir = strdup(getenv("HOME"));
   
-  gchar * str = g_malloc(strlen(homedir)+strlen(processpath)+300);
+  gchar * str = g_malloc(strlen(homedir)+strlen(processpath)+350);
 
   if (getargi("--async",argc,argv) != -1) {
     gchar * strin = g_malloc(100);
@@ -1994,9 +2013,34 @@ main( int argc, char ** argv ) {
     g_free(strin);
   }
 
+  gchar refreshtor = 0;
+  if (argc == 2) {
+    if (strcmp(argv[1],"--refresh-tor")==0) {
+      refreshtor = '1';
+    }
+  }
+  gchar refreshtheme = 0;
+  gchar * themeoption = "none";
+  if (argc > 1) {
+    if (strcmp(argv[1],"--refresh-theme")==0) {
+      refreshtheme = '1';
+      if (argc == 3) {
+	themeoption = argv[2];
+      }
+    }
+  }
+
   strcpy(str,maindir);
-  strcat(str,"/.lock");
- 
+  if (refreshtor == '1') {
+    strcat(str,"/.refreshtor.lock");
+  }
+  else if (refreshtheme == '1') {
+    strcat(str,"/.refreshtheme.lock");
+  }
+  else {
+    strcat(str,"/.lock");
+  }
+
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
     g_free(processpath);
     g_free(processpathdir);
@@ -2021,7 +2065,7 @@ main( int argc, char ** argv ) {
 
     if (g_file_test(str,G_FILE_TEST_EXISTS)) {
       
-      remove(str);
+      ret = remove(str);
 
     }
     
@@ -2029,7 +2073,15 @@ main( int argc, char ** argv ) {
 
   }
 
-  strcat(str,"/.lock");
+  if (refreshtor == '1') {
+    strcat(str,"/.refreshtor.lock");
+  }
+  else if (refreshtheme == '1') {
+    strcat(str,"/.refreshtheme.lock");
+  }
+  else {
+    strcat(str,"/.lock");
+  }
   int pfd = open(str, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
   if (pfd == -1) {
@@ -2046,7 +2098,15 @@ main( int argc, char ** argv ) {
     else {
 
       strcpy(str,homedir);
-      strcat(str,"/.piratepack/.lock");
+      if (refreshtor == '1') {
+	strcat(str,"/.piratepack/.refreshtor.lock");
+      }
+      else if (refreshtheme == '1') {
+        strcat(str,"/.piratepack/.refreshtheme.lock");
+      }
+      else {
+	strcat(str,"/.piratepack/.lock");
+      }
       struct stat st;
       ret = stat (str, &st);
       time_t locktime = st.st_mtime;
@@ -2214,8 +2274,19 @@ main( int argc, char ** argv ) {
   strcpy (str,homedir);
   strcat (str,"/.piratepack/logs/.installed");
 
+  if (refreshtor == '1') {
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+      ret = refresh_tor(maindir);
+    }
+  }
+  else if (refreshtheme == '1') {
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+      ret = refresh_theme(maindir,homedir,themeoption);
+    }
+  }
+
   //If locally installed
-  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+  else if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 
     if (argc > 1) {
       if (strcmp(argv[1],"--remove")==0) {
@@ -2225,9 +2296,6 @@ main( int argc, char ** argv ) {
 	strcat (str2,"/.piratepack/logs/.disable");
 	ret = system (str2);
 	g_free(str2);
-      }
-      else if (strcmp(argv[1],"--refresh-tor")==0) {
-	ret = refresh_tor(data->maindir);
       }
     }
     
@@ -2341,9 +2409,6 @@ main( int argc, char ** argv ) {
 	  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 	    ret = remove_pack(argc,argv,data);
 	  }
-	  else {
-	    cb_execute_refresh_tor(0,data);
-	  }
 	}
 	else if (strcmp(argv[1],"--reinstall")==0) {
 	  ret = reinstall_pack(argc,argv,data);
@@ -2374,6 +2439,22 @@ main( int argc, char ** argv ) {
   
   //if not locally installed
   else {
+
+    if (refreshtor == '1') {
+      strcpy (str,homedir);
+      strcat (str,"/.piratepack/logs/.disable");
+      if (!g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+	ret = refresh_tor(maindir);
+      }
+    }
+    else if (refreshtheme == '1') {
+      strcpy (str,homedir);
+      strcat (str,"/.piratepack/logs/.disable");
+      if (!g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+        ret = refresh_theme(maindir,homedir,themeoption);
+      }
+    }
+
     if (argc > 1) {
       if (strcmp(argv[1],"--install")==0) {
 	ret = install_pack(argc,argv,data);
@@ -2393,7 +2474,17 @@ main( int argc, char ** argv ) {
     }
   }
 
-  release_locks(str,pid_str,homedir);
+  gchar * lockprefix = 0;
+  if (refreshtor == '1') {
+    lockprefix = ".refreshtor";
+  }
+  else if (refreshtheme == '1') {
+    lockprefix = ".refreshtheme";
+  }
+  else {
+    lockprefix = "";
+  }
+  release_locks(str,pid_str,homedir,lockprefix);
 
   g_free(str);
   g_free(pid_str);

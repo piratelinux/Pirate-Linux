@@ -10,4 +10,4 @@ homedir="$(pwd)"
 localdir="$homedir"/.piratepack
 
 grep -v "$basedir" .bashrc > .bashrc_tmp
-mv .bashrc_tmp .bashrc
+mv -f .bashrc_tmp .bashrc

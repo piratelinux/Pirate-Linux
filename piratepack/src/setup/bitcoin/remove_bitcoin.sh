@@ -6,5 +6,5 @@ maindir="$1"
 
 if [ -d "$maindir"/bitcoin ] && [ "$(ls -A $maindir/bitcoin)" ]
 then 
-    rm -r "$maindir"/bitcoin/*
+    rm -rf "$maindir"/bitcoin/*
 fi

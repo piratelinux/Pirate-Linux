@@ -1,3 +1,9 @@
+piratepack (1.4-2) unstable; urgency=low
+
+  * Added gimp to recommended packages
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 14 Jan 2012 19:53:32 -0700
+
 piratepack (1.4-1) unstable; urgency=low
 
   * Some more recommended packages

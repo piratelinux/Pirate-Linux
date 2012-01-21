@@ -72,17 +72,20 @@ then
     maindirlen=${#maindir}
     maindirlenadd=$(($maindirlen + 1))
     
-    while read -r line
-    do
-	ext=${line:$maindirlenadd}
-	if [[ "$ext" =~ ^[0-9]+$ ]] ; then
-	    if [ "$ext" -gt "$maxnum" ]
-	    then
-		maxnum="$ext"
+    if [ -e "$maindir"_* ]
+    then
+	while read -r line
+	do
+	    ext=${line:$maindirlenadd}
+	    if [[ "$ext" =~ ^[0-9]+$ ]] ; then
+		if [ "$ext" -gt "$maxnum" ]
+		then
+		    maxnum="$ext"
+		fi
 	    fi
-	fi
-    done < <(find "$maindir"_* -maxdepth 0)
-    
+	done < <(find "$maindir"_* -maxdepth 0)
+    fi
+
     maxnumadd=$(($maxnum + 1))
     maindir="$maindir"_"$maxnumadd"
     versionfull="$version"_"$maxnumadd"
@@ -112,10 +115,16 @@ then
     set +e
     ./configure
     make
+    chmod a+rx src/piratepack
     set -e
     cp src/piratepack "$maindir/bin"
     
     cd src/setup
+
+    set +e
+    chmod a+rx piratepack-refresh
+    set -e
+    cp piratepack-refresh "$maindir/bin"
 
     cd firefox-mods
     ./install_firefox-mods.sh "$maindir"
@@ -140,6 +149,8 @@ then
     mkdir -p "$basedir"/bin
     ln -sf "$maindir"/bin/piratepack "$basedir"/bin/piratepack-tmp
     mv -Tf "$basedir/bin/piratepack-tmp" "$basedir/bin/piratepack"
+    ln -sf "$maindir"/bin/piratepack-refresh "$basedir"/bin/piratepack-refresh-tmp
+    mv -Tf "$basedir/bin/piratepack-refresh-tmp" "$basedir/bin/piratepack-refresh"
     ln -sf "$maindir/bin-pack" "$basedir/bin-pack_tmp"
     mv -Tf "$basedir/bin-pack_tmp" "$basedir/bin-pack"
 
@@ -155,9 +166,9 @@ then
     echo "Version: $versionfull" > README
     cd ../..
     tar -czf piratepack.tar.gz piratepack
-    rm -r piratepack
+    rm -rf piratepack
     cd ..
-    mv piratepack piratepack-"$version"bin
+    mv -f piratepack piratepack-"$version"bin
     i=0
     n=${#version}
     subver=""
@@ -172,18 +183,23 @@ then
 	let i=i+1
     done
     tar -czf piratepack-"$subver".tar.gz piratepack-"$version"bin
-    rm -r piratepack-"$version"bin
+    rm -rf piratepack-"$version"bin
     cp piratepack-"$subver".tar.gz piratepack_"$subver".orig.tar.gz
     tar -xzf piratepack_"$subver".orig.tar.gz
-    mv debian piratepack-"$version"bin
+    mv -f debian piratepack-"$version"bin/
     cd piratepack-"$version"bin
     dpkg-buildpackage -us -uc
     cd ..
-    mv *.deb "$maindir"/bin-pack
-    
+    mv -f *.deb "$maindir"/bin-pack
+
+    grep -v "$basedir" /etc/profile > /etc/profile_tmp
+    mv -f /etc/profile_tmp /etc/profile
+    echo export PATH=\"$basedir/bin\":\"\$PATH\" >> /etc/profile
+    echo "\"$basedir/bin/piratepack\"" --refresh >> /etc/profile
     apt-key add "$curdir"/piratepack/src/setup/public.key
-    cp "$curdir"/piratepack/src/setup/pirate.list /etc/apt/sources.list.d/
-    
+    cp -f "$curdir"/piratepack/src/setup/pirate.list /etc/apt/sources.list.d/
+    cp -f "$curdir"/piratepack/src/setup/piratepack.desktop /etc/xdg/autostart/
+
     cd "$curdir"
     
 fi
@@ -194,11 +210,6 @@ then
     then
 	rm -rf piratepack
     fi
-
-    grep -v "$basedir" /etc/profile > /etc/profile_tmp
-    mv /etc/profile_tmp /etc/profile
-    echo export PATH=\"$basedir/bin\":\"\$PATH\" >> /etc/profile
-    echo "\"$basedir/bin/piratepack\"" --refresh >> /etc/profile
 fi
 
 #cleanup other versions
@@ -217,7 +228,7 @@ then
 		processdir="$(dirname $processpath)"
 		if [[ "$processdir" == "$line" ]]
 		then
-		    rm $line/.lock
+		    rm -f $line/.lock
 		    busy="1"
 		    break
 		fi
@@ -234,8 +245,20 @@ fi
 
 if [[ "$continue" == "1" ]]
 then
-
     ln -sf "$basedir/bin/piratepack" "/usr/bin/piratepack-tmp"
     mv -Tf "/usr/bin/piratepack-tmp" "/usr/bin/piratepack"
+    ln -sf "$basedir/bin/piratepack-refresh" "/usr/bin/piratepack-refresh-tmp"
+    mv -Tf "/usr/bin/piratepack-refresh-tmp" "/usr/bin/piratepack-refresh"
+fi
 
+cd "$maindir"/share/graphics
+
+if [[ "$continue" == "1" ]]
+then
+    cp -f logo_16.png /usr/share/icons/hicolor/16x16/apps/piratepack.png
+    cp -f logo_22.png /usr/share/icons/hicolor/22x22/apps/piratepack.png
+    cp -f logo_32.png /usr/share/icons/hicolor/32x32/apps/piratepack.png
+    cp -f logo_48.png /usr/share/icons/hicolor/48x48/apps/piratepack.png
+    cp -f logo_64.png /usr/share/icons/hicolor/64x64/apps/piratepack.png
+    cp -f logo_128.png /usr/share/icons/hicolor/128x128/apps/piratepack.png
 fi

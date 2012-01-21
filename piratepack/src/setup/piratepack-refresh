@@ -1,0 +1,3 @@
+#!/bin/bash
+piratepack --refresh-tor &
+piratepack --refresh-theme &

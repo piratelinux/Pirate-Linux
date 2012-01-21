@@ -33,7 +33,7 @@ then
     ./bjam install
     set -e
     cd ..
-    rm -r boost_1_46_1
+    rm -rf boost_1_46_1
 
     tar -xzf bitcoin-bitcoin-v0.5.1-0-gb12fc3e.tar.gz
     cd bitcoin-bitcoin-5623ee7
@@ -118,6 +118,13 @@ then
     cp icon.png ../../cwallet.png
     cd ../..
     rm -rf cwallet-0.1
+
+    set +e
+    chmod a+rx "$maindir"/share/bitcoin_build/client/bitcoin-qt
+    chmod a+rx "$maindir"/share/bitcoin_build/client/bitcoind
+    chmod a+rx "$maindir"/share/bitcoin_build/cwallet/cwallet
+    chmod a+rx "$maindir"/share/bitcoin_build/cwallet/cwallet-gui
+    set -e
 
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/bitcoin-qt ]
     then

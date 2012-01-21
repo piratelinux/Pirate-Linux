@@ -62,6 +62,12 @@ then
     rm -rf vidalia-0.2.15
 fi
 
+set +e
+chmod a+rx "$maindir"/share/polipo_build/bin/polipo
+chmod a+rx "$maindir"/share/tor_build/bin/tor
+chmod a+rx "$maindir"/share/vidalia_build/vidalia
+set -e
+
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/polipo ]
 then
     ln -s "$maindir"/share/polipo_build/bin/polipo "$maindir"/bin/polipo
@@ -99,23 +105,7 @@ echo 'maindir='"$maindir" >> tor-browser
 echo 'cd' >> tor-browser
 echo 'HOME="$(pwd)"' >> tor-browser
 echo >> tor-browser
-echo 'if [[ $(pidof polipo) == "" ]]' >> tor-browser
-echo 'then' >> tor-browser
-echo '$maindir/bin/polipo &' >> tor-browser
-echo 'fi' >> tor-browser
-echo >> tor-browser
-echo 'if [[ $(pidof tor) == "" ]]' >> tor-browser
-echo 'then' >> tor-browser
-echo 'kill $(pidof vidalia)' >> tor-browser
-echo '$maindir/bin/vidalia &' >> tor-browser
-echo 'else' >> tor-browser
-echo 'if [[ $(pidof vidalia) == "" ]]' >> tor-browser
-echo 'then' >> tor-browser
-echo 'kill $(pidof tor)' >> tor-browser
-echo '$maindir/bin/vidalia &' >> tor-browser
-echo 'fi' >> tor-browser
-echo 'fi' >> tor-browser
-echo >> tor-browser
+echo 'piratepack --refresh-tor' >> tor-browser
 echo 'pid=""' >> tor-browser
 echo >> tor-browser
 echo 'if [ -e "$HOME"/.piratepack/tor-browser/.purple ]' >> tor-browser
@@ -145,11 +135,11 @@ unzip {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi -d {e0204bd5-9d31-402b-a99d-a6a
 cp -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}-mods/installer/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}/* {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
 cd {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
 zip -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
-rm ../{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
-rm "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
+rm -f ../{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
+rm -f "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
 cp {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi "$maindir"/share/tor-browser/
 cd ..
-rm -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
+rm -rf {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
 
 cd "$curdir"
 
