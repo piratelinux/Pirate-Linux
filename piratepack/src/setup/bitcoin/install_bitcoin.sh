@@ -35,9 +35,9 @@ then
     cd ..
     rm -rf boost_1_46_1
 
-    tar -xzf bitcoin-bitcoin-v0.5.1-0-gb12fc3e.tar.gz
-    cd bitcoin-bitcoin-5623ee7
-    cp ../bitcoin-qt.pro .
+    tar -xzf bitcoin-0.5.2-linux.tar.gz
+    cd bitcoin-0.5.2-linux/src
+    cp ../../bitcoin-qt.pro .
     CUSTOM_INC="$maindir"/share/ssl_build/include
     CUSTOM_INC+=" "
     CUSTOM_INC+="$maindir"/share/db_build/include
@@ -65,7 +65,7 @@ then
     mkdir -p "$maindir"/share/bitcoin_build/client
     cp bitcoin-qt "$maindir"/share/bitcoin_build/client/
     cd src
-    cp ../../makefile.unix .
+    cp ../../../makefile.unix .
     export OPENSSL_INCLUDE_PATH="$maindir"/share/ssl_build/include
     export OPENSSL_LIB_PATH="$maindir"/share/ssl_build/lib
     export BDB_INCLUDE_PATH="$maindir"/share/db_build/include
@@ -87,8 +87,18 @@ then
     export BOOST_INCLUDE_PATH=""
     export BOOST_LIB_PATH=""
     cp bitcoind "$maindir"/share/bitcoin_build/client/
-    cd ../..
-    rm -rf bitcoin-bitcoin-5623ee7
+    cd ../../..
+    rm -rf bitcoin-0.5.2-linux
+
+    tar -xzf qrencode-3.2.0.tar.gz
+    cd qrencode-3.2.0
+    set +e
+    ./configure --prefix="$maindir"/share/qrencode_build
+    make
+    make install
+    set -e
+    cd ..
+    rm -rf qrencode-3.20
 
     tar -xzf cwallet-0.1.tar.gz
     cd cwallet-0.1
@@ -134,6 +144,11 @@ then
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/bitcoind ]
     then
         ln -s "$maindir"/share/bitcoin_build/client/bitcoind "$maindir"/bin/bitcoind
+    fi
+
+    if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/qrencode ]
+    then
+        ln -s "$maindir"/share/qrencode_build/bin/qrencode "$maindir"/bin/qrencode
     fi
 
     if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/cwallet ]

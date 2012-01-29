@@ -9,7 +9,7 @@ Homepage: http://www.piratelinux.org
 Package: piratepack
 Architecture: all
 Pre-Depends: build-essential
-Depends: ${misc:Depends}, debhelper, zlib1g, libgtk2.0-dev, libqt4-dev, cmake, firefox | iceweasel, pidgin-otr, perl (>= 5), zip, unzip, uuid-runtime, ffmpeg, qrencode, imagemagick, texinfo
+Depends: ${misc:Depends}, debhelper, zlib1g, libgtk2.0-dev, libqt4-dev, cmake, firefox | iceweasel, pidgin-otr, perl (>= 5), zip, unzip, uuid-runtime, ffmpeg, imagemagick, texinfo
 Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence | onboard, seahorse-plugins, network-manager-openvpn, ekiga, phatch, transmission, lm-sensors, gimp
 Conflicts: ttf-mscorefonts-installer
 Replaces: ttf-mscorefonts-installer
