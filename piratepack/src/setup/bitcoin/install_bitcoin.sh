@@ -99,8 +99,11 @@ then
     set -e
     cd ..
     rm -rf qrencode-3.20
+<<<<<<< HEAD
 
     export PATH="$maindir"/share/qrencode_build/bin:"$PATH"
+=======
+>>>>>>> 7fd04e507f2e8dd14591c37aee0f6d66534b1a12
 
     tar -xzf cwallet-0.1.tar.gz
     cd cwallet-0.1
