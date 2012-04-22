@@ -1,3 +1,39 @@
+piratepack (1.4-4dev5) unstable; urgency=low
+
+  * Tor and I2P chat, new location for local piratepack meta info
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Sat, 21 Apr 2012 05:42:05 -0600
+
+piratepack (1.4-4dev4) unstable; urgency=low
+
+  * Fixed multi instances, added background images
+
+ -- Andrew K <akarmn@gmail.com>  Tue, 17 Apr 2012 10:16:49 -0600
+
+piratepack (1.4-4dev3) unstable; urgency=low
+
+  * Fixed i2p for Ubuntu 11.10+
+
+ -- Andrew K <akarmn@gmail.com>  Wed, 11 Apr 2012 19:28:25 -0600
+
+piratepack (1.4-4dev2) unstable; urgency=low
+
+  * Fixed i2p build
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 07 Apr 2012 14:09:07 -0600
+
+piratepack (1.4-4dev) unstable; urgency=low
+
+  * Added i2p
+
+ -- Andrew K <akarmn@gmail.com>  Sat, 07 Apr 2012 12:44:12 -0600
+
+piratepack (1.4-4) unstable; urgency=low
+
+  * Fixed cwallet-gui
+
+ -- Andrew K <akarmn@gmail.com>  Tue, 07 Feb 2012 18:50:45 -0700
+
 piratepack (1.4-3) unstable; urgency=low
 
   * Fixed tor-browser security & added qrencode for compilation

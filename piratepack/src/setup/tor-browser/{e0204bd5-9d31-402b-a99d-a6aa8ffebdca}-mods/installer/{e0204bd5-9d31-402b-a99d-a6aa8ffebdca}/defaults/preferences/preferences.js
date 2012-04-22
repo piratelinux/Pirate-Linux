@@ -11,10 +11,10 @@ pref("extensions.{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.description", "chrome://
 // proxy prefs
 pref("extensions.torbutton.settings_method",'custom');
 pref("extensions.torbutton.use_privoxy",false);
-pref("extensions.torbutton.http_proxy","127.0.0.1");
-pref("extensions.torbutton.http_port",8123);
-pref("extensions.torbutton.https_proxy","127.0.0.1");
-pref("extensions.torbutton.https_port",8123);
+pref("extensions.torbutton.http_proxy","");
+pref("extensions.torbutton.http_port",0);
+pref("extensions.torbutton.https_proxy","");
+pref("extensions.torbutton.https_port",0);
 pref("extensions.torbutton.ftp_proxy","");
 pref("extensions.torbutton.ftp_port",0);
 pref("extensions.torbutton.gopher_proxy","");

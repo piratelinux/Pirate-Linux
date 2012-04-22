@@ -14,7 +14,14 @@ if [ -f "$localdir"/.installed ]
 then
     while read line
     do
-	if [[ "$issue" == *"Ubuntu"*"11.10"* ]]
+
+	if [[ "$line" == "$homedir"/Pictures/pirate ]]
+	then
+	    rm -rf "$line"
+	    continue
+	fi
+
+	if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"precise"* ]]
 	then
 	    if [[ "$(gsettings get org.gnome.desktop.background picture-uri)" == "'file:///$line'" ]]
 	    then

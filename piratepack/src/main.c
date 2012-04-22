@@ -193,30 +193,20 @@ release_locks(gchar * str, gchar * pid_str, gchar * homedir, gchar * prefix) {
 
 }
 
-int refresh_tor(gchar * maindir) {
+int refresh_tor(gchar * maindir,gchar * homedir) {
 
   int ret;
-  gchar * str2 = g_malloc(strlen(maindir)+100);
+  gchar * str2 = g_malloc(strlen(maindir)+strlen(homedir)+100);
   gchar * pids = 0;
   gchar * rest = 0;
   gchar * tok = 0;
   gchar * ptr = 0;
   
-  pids = exec("pidof polipo",100);
-  rest = 0;
-  tok = 0;
-  ptr = pids;
-  
-  if (!(tok = strtok_r(ptr, " \n", &rest))) {
-    
-    strcpy(str2,maindir);
-    strcat(str2,"/bin/polipo >> /dev/null 2>> /dev/null &");
-    ret = system(str2);
-    
-  }
-  if (pids != 0) {
-    g_free(pids);
-  }
+  strcpy(str2,maindir);
+  strcat(str2,"/bin/polipo -c ");
+  strcat(str2,homedir);
+  strcat(str2,"/.polipo_tor >> /dev/null 2>> /dev/null &");
+  ret = system(str2);
 
   pids = exec("pidof tor",100);
   rest = 0;
@@ -228,9 +218,8 @@ int refresh_tor(gchar * maindir) {
     ret = system("kill $(pidof vidalia) >> /dev/null 2>> /dev/null");
     
     strcpy(str2,maindir);
-    strcat(str2,"/bin/vidalia >> /dev/null 2>> /dev/null &");
+    strcat(str2,"/bin/tor-instance >> /dev/null 2>> /dev/null &");
     ret = system(str2);
-    
   }
   
   else {
@@ -246,7 +235,7 @@ int refresh_tor(gchar * maindir) {
       ret = system("kill $(pidof tor) >> /dev/null 2>> /dev/null");
       
       strcpy(str2,maindir);
-      strcat(str2,"/bin/vidalia >> /dev/null 2>> /dev/null &");
+      strcat(str2,"/bin/tor-instance >> /dev/null 2>> /dev/null &");
       ret = system(str2);
     }
   }
@@ -672,24 +661,24 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(".piratepack");
 
-  if (g_file_test("logs/.installed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod -R u+rw logs/.installed ");
+  if (g_file_test(".installed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod -R u+rw .installed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm -rf logs/.installed ");
+    strcpy (str,"rm -rf .installed ");
     strcat (str,logpipe);
     ret = system(str);
   }
 
-  strcpy (str,"touch logs/.installed ");
+  strcpy (str,"touch .installed ");
   strcat (str,logpipe);
   ret = system(str);
 
   gchar * processpathsub = substring(processpath,strlen(basedir)+1,strlen(processpath)-strlen(basedir)-1);
   strcpy (str,"echo Path: ");
   strcat (str,processpathsub);
-  strcat (str," >> logs/.installed 2>> logs/piratepack_install.log");
+  strcat (str," >> .installed 2>> logs/piratepack_install.log");
   ret = system(str); 
   g_free(processpathsub);
 
@@ -722,10 +711,14 @@ install_pack(int argc, char **argv, Data * data)
   strcat (str,logpipe);
   ret = system(str);
 
+  strcpy(str,maindir);
+  strcat(str,"/bin/polipo >> /dev/null 2>> /dev/null &");
+  ret = system(str);
+
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo firefox-mods >> .installed 2>> logs/piratepack_install.log");
 
   //install tor-browser
 
@@ -759,7 +752,38 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo tor-browser >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo tor-browser >> .installed 2>> logs/piratepack_install.log");
+
+  //install i2p-browser
+
+  if (g_file_test("i2p-browser",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw i2p-browser ");
+    strcat (str,logpipe);
+    ret = system(str);
+
+    strcpy (str,"rm -rf i2p-browser ");
+    strcat (str,logpipe);
+    ret = system(str);
+  }
+
+  strcpy (str,"mkdir i2p-browser ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  strcpy(str,maindir);
+  strcat(str,"/share/i2p-browser");
+
+  ret = chdir(str);
+
+  strcpy (str,"./install_i2p-browser.sh ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  ret = chdir(homedir);
+  ret = chdir(".piratepack");
+
+  ret = system("echo i2p-browser >> .installed 2>> logs/piratepack_install.log");
 
   //install file-manager
 
@@ -793,7 +817,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo file-manager >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo file-manager >> .installed 2>> logs/piratepack_install.log");
 
   //install ppcavpn
 
@@ -827,7 +851,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo ppcavpn >> .installed 2>> logs/piratepack_install.log");
 
   //install bitcoin
 
@@ -861,7 +885,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo bitcoin >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo bitcoin >> .installed 2>> logs/piratepack_install.log");
 
   //install theme
 
@@ -888,7 +912,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo theme >> .installed 2>> logs/piratepack_install.log");
 
   strcpy(str,maindir);
   strcat(str,"/share");
@@ -918,22 +942,22 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(homedir);
 
-  if (g_file_test(".piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.removed ");
+  if (g_file_test(".piratepack/.removed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.removed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.removed ");
+    strcpy (str,"rm .piratepack/.removed ");
     strcat (str,logpipe);
     ret = system(str);
   }
 
-  if (g_file_test(".piratepack/logs/.disable",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.disable ");
+  if (g_file_test(".piratepack/.disable",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.disable ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.disable ");
+    strcpy (str,"rm .piratepack/.disable ");
     strcat (str,logpipe);
     ret = system(str);
   }
@@ -1003,7 +1027,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
     gchar line[200];
     FILE *fp;
-    fp = fopen("logs/.installed", "r");
+    fp = fopen(".installed", "r");
     if(!fp) return 1;
 
     while((!feof(fp)) && (fgets(line,200,fp) != 0)) {
@@ -1088,16 +1112,16 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(homedir);
 
-  strcpy (str,"touch .piratepack/logs/.removed ");
+  strcpy (str,"touch .piratepack/.removed ");
   strcat (str,logpipe);
   ret = system(str);
 
-  if (g_file_test(".piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.installed ");
+  if (g_file_test(".piratepack/.installed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.installed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.installed ");
+    strcpy (str,"rm .piratepack/.installed ");
     strcat (str,logpipe);
     ret = system(str);
   }
@@ -1133,24 +1157,24 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(".piratepack");
 
-  if (g_file_test("logs/.installed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod -R u+rw logs/.installed ");
+  if (g_file_test(".installed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod -R u+rw .installed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm -rf logs/.installed ");
+    strcpy (str,"rm -rf .installed ");
     strcat (str,logpipe);
     ret = system(str);
   }
 
-  strcpy (str,"touch logs/.installed ");
+  strcpy (str,"touch .installed ");
   strcat (str,logpipe);
   ret = system(str);
 
   gchar * processpathsub = substring(processpath,strlen(basedir)+1,strlen(processpath)-strlen(basedir)-1);
   strcpy (str,"echo Path: ");
   strcat (str,processpathsub);
-  strcat (str," >> logs/.installed 2>> logs/piratepack_install.log");
+  strcat (str," >> .installed 2>> logs/piratepack_install.log");
   ret = system(str); 
   g_free(processpathsub);
 
@@ -1183,10 +1207,14 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (str,logpipe);
   ret = system(str);
 
+  strcpy(str,maindir);
+  strcat(str,"/bin/polipo >> /dev/null 2>> /dev/null &");
+  ret = system(str);
+
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo firefox-mods >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo firefox-mods >> .installed 2>> logs/piratepack_install.log");
 
   //install tor-browser
 
@@ -1220,7 +1248,38 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo tor-browser >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo tor-browser >> .installed 2>> logs/piratepack_install.log");
+
+  //install i2p-browser
+
+  if (g_file_test("i2p-browser",G_FILE_TEST_IS_DIR)) {
+
+    strcpy (str,"chmod -R u+rw i2p-browser ");
+    strcat (str,logpipe);
+    ret = system(str);
+
+    strcpy (str,"rm -rf i2p-browser ");
+    strcat (str,logpipe);
+    ret = system(str);
+  }
+
+  strcpy (str,"mkdir i2p-browser ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  strcpy(str,maindir);
+  strcat(str,"/share/i2p-browser");
+
+  ret = chdir(str);
+
+  strcpy (str,"./install_i2p-browser.sh ");
+  strcat (str,logpipe);
+  ret = system(str);
+
+  ret = chdir(homedir);
+  ret = chdir(".piratepack");
+
+  ret = system("echo i2p-browser >> .installed 2>> logs/piratepack_install.log");
 
   //install file-manager
 
@@ -1254,7 +1313,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo file-manager >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo file-manager >> .installed 2>> logs/piratepack_install.log");
 
   //install ppcavpn
 
@@ -1288,7 +1347,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo ppcavpn >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo ppcavpn >> .installed 2>> logs/piratepack_install.log");
 
 //install bitcoin
 
@@ -1322,7 +1381,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo bitcoin >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo bitcoin >> .installed 2>> logs/piratepack_install.log");
 
   //install theme
 
@@ -1349,7 +1408,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo theme >> logs/.installed 2>> logs/piratepack_install.log");
+  ret = system("echo theme >> .installed 2>> logs/piratepack_install.log");
 
   strcpy(str,maindir);
   strcat(str,"/share");
@@ -1379,22 +1438,22 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(homedir);
 
-  if (g_file_test(".piratepack/logs/.removed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.removed ");
+  if (g_file_test(".piratepack/.removed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.removed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.removed ");
+    strcpy (str,"rm .piratepack/.removed ");
     strcat (str,logpipe);
     ret = system(str);
   }
 
-  if (g_file_test(".piratepack/logs/.disable",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.disable ");
+  if (g_file_test(".piratepack/.disable",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.disable ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.disable ");
+    strcpy (str,"rm .piratepack/.disable ");
     strcat (str,logpipe);
     ret = system(str);
   }
@@ -1468,7 +1527,7 @@ int remove_pack(int argc, char **argv, Data * data) {
 
     gchar line[200];
     FILE *fp;
-    fp = fopen("logs/.installed", "r");
+    fp = fopen(".installed", "r");
     if(!fp) return 1;
 
     while( (!feof(fp)) && (fgets(line,200,fp) != 0) ) {
@@ -1553,16 +1612,16 @@ int remove_pack(int argc, char **argv, Data * data) {
 
   ret = chdir(homedir);
 
-  strcpy (str,"touch .piratepack/logs/.removed ");
+  strcpy (str,"touch .piratepack/.removed ");
   strcat (str,logpipe);
   ret = system(str);
 
-  if (g_file_test(".piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
-    strcpy (str,"chmod u+rw .piratepack/logs/.installed ");
+  if (g_file_test(".piratepack/.installed",G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,"chmod u+rw .piratepack/.installed ");
     strcat (str,logpipe);
     ret = system(str);
 
-    strcpy (str,"rm .piratepack/logs/.installed ");
+    strcpy (str,"rm .piratepack/.installed ");
     strcat (str,logpipe);
     ret = system(str);
   }
@@ -1592,7 +1651,7 @@ int open_pirate_file(int argc, char **argv, Data * data) {
 
   ret = chdir(homedir);
 
-  if (!g_file_test(".piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
+  if (!g_file_test(".piratepack/.installed",G_FILE_TEST_IS_REGULAR)) {
     return ( 0 );
   }
 
@@ -1717,7 +1776,7 @@ int open_pirate_file(int argc, char **argv, Data * data) {
   progress = (GtkProgressBar *)gtk_progress_bar_new();
   gtk_table_attach( GTK_TABLE( table1 ),(GtkWidget *)progress, 1, 2, 2, 3, GTK_FILL, GTK_SHRINK | GTK_FILL, 5, 0 );
   strcpy (str,homedir);
-  strcat (str,"/.piratepack/logs/.installed");
+  strcat (str,"/.piratepack/.installed");
   hbuttonbox = (GtkHButtonBox *)gtk_hbutton_box_new();
   
   if (error == 1) {
@@ -1797,7 +1856,7 @@ int install_pirate_file(int argc, char **argv, Data * data) {
 
   ret = chdir(homedir);
 
-  if (!g_file_test(".piratepack/logs/.installed",G_FILE_TEST_IS_REGULAR)) {
+  if (!g_file_test(".piratepack/.installed",G_FILE_TEST_IS_REGULAR)) {
     return ( 0 );
   }
 
@@ -1940,7 +1999,7 @@ int gui_status(int argc, char ** argv, Data * data) {
   progress = (GtkProgressBar *)gtk_progress_bar_new();
   gtk_table_attach( GTK_TABLE( table1 ),(GtkWidget *)progress, 1, 2, 2, 3, GTK_FILL, GTK_SHRINK | GTK_FILL, 5, 0 );
   strcpy (str,homedir);
-  strcat (str,"/.piratepack/logs/.installed");
+  strcat (str,"/.piratepack/.installed");
   hbuttonbox = (GtkHButtonBox *)gtk_hbutton_box_new();
   
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
@@ -2272,11 +2331,11 @@ main( int argc, char ** argv ) {
   data->argc = argc;
 
   strcpy (str,homedir);
-  strcat (str,"/.piratepack/logs/.installed");
+  strcat (str,"/.piratepack/.installed");
 
   if (refreshtor == '1') {
     if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
-      ret = refresh_tor(maindir);
+      ret = refresh_tor(maindir,homedir);
     }
   }
   else if (refreshtheme == '1') {
@@ -2293,7 +2352,7 @@ main( int argc, char ** argv ) {
 	gchar * str2 = g_malloc(strlen(homedir)+100);
 	strcpy (str2,"touch ");
 	strcat (str2,homedir);
-	strcat (str2,"/.piratepack/logs/.disable");
+	strcat (str2,"/.piratepack/.disable");
 	ret = system (str2);
 	g_free(str2);
       }
@@ -2355,7 +2414,7 @@ main( int argc, char ** argv ) {
       if (argc > 1) {
 	if (strcmp(argv[1],"--refresh") == 0) {
           strcpy (str,homedir);
-          strcat (str,"/.piratepack/logs/.disable");
+          strcat (str,"/.piratepack/.disable");
           if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
             ret = remove_pack(argc,argv,data);
           }
@@ -2390,7 +2449,7 @@ main( int argc, char ** argv ) {
       }
       else {
 	strcpy (str,homedir);
-	strcat (str,"/.piratepack/logs/.disable");
+	strcat (str,"/.piratepack/.disable");
 	if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 	  ret = remove_pack(argc,argv,data);
 	}
@@ -2405,9 +2464,14 @@ main( int argc, char ** argv ) {
 	gchar * argvsub = substring(argv[1],strlen(argv[1])-7,7);
 	if (strcmp(argv[1],"--refresh")==0) {
 	  strcpy (str,homedir);
-	  strcat (str,"/.piratepack/logs/.disable");
+	  strcat (str,"/.piratepack/.disable");
 	  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 	    ret = remove_pack(argc,argv,data);
+	  }
+	  else {
+	    strcpy(str,maindir);
+	    strcat(str,"/bin/polipo >> /dev/null 2>> /dev/null &");
+	    ret = system(str);
 	  }
 	}
 	else if (strcmp(argv[1],"--reinstall")==0) {
@@ -2442,14 +2506,14 @@ main( int argc, char ** argv ) {
 
     if (refreshtor == '1') {
       strcpy (str,homedir);
-      strcat (str,"/.piratepack/logs/.disable");
+      strcat (str,"/.piratepack/.disable");
       if (!g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
-	ret = refresh_tor(maindir);
+	ret = refresh_tor(maindir,homedir);
       }
     }
     else if (refreshtheme == '1') {
       strcpy (str,homedir);
-      strcat (str,"/.piratepack/logs/.disable");
+      strcat (str,"/.piratepack/.disable");
       if (!g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
         ret = refresh_theme(maindir,homedir,themeoption);
       }
@@ -2462,11 +2526,12 @@ main( int argc, char ** argv ) {
       else if (strcmp(argv[1],"--refresh")==0) {
 	
 	strcpy (str,homedir);
-	strcat (str,"/.piratepack/logs/.disable");
+	strcat (str,"/.piratepack/.disable");
 
 	if (!g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
 	  ret = install_pack(argc,argv,data);
 	}
+
       }
     }
     else {

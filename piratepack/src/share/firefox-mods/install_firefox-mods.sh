@@ -164,5 +164,50 @@ then
 
     cd "$profiledir"
     echo 'user_pref("browser.startup.homepage", "http://piratelinux.org/start");' >> prefs.js
+    echo 'user_pref("network.proxy.http", "127.0.0.1");' >> prefs.js
+    echo 'user_pref("network.proxy.http_port", 8124);' >> prefs.js
+    echo 'user_pref("network.proxy.ssl", "127.0.0.1");' >> prefs.js
+    echo 'user_pref("network.proxy.ssl_port", 8124);' >> prefs.js
 
 fi
+
+cd
+
+if [ -f .polipo ]
+then
+    if [ ! -d .piratepack/backup ]
+    then
+        mkdir .piratepack/backup
+    fi
+    chmod u+rwx .piratepack/backup
+
+    set +e
+    numbackup="$(ls .piratepack/backup/polipo_* 2>> /dev/null | wc -l)"
+    set -e
+    if [ "$numbackup" -ge "0" ]
+    then
+        chmod u+r .polipo
+        cp .polipo .piratepack/backup/"polipo"_"$(($numbackup + 1))"
+        chmod a-w .piratepack/backup/"polipo"_"$(($numbackup + 1))"
+        rm -rf .polipo
+    fi
+fi
+
+cp -r "$curdir/.polipo" ~/
+
+if [ ! -d .local ]
+ then mkdir .local
+fi
+cd .local
+if [ ! -d share ]
+ then mkdir share
+fi
+cd share
+if [ ! -d icons ]
+ then mkdir icons
+fi
+cp "$curdir/firefox-pm.png" icons
+if [ ! -d applications ]
+ then mkdir applications
+fi
+cp "$curdir/firefox-pm.desktop" applications

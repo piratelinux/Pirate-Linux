@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Tor Browser
+Name=Tor Web Browser
 Icon=tor-browser.png
 Terminal=false
 Type=Application
 Categories=Network;P2P;
-Comment=Anonymous Browsing
+Comment=Browse anonymously

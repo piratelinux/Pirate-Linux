@@ -1,7 +1,7 @@
 Source: piratepack
 Section: admin
 Priority: optional
-Maintainer: Andrew K <akarmn@gmail.com>
+Maintainer: Pirate Linux Keymaster <keymaster@piratelinux.org>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.9.1
 Homepage: http://www.piratelinux.org
@@ -9,8 +9,8 @@ Homepage: http://www.piratelinux.org
 Package: piratepack
 Architecture: all
 Pre-Depends: build-essential
-Depends: ${misc:Depends}, debhelper, zlib1g, libgtk2.0-dev, libqt4-dev, cmake, firefox | iceweasel, pidgin-otr, perl (>= 5), zip, unzip, uuid-runtime, ffmpeg, imagemagick, texinfo
-Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence | onboard, seahorse-plugins, network-manager-openvpn, ekiga, phatch, transmission, lm-sensors, gimp
+Depends: ${misc:Depends}, debhelper, zlib1g, libgtk2.0-dev, libqt4-dev, cmake, firefox | iceweasel, pidgin-otr, perl (>= 5), zip, unzip, uuid-runtime, ffmpeg, imagemagick, texinfo, default-jdk, ant, libgmp3-dev
+Recommends: amule, ubuntu-restricted-extras, ttf-liberation, florence | onboard, seahorse-plugins | seahorse-nautilus, network-manager-openvpn, linphone, phatch, transmission, lm-sensors, gimp, enigmail, macchanger
 Conflicts: ttf-mscorefonts-installer
 Replaces: ttf-mscorefonts-installer
 Description: Pirate Pack

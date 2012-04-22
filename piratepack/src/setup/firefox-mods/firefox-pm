@@ -1,0 +1,56 @@
+#!/bin/bash
+
+set -e
+
+cd
+homedir="$(pwd)"
+localdir="$homedir"/.piratepack/firefox-mods
+extdir="$maindir"/share/firefox-mods/whoami
+extname="whoami@didierstevens.aq"
+
+version="4"
+set +e
+versioncmd="$(firefox -version)"
+set -e
+if [[ "$versioncmd" == *"Firefox 3"* ]] || [[ "$versioncmd" == *"Iceweasel 3"* ]]
+then
+    version="3"
+fi
+
+cd .mozilla/firefox
+
+while read -r line
+do
+
+    if [ ! -d "$line" ]
+    then
+	continue
+    fi
+
+    echo "reading ""$line"
+
+    if [ ! -f "$line"/extensions/staged/"$extname".xpi ] && [ ! -d "$line"/extensions/staged/"$extname" ]
+    then
+	if [ ! -f "$line"/extensions/"$extname".xpi ] && [ ! -d "$line"/extensions/"$extname" ]
+	then
+	    if [[ "$version" == "3" ]]
+            then
+		mkdir -p "$line"/extensions
+                unzip "$extdir"/"$extname".xpi -d "$line"/extensions/"$extname"
+                echo "$homedir"/.mozilla/firefox/"$line"/extensions/"$extname" >> "$localdir"/.installed
+            else
+		mkdir -p "$line"/extensions/staged
+                cp "$extdir"/"$extname".xpi "$line"/extensions/staged/
+		echo "$homedir"/.mozilla/firefox/"$line"/extensions/"$extname".xpi >> "$localdir"/.installed
+                echo "$homedir"/.mozilla/firefox/"$line"/extensions/staged/"$extname".xpi >> "$localdir"/.installed
+		echo "$homedir"/.mozilla/firefox/"$line"/extensions/"$extname" >> "$localdir"/.installed
+                echo "$homedir"/.mozilla/firefox/"$line"/extensions/staged/"$extname" >> "$localdir"/.installed
+                cp "$extdir"/"$extname".json "$line"/extensions/staged/
+		echo "$homedir"/.mozilla/firefox/"$line"/extensions/"$extname".json >> "$localdir"/.installed
+            fi
+	fi
+    fi
+
+done < <(find *"."* -maxdepth 0)
+
+firefox -P -no-remote

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+cd
+homedir="$(pwd)"
+
+psline="$(pidof i2psvc)"
+if [[ x"$psline" == x"" ]]
+then
+    "$maindir"/bin/i2p-browser &
+fi
+
+localdir="$homedir"/.piratepack/i2p-browser
+
+cd "$localdir"
+uuid="$(uuidgen)"
+username="$(cat /dev/urandom| tr -dc 'a-z' | head -c 1)""${uuid:0:7}"
+tar -xzf "$maindir"/share/i2p-browser/purple.tar.gz
+cd .purple
+awk '{sub(/anon/,"'"$username"'"); print}' accels > accels_tmp
+mv accels_tmp accels
+awk '{sub(/anon/,"'"$username"'"); print}' accounts.xml > accounts.xml_tmp
+mv accounts.xml_tmp accounts.xml
+awk '{sub(/anon/,"'"$username"'"); print}' blist.xml > blist.xml_tmp
+mv blist.xml_tmp blist.xml
+awk '{sub(/[$]autoacceptpath/,"'"$localdir/.purple/autoaccept"'"); print}' prefs.xml > prefs.xml_tmp
+mv prefs.xml_tmp prefs.xml
+cd ..
+pidgin --config="$localdir"/.purple
+rm -rf .purple

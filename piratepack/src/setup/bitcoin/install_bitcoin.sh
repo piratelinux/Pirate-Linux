@@ -35,9 +35,19 @@ then
     cd ..
     rm -rf boost_1_46_1
 
-    tar -xzf bitcoin-0.5.2-linux.tar.gz
-    cd bitcoin-0.5.2-linux/src
-    cp ../../bitcoin-qt.pro .
+    tar -xzf qrencode-3.2.0.tar.gz
+    cd qrencode-3.2.0
+    set +e
+    ./configure --prefix="$maindir"/share/qrencode_build --enable-static=yes
+    make
+    make install
+    set -e
+    cd ..
+    rm -rf qrencode-3.20
+
+    tar -xzf bitcoin-bitcoin-v0.6.0-0-ga1c3d8f.tar.gz
+    cd bitcoin-bitcoin-b3b5ab1
+    cp ../bitcoin-qt.pro .
     CUSTOM_INC="$maindir"/share/ssl_build/include
     CUSTOM_INC+=" "
     CUSTOM_INC+="$maindir"/share/db_build/include
@@ -45,6 +55,8 @@ then
     CUSTOM_INC+="$maindir"/share/miniupnpc_build/include
     CUSTOM_INC+=" "
     CUSTOM_INC+="$maindir"/share/boost_build/include
+    CUSTOM_INC+=" "
+    CUSTOM_INC+="$maindir"/share/qrencode_build/include
     export CUSTOM_INC
     set +e
     qmake
@@ -57,6 +69,8 @@ then
     SUBLIBS+=-L"$maindir"/share/miniupnpc_build/lib
     SUBLIBS+=" "
     SUBLIBS+=-L"$maindir"/share/boost_build/lib
+    SUBLIBS+=" "
+    SUBLIBS+=-L"$maindir"/share/qrencode_build/lib
     export SUBLIBS
     set +e
     make
@@ -65,7 +79,7 @@ then
     mkdir -p "$maindir"/share/bitcoin_build/client
     cp bitcoin-qt "$maindir"/share/bitcoin_build/client/
     cd src
-    cp ../../../makefile.unix .
+    cp ../../makefile.unix .
     export OPENSSL_INCLUDE_PATH="$maindir"/share/ssl_build/include
     export OPENSSL_LIB_PATH="$maindir"/share/ssl_build/lib
     export BDB_INCLUDE_PATH="$maindir"/share/db_build/include
@@ -87,18 +101,8 @@ then
     export BOOST_INCLUDE_PATH=""
     export BOOST_LIB_PATH=""
     cp bitcoind "$maindir"/share/bitcoin_build/client/
-    cd ../../..
-    rm -rf bitcoin-0.5.2-linux
-
-    tar -xzf qrencode-3.2.0.tar.gz
-    cd qrencode-3.2.0
-    set +e
-    ./configure --prefix="$maindir"/share/qrencode_build
-    make
-    make install
-    set -e
-    cd ..
-    rm -rf qrencode-3.20
+    cd ../..
+    rm -rf bitcoin-bitcoin-b3b5ab1
 
     export PATH="$maindir"/share/qrencode_build/bin:"$PATH"
 

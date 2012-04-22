@@ -25,5 +25,9 @@ rm -rf "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
 
 rm -f .local/share/applications/tor-browser.desktop
 rm -f .local/share/icons/tor-browser.png
+rm -f .local/share/applications/tor-instance.desktop
+rm -f .local/share/icons/tor-instance.png
+rm -f .local/share/applications/tor-irc.desktop
+rm -f .local/share/icons/tor-irc.png
 
 set -e

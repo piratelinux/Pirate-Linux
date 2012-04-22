@@ -57,13 +57,7 @@ then
 
     if [ ! -d "$basedir" ]
     then
-	if [ ! -d $(dirname "$basedir") ]
-	then
-	    echo "parent directory of specified base directory does not exist"
-            continue="0"
-	else
-	    mkdir "$basedir"
-	fi
+	mkdir -p "$basedir"
     fi
 
     maindir="$basedir/ver-$version"
@@ -121,6 +115,9 @@ then
     
     cd src/setup
 
+    echo '#!/bin/bash' > piratepack-refresh
+    echo "$basedir"'/bin/piratepack --refresh-tor &' >> piratepack-refresh
+    echo "$basedir"'/bin/piratepack --refresh-theme &' >> piratepack-refresh
     set +e
     chmod a+rx piratepack-refresh
     set -e
@@ -133,6 +130,11 @@ then
 
     cd tor-browser
     ./install_tor-browser.sh "$maindir"
+
+    cd ..
+
+    cd i2p-browser
+    ./install_i2p-browser.sh "$maindir"
 
     cd ..
 

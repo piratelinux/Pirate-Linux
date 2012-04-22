@@ -48,8 +48,8 @@ then
     cd ..
     rm -rf tor-0.2.2.35
 
-    tar -xzf vidalia-0.2.15.tar.gz
-    cd vidalia-0.2.15
+    tar -xzf vidalia-0.2.17.tar.gz
+    cd vidalia-0.2.17
     mkdir build
     cd build
     set +e
@@ -59,7 +59,7 @@ then
     mkdir "$maindir"/share/vidalia_build
     cp src/vidalia/vidalia "$maindir"/share/vidalia_build/
     cd ../..
-    rm -rf vidalia-0.2.15
+    rm -rf vidalia-0.2.17
 fi
 
 set +e
@@ -83,51 +83,49 @@ then
     ln -s "$maindir"/share/vidalia_build/vidalia "$maindir"/bin/vidalia
 fi
 
-echo "socksParentProxy = localhost:9050" > .polipo
-echo "diskCacheRoot=\"\"" >> .polipo
-echo "disableLocalInterface=true" >> .polipo
+echo "socksParentProxy = localhost:9050" > .polipo_tor
+echo "diskCacheRoot=\"\"" >> .polipo_tor
+echo "disableLocalInterface=true" >> .polipo_tor
 
-cp ".polipo" "$maindir/share/tor-browser/"
+cp ".polipo_tor" "$maindir/share/tor-browser/"
 
-echo "[General]" > .vidalia/vidalia.conf
-echo "LanguageCode=en" >> .vidalia/vidalia.conf
-echo 'InterfaceStyle=GTK+' >> .vidalia/vidalia.conf
-echo 'ShowMainWindowAtStart=false' >> .vidalia/vidalia.conf
-echo >> .vidalia/vidalia.conf
-echo "[Tor]" >> .vidalia/vidalia.conf
-echo TorExecutable="$maindir"/bin/tor >> .vidalia/vidalia.conf
+echo "TorExecutable=""$maindir"/bin/tor >> .vidalia/vidalia.conf
 
 cp -r ".vidalia" "$maindir/share/tor-browser/"
 
-echo '#!/bin/bash' > tor-browser
-echo >> tor-browser                      
-echo 'maindir='"$maindir" >> tor-browser
-echo 'cd' >> tor-browser
-echo 'HOME="$(pwd)"' >> tor-browser
-echo >> tor-browser
-echo 'piratepack --refresh-tor' >> tor-browser
-echo 'pid=""' >> tor-browser
-echo >> tor-browser
-echo 'if [ -e "$HOME"/.piratepack/tor-browser/.purple ]' >> tor-browser
-echo 'then' >> tor-browser
-echo 'pidgin --config="$HOME"/.piratepack/tor-browser/.purple &' >> tor-browser
-echo 'pid=$!' >> tor-browser
-echo 'fi' >> tor-browser
-echo >> tor-browser
-echo 'firefox -P tor -no-remote' >> tor-browser
-echo >> tor-browser
-echo 'if [[ "$pid" != "" ]]' >> tor-browser
-echo 'then' >> tor-browser
-echo 'kill $pid' >> tor-browser
-echo 'fi' >> tor-browser
+awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' tor-instance > tor-instance_tmp
+mv tor-instance_tmp tor-instance
+
+awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' tor-browser > tor-browser_tmp
+mv tor-browser_tmp tor-browser
+
+awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' tor-irc > tor-irc_tmp
+mv tor-irc_tmp tor-irc
 
 mkdir "$maindir"/share/tor-browser_build
+
 cp tor-browser  "$maindir"/share/tor-browser_build/
 chmod a+x "$maindir"/share/tor-browser_build/tor-browser
+
+cp tor-instance  "$maindir"/share/tor-browser_build/
+chmod a+x "$maindir"/share/tor-browser_build/tor-instance
+
+cp tor-irc  "$maindir"/share/tor-browser_build/
+chmod a+x "$maindir"/share/tor-browser_build/tor-irc
 
 if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
 then
     ln -s "$maindir"/share/tor-browser_build/tor-browser "$maindir"/bin/tor-browser
+fi
+
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-instance ]
+then
+    ln -s "$maindir"/share/tor-browser_build/tor-instance "$maindir"/bin/tor-instance
+fi
+
+if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-irc ]
+then
+    ln -s "$maindir"/share/tor-browser_build/tor-irc "$maindir"/bin/tor-irc
 fi
 
 cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
@@ -146,3 +144,11 @@ cd "$curdir"
 echo "Exec=$maindir/bin/tor-browser" >> tor-browser.desktop
 cp tor-browser.desktop "$maindir/share/tor-browser/"
 cp tor-browser.png "$maindir/share/tor-browser/"
+
+echo "Exec=$maindir/bin/tor-instance" >> tor-instance.desktop
+cp tor-instance.desktop "$maindir/share/tor-browser/"
+cp tor-instance.png "$maindir/share/tor-browser/"
+
+echo "Exec=$maindir/bin/tor-irc" >> tor-irc.desktop
+cp tor-irc.desktop "$maindir/share/tor-browser/"
+cp tor-irc.png "$maindir/share/tor-browser/"

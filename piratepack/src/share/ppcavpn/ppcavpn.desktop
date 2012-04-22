@@ -4,5 +4,5 @@ Icon=ppcavpn.png
 Terminal=false
 Type=Application
 Categories=Network;P2P;
-Comment=Sign up for a Private Internet Connection
+Comment=Connect privately to the Internet
 Exec=firefox ostra.ca

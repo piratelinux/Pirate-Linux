@@ -175,9 +175,7 @@ then
     fi
 fi
 
-cp -r "$curdir/.vidalia" ~/
-
-if [ -f .polipo ]
+if [ -f .polipo_tor ]
 then
     if [ ! -d .piratepack/backup ]
     then
@@ -190,20 +188,14 @@ then
     set -e
     if [ "$numbackup" -ge "0" ]
     then
-	chmod u+r .polipo
-	cp .polipo .piratepack/backup/"polipo"_"$(($numbackup + 1))"
-	chmod a-w .piratepack/backup/"polipo"_"$(($numbackup + 1))"
-	rm -rf .polipo
+	chmod u+r .polipo_tor
+	cp .polipo_tor .piratepack/backup/"polipo_tor"_"$(($numbackup + 1))"
+	chmod a-w .piratepack/backup/"polipo_tor"_"$(($numbackup + 1))"
+	rm -rf .polipo_tor
     fi
 fi
 
-cp -r "$curdir/.polipo" ~/
-
-cd "$curdir"
-cp purple.tar.gz "$localdir"
-cd "$localdir"
-tar -xzf purple.tar.gz
-rm purple.tar.gz
+cp -r "$curdir/.polipo_tor" ~/
 
 cd
 
@@ -219,7 +211,11 @@ if [ ! -d icons ]
  then mkdir icons
 fi
 cp "$curdir/tor-browser.png" icons
+cp "$curdir/tor-instance.png" icons
+cp "$curdir/tor-irc.png" icons
 if [ ! -d applications ]
  then mkdir applications
 fi
 cp "$curdir/tor-browser.desktop" applications
+cp "$curdir/tor-instance.desktop" applications
+cp "$curdir/tor-irc.desktop" applications

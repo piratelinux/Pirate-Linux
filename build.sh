@@ -3,7 +3,7 @@
 set -e
 
 ver="1.4"
-subver="3"
+subver="4dev5"
 
 rm -rf ../deb/piratepack-"$ver"-"$subver"
 mkdir ../deb/piratepack-"$ver"-"$subver"
@@ -21,6 +21,6 @@ cp -r ../git/debian piratepack-"$ver"-"$subver"
 cd piratepack-"$ver"-"$subver"
 debuild
 cd ..
-gpg --default-key "<akarmn@gmail.com>" -ab piratepack_"$ver"-"$subver"_all.deb
+gpg --default-key "<keymaster@piratelinux.org>" -ab piratepack_"$ver"-"$subver"_all.deb
 cp piratepack_"$ver"-"$subver"_all.deb ../repo/deb/pool/testing/main/
 cp piratepack_"$ver"-"$subver"_all.deb.asc ../repo/deb/pool/testing/main/
