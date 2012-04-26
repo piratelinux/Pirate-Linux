@@ -57,5 +57,5 @@ The file piratepack/src/share/theme/background.jpg was taken from http://www.wal
 The packages listed in debian/control are the dependencies (mandatory and recommmended) of Pirate Pack. Their licenses depend on which repository your operating system uses to download them, so you may consult your repository for these licenses.
 
 Signed,
-Andrew K
-admin@piratelinux.org
+Pirate Linux Keymaster (Andrew K)
+keymaster@piratelinux.org
