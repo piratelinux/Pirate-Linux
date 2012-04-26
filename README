@@ -1,8 +1,10 @@
 PIRATEPACK - MAIN DOCUMENTATION
 
-The main source code for the piratepack is contained in piratepack.tar.gz
+The main source code for piratepack is contained in piratepack.tar.gz
 The installation script is install_piratepack.sh
 The removal script is remove_piratepack.sh
+The DEB build script is build.sh
+The license for piratepack is described in LICENSE
 
 
 MAIN SOURCE CODE (piratepack.tar.gz)
@@ -18,10 +20,6 @@ piratepack/src/setup contains files used by the installation script
 piratepack/src/share contains files that will be used by the piratepack once
 installed. The installation script may modify/add files in there for
 preparation.
-
-The other files in the piratepack directory are standard files used to
-configure and make the piratepack binary. They allow for the typical
-./configure, ./make commands.
 
 
 INSTALLATION SCRIPT (install_piratepack.sh)
@@ -43,6 +41,13 @@ $basedir/bin/piratepack --refresh
 to /etc/profile in order to keep piratepack updated for all users
 
 
+DEB BUILD SCRIPT
+
+Usage: build.sh
+
+This will create the main piratepack DEB package and place it into ../deb/
+
+
 AFTER INSTALLATION
 
 When a user logs in, the command "piratepack --refresh" executes to update
@@ -52,14 +57,3 @@ $HOME/.piratepack
 Executing "piratepack" loads the piratepack GUI. This allows a user to manually
 enable/disable piratepack. piratepack can also be accessed from the gnome menu
 if it was installed using the DEB file.
-
-Tor Browser is also added to the menu if installed using DEB file. This is
-actually Vidalia starting firefox with a user profile called "tor".
-
-Firefox modifications are added to $HOME/.mozilla/firefox
-
-$HOME/.polipo is added for use by polipo
-
-$HOME/.vidalia is added for use by vidalia
-
-A "Pirate" background theme is set on enabling piratepack
