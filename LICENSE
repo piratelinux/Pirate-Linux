@@ -1,6 +1,6 @@
 THIS FILE IS UNDER CONSTRUCTION. IT IS NOT FINALIZED.
 
-Unless stated otherwise, the code in this package is released into the public domain as decribed in licenses/LICENSE_default.
+Unless stated otherwise, the code in this package (named Pirate Pack or piratepack) is released into the public domain as decribed in licenses/LICENSE_default.
 
 The package libevent-2.0.16-stable.tar.gz has license described in licenses/LICENSE_libevent.
 
@@ -28,7 +28,7 @@ The package miniupnpc-1.6.tar.gz has license described in licenses/miniupnpc.
 
 The package qrencode-3.2.0.tar.gz has license described in licenses/qrencode.
 
-The files with PNG extension in the directories in piratepack/src/setup have been created using logos owned by the owners of the packages tor-0.2.2.35.tar.gz, vidalia-0.2.17.tar.gz, i2psource_0.8.13-mod.tar.bz2, bitcoin-bitcoin-v0.6.0-0-ga1c3d8f.tar.gz in Pirate Pack, and, firefox, pidgin in one of the standard Ubuntu repositories.
+The files with PNG extension in the directories in piratepack/src/setup have been created using logos owned by the owners of the packages tor-0.2.2.35.tar.gz, vidalia-0.2.17.tar.gz, i2psource_0.8.13-mod.tar.bz2, bitcoin-bitcoin-v0.6.0-0-ga1c3d8f.tar.gz in Pirate Pack, and, firefox, pidgin in one of the standard Ubuntu repositories, and, https://whyweprotest.net/community/threads/request-for-v-for-vendetta-mask-in-vector-format.96865/.
 
 The Firefox addon {b9db16a4-6edc-47ec-a1f4-b86292ed211d}.xpi has license described in http://www.downloadhelper.net.
 
@@ -52,4 +52,10 @@ The logo files with PNG extension in piratepack/src/share/graphics are based upo
 
 The files in piratepack/src/share/graphics/backgrounds have licenses described in https://www.pirateparty.ca/forum/index.php?topic=1876.0, which has been cached to licenses/LICENSE_backgrounds_1.html.
 
-The file piratepack/src/share/theme/background.jpg was taken from http://www.wallpapersland.net/wp-content/uploads/2011/12/Pirate-ship-and-sunset.jpg.
+The file piratepack/src/share/theme/background.jpg was taken from http://www.wallpapersland.net/2011/12/15/pirate-ship-and-sunset/pirate-ship-and-sunset/.
+
+The packages listed in debian/control are the dependencies (mandatory and recommmended) of Pirate Pack. Their licenses depend on which repository your operating system uses to download them, so you may consult your repository for these licenses.
+
+Signed,
+Andrew K
+admin@piratelinux.org
