@@ -5,18 +5,29 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import net.i2p.I2PAppContext;
+//import net.i2p.apps.systray.SysTray;
 import net.i2p.data.Base32;
 import net.i2p.data.DataHelper;
-import net.i2p.desktopgui.Main;
 import net.i2p.router.RouterContext;
+import net.i2p.util.Addresses;
 import net.i2p.util.FileUtil;
 import net.i2p.util.I2PAppThread;
 import net.i2p.util.PortMapper;
@@ -25,26 +36,38 @@ import net.i2p.util.SecureFileOutputStream;
 import net.i2p.util.ShellCommand;
 import net.i2p.util.VersionComparator;
 
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.http.HashUserRealm;
-import org.mortbay.http.NCSARequestLog;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
-import org.mortbay.http.handler.SecurityHandler;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.NCSARequestLog;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.WebApplicationContext;
-import org.mortbay.jetty.servlet.WebApplicationHandler;
-import org.mortbay.util.InetAddrPort;
+import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.DefaultHandler;
+import org.mortbay.jetty.handler.HandlerCollection;
+import org.mortbay.jetty.handler.RequestLogHandler;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.security.DigestAuthenticator;
+import org.mortbay.jetty.security.HashUserRealm;
+import org.mortbay.jetty.security.Constraint;
+import org.mortbay.jetty.security.ConstraintMapping;
+import org.mortbay.jetty.security.SecurityHandler;
+import org.mortbay.jetty.security.SslSelectChannelConnector;
+import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.SessionHandler;
+import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.thread.QueuedThreadPool;
+import org.mortbay.thread.concurrent.ThreadPool;
 
+/**
+ *  Start the router console.
+ */
 public class RouterConsoleRunner {
-    private Server _server;
+    private static Server _server;
     private String _listenPort;
     private String _listenHost;
     private String _sslListenPort;
     private String _sslListenHost;
     private String _webAppsDir;
-    private static final String PROP_WEBAPP_CONFIG_FILENAME = "router.webappsConfigFile";
+
     private static final String DEFAULT_WEBAPP_CONFIG_FILENAME = "webapps.config";
     private static final DigestAuthenticator authenticator = new DigestAuthenticator();
     public static final String ROUTERCONSOLE = "routerconsole";
@@ -58,6 +81,11 @@ public class RouterConsoleRunner {
     private static final String DEFAULT_WEBAPPS_DIR = "./webapps/";
     private static final String USAGE = "Bad RouterConsoleRunner arguments, check clientApp.0.args in your clients.config file! " +
                                         "Usage: [[port host[,host]] [-s sslPort [host[,host]]] [webAppsDir]]";
+
+    private static final int MIN_THREADS = 1;
+    private static final int MAX_THREADS = 24;
+    private static final int MAX_IDLE_TIME = 90*1000;
+    private static final String THREAD_NAME = "RouterConsole Jetty";
     
     static {
         System.setProperty("org.mortbay.http.Version.paranoid", "true");
@@ -136,6 +164,15 @@ public class RouterConsoleRunner {
         runner.startConsole();
     }
     
+    /**
+     *  SInce _server is now static
+     *  @return may be null or stopped perhaps
+     *  @since Jetty 6 since it doesn't have Server.getServers()
+     */
+    static Server getConsoleServer() {
+        return _server;
+    }
+
     private static void startTrayApp() {
         try {
             //TODO: move away from routerconsole into a separate application.
@@ -159,6 +196,24 @@ public class RouterConsoleRunner {
         }
     }
 
+    /**
+     *  http://irc.codehaus.org/display/JETTY/Porting+to+jetty6
+     *
+     *<pre>
+     *	Server
+     *		HandlerCollection
+     *			ContextHandlerCollection
+     *				WebAppContext (i.e. ContextHandler)
+     *					SessionHandler
+     *					SecurityHandler
+     *					ServletHandler
+     *						servlets...
+     *				WebAppContext
+     *				...
+     *			DefaultHandler
+     *			RequestLogHandler (opt)
+     *</pre>
+     */
     public void startConsole() {
         File workDir = new SecureDirectory(I2PAppContext.getGlobalContext().getTempDir(), "jetty-work");
         boolean workDirRemoved = FileUtil.rmdir(workDir, false);
@@ -168,9 +223,37 @@ public class RouterConsoleRunner {
         if (!workDirCreated)
             System.err.println("ERROR: Unable to create Jetty temporary work directory");
         
+        //try {
+        //    Log.setLog(new I2PLogger(I2PAppContext.getGlobalContext()));
+        //} catch (Throwable t) {
+        //    System.err.println("INFO: I2P Jetty logging class not found, logging to wrapper log");
+        //}
+        // This way it doesn't try to load Slf4jLog first
+        System.setProperty("org.mortbay.log.class", "net.i2p.jetty.I2PLogger");
+
         // so Jetty can find WebAppConfiguration
         System.setProperty("jetty.class.path", I2PAppContext.getGlobalContext().getBaseDir() + "/lib/routerconsole.jar");
         _server = new Server();
+        _server.setGracefulShutdown(1000);
+
+        try {
+            ThreadPool ctp = new CustomThreadPoolExecutor();
+            ctp.prestartAllCoreThreads();
+            _server.setThreadPool(ctp);
+        } catch (Throwable t) {
+            // class not found...
+            System.out.println("INFO: Jetty concurrent ThreadPool unavailable, using QueuedThreadPool");
+            QueuedThreadPool qtp = new QueuedThreadPool(MAX_THREADS);
+            qtp.setMinThreads(MIN_THREADS);
+            qtp.setMaxIdleTimeMs(MAX_IDLE_TIME);
+            _server.setThreadPool(qtp);
+        }
+
+        HandlerCollection hColl = new HandlerCollection();
+        ContextHandlerCollection chColl = new ContextHandlerCollection();
+        _server.addHandler(hColl);
+        hColl.addHandler(chColl);
+        hColl.addHandler(new DefaultHandler());
 
         String log = I2PAppContext.getGlobalContext().getProperty("routerconsole.log");
         if (log != null) {
@@ -178,8 +261,10 @@ public class RouterConsoleRunner {
             if (!logFile.isAbsolute())
                 logFile = new File(I2PAppContext.getGlobalContext().getLogDir(), "logs/" + log);
             try {
-                _server.setRequestLog(new NCSARequestLog(logFile.getAbsolutePath()));
-            } catch (IOException ioe) {
+                RequestLogHandler rhl = new RequestLogHandler();
+                rhl.setRequestLog(new NCSARequestLog(logFile.getAbsolutePath()));
+                hColl.addHandler(rhl);
+            } catch (Exception ioe) {
                 System.err.println("ERROR: Unable to create Jetty log: " + ioe);
             }
         }
@@ -202,34 +287,64 @@ public class RouterConsoleRunner {
         if (!_webAppsDir.endsWith("/"))
             _webAppsDir += '/';
 
-        List<String> notStarted = new ArrayList();
-        WebApplicationHandler baseHandler = null;
+        WebAppContext rootWebApp = null;
+        ServletHandler rootServletHandler = null;
+        List<Connector> connectors = new ArrayList(4);
         try {
             int boundAddresses = 0;
+            Set addresses = Addresses.getAllAddresses();
+            boolean hasIPV4 = addresses.contains("0.0.0.0");
+            boolean hasIPV6 = addresses.contains("0:0:0:0:0:0:0:0");
 
             // add standard listeners
+            int lport = 0;
             if (_listenPort != null) {
-                Integer lport = Integer.parseInt(_listenPort);
+                try {
+                    lport = Integer.parseInt(_listenPort);
+                } catch (NumberFormatException nfe) {}
+                if (lport <= 0)
+                    System.err.println("Bad routerconsole port " + _listenPort);
+            }
+            if (lport > 0) {
                 StringTokenizer tok = new StringTokenizer(_listenHost, " ,");
                 while (tok.hasMoreTokens()) {
                     String host = tok.nextToken().trim();
                     try {
+                        // Test before we add the connector, because Jetty 6 won't start if any of the
+                        // connectors are bad
+                        InetAddress test = InetAddress.getByName(host);
+                        if ((!hasIPV6) && (!(test instanceof Inet4Address)))
+                            throw new IOException("IPv6 addresses unsupported");
+                        if ((!hasIPV4) && (test instanceof Inet4Address))
+                            throw new IOException("IPv4 addresses unsupported");
+                        ServerSocket testSock = null;
+                        try {
+                            // On Windows, this was passing and Jetty was still failing,
+                            // possibly due to %scope_id ???
+                            // https://issues.apache.org/jira/browse/ZOOKEEPER-667
+                            //testSock = new ServerSocket(0, 0, test);
+                            // so do exactly what Jetty does in SelectChannelConnector.open()
+                            testSock = new ServerSocket();
+                            InetSocketAddress isa = new InetSocketAddress(host, 0);
+                            testSock.bind(isa);
+                        } finally {
+                            if (testSock != null) try { testSock.close(); } catch (IOException ioe) {}
+                        }
                         //if (host.indexOf(":") >= 0) // IPV6 - requires patched Jetty 5
                         //    _server.addListener('[' + host + "]:" + _listenPort);
                         //else
                         //    _server.addListener(host + ':' + _listenPort);
-                        InetAddrPort iap = new InetAddrPort(host, lport);
-                        SocketListener lsnr = new SocketListener(iap);
-                        lsnr.setMinThreads(1);           // default 2
-                        lsnr.setMaxThreads(24);          // default 256
-                        lsnr.setMaxIdleTimeMs(90*1000);  // default 10 sec
+                        SelectChannelConnector lsnr = new SelectChannelConnector();
+                        lsnr.setHost(host);
+                        lsnr.setPort(lport);
+                        lsnr.setMaxIdleTime(90*1000);  // default 10 sec
                         lsnr.setName("ConsoleSocket");   // all with same name will use the same thread pool
-                        _server.addListener(lsnr);
+                        //_server.addConnector(lsnr);
+                        connectors.add(lsnr);
                         boundAddresses++;
-                    } catch (NumberFormatException nfe) {
-                        System.err.println("Unable to bind routerconsole to " + host + " port " + _listenPort + ' ' + nfe);
-                    } catch (IOException ioe) { // this doesn't seem to work, exceptions don't happen until start() below
-                        System.err.println("Unable to bind routerconsole to " + host + " port " + _listenPort + ' ' + ioe);
+                    } catch (Exception ioe) {
+                        System.err.println("Unable to bind routerconsole to " + host + " port " + _listenPort + ": " + ioe);
+                        System.err.println("You may ignore this warning if the console is still available at http://localhost:" + _listenPort);
                     }
                 }
                 // XXX: what if listenhosts do not include 127.0.0.1? (Should that ever even happen?)
@@ -253,22 +368,42 @@ public class RouterConsoleRunner {
                     while (tok.hasMoreTokens()) {
                         String host = tok.nextToken().trim();
                         // doing it this way means we don't have to escape an IPv6 host with []
-                        InetAddrPort iap = new InetAddrPort(host, sslPort);
                         try {
-                            SslListener ssll = new SslListener(iap);
+                            // Test before we add the connector, because Jetty 6 won't start if any of the
+                            // connectors are bad
+                            InetAddress test = InetAddress.getByName(host);
+                            if ((!hasIPV6) && (!(test instanceof Inet4Address)))
+                                throw new IOException("IPv6 addresses unsupported");
+                            if ((!hasIPV4) && (test instanceof Inet4Address))
+                                throw new IOException("IPv4 addresses unsupported");
+                            ServerSocket testSock = null;
+                            try {
+                                // see comments above
+                                //testSock = new ServerSocket(0, 0, test);
+                                testSock = new ServerSocket();
+                                InetSocketAddress isa = new InetSocketAddress(host, 0);
+                                testSock.bind(isa);
+                            } finally {
+                                if (testSock != null) try { testSock.close(); } catch (IOException ioe) {}
+                            }
+                            // TODO if class not found use SslChannelConnector
+                            // Sadly there's no common base class with the ssl methods in it
+                            SslSelectChannelConnector ssll = new SslSelectChannelConnector();
+                            ssll.setHost(host);
+                            ssll.setPort(sslPort);
                             // the keystore path and password
                             ssll.setKeystore(keyStore.getAbsolutePath());
                             ssll.setPassword(ctx.getProperty(PROP_KEYSTORE_PASSWORD, DEFAULT_KEYSTORE_PASSWORD));
                             // the X.509 cert password (if not present, verifyKeyStore() returned false)
                             ssll.setKeyPassword(ctx.getProperty(PROP_KEY_PASSWORD, "thisWontWork"));
-                            ssll.setMinThreads(1);           // default 2
-                            ssll.setMaxThreads(24);          // default 256
-                            ssll.setMaxIdleTimeMs(90*1000);  // default 10 sec
+                            ssll.setMaxIdleTime(90*1000);  // default 10 sec
                             ssll.setName("ConsoleSocket");   // all with same name will use the same thread pool
-                            _server.addListener(ssll);
+                            //_server.addConnector(ssll);
+                            connectors.add(ssll);
                             boundAddresses++;
-                        } catch (Exception e) {   // probably no exceptions at this point
+                        } catch (Exception e) {
                             System.err.println("Unable to bind routerconsole to " + host + " port " + sslPort + " for SSL: " + e);
+                            System.err.println("You may ignore this warning if the console is still available at https://localhost:" + sslPort);
                         }
                     }
                     I2PAppContext.getGlobalContext().portMapper().register(PortMapper.SVC_HTTPS_CONSOLE,sslPort);
@@ -281,67 +416,116 @@ public class RouterConsoleRunner {
                 System.err.println("Unable to bind routerconsole to any address on port " + _listenPort + (sslPort > 0 ? (" or SSL port " + sslPort) : ""));
                 return;
             }
-            _server.setRootWebApp(ROUTERCONSOLE);
-            WebApplicationContext wac = _server.addWebApplication("/", _webAppsDir + ROUTERCONSOLE + ".war");
+
+            rootWebApp = new LocaleWebAppHandler(I2PAppContext.getGlobalContext(),
+                                                  "/", _webAppsDir + ROUTERCONSOLE + ".war");
             File tmpdir = new SecureDirectory(workDir, ROUTERCONSOLE + "-" +
                                                        (_listenPort != null ? _listenPort : _sslListenPort));
             tmpdir.mkdir();
-            wac.setTempDirectory(tmpdir);
-            baseHandler = new LocaleWebAppHandler(I2PAppContext.getGlobalContext());
-            wac.addHandler(0, baseHandler);
-            initialize(wac);
+            rootWebApp.setTempDirectory(tmpdir);
+            rootWebApp.setExtractWAR(false);
+            rootWebApp.setSessionHandler(new SessionHandler());
+            rootServletHandler = new ServletHandler();
+            rootWebApp.setServletHandler(rootServletHandler);
+            initialize(rootWebApp);
+            chColl.addHandler(rootWebApp);
+
+        } catch (Exception ioe) {
+            ioe.printStackTrace();
+        }
+
+        try {
+            // start does a mapContexts()
+            _server.start();
+        } catch (Throwable me) {
+            // NoClassFoundDefError from a webapp is a throwable, not an exception
+            System.err.println("Error starting the Router Console server: " + me);
+            me.printStackTrace();
+        }
+
+        if (_server.isRunning()) {
+            // Add and start the connectors one-by-one
+            boolean error = false;
+            for (Connector conn : connectors) {
+                try {
+                    _server.addConnector(conn);
+                    // start after adding so it gets the right thread pool
+                    conn.start();
+                } catch (Throwable me) {
+                    try {
+                        _server.removeConnector(conn);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                    System.err.println("WARNING: Error starting " + conn + ": " + me);
+                    me.printStackTrace();
+                    error = true;
+                }
+            }
+            if (error) {
+                System.err.println("WARNING: Error starting one or more listeners of the Router Console server.\n" +
+                               "If your console is still accessible at http://127.0.0.1:7657/,\n" +
+                               "this may be a problem only with binding to the IPV6 address ::1.\n" +
+                               "If so, you may ignore this error, or remove the\n" +
+                               "\"::1,\" in the \"clientApp.0.args\" line of the clients.config file.");
+            }
+        }
+
+        // Start all the other webapps after the server is up,
+        // so things start faster.
+        // Jetty 6 starts the connector before the router console is ready
+        // This also prevents one webapp from breaking the whole thing
+        List<String> notStarted = new ArrayList();
+        if (_server.isRunning()) {
             File dir = new File(_webAppsDir);
             String fileNames[] = dir.list(WarFilenameFilter.instance());
             if (fileNames != null) {
                 for (int i = 0; i < fileNames.length; i++) {
-                    try {
-                        String appName = fileNames[i].substring(0, fileNames[i].lastIndexOf(".war"));
-                        String enabled = props.getProperty(PREFIX + appName + ENABLED);
-                        if (! "false".equals(enabled)) {
+                    String appName = fileNames[i].substring(0, fileNames[i].lastIndexOf(".war"));
+                    String enabled = props.getProperty(PREFIX + appName + ENABLED);
+                    if (! "false".equals(enabled)) {
+                        try {
                             String path = new File(dir, fileNames[i]).getCanonicalPath();
-                            tmpdir = new SecureDirectory(workDir, appName + "-" +
-                                                                  (_listenPort != null ? _listenPort : _sslListenPort));
-                            WebAppStarter.addWebApp(I2PAppContext.getGlobalContext(), _server, appName, path, tmpdir);
-
+                            WebAppStarter.startWebApp(I2PAppContext.getGlobalContext(), chColl, appName, path);
                             if (enabled == null) {
                                 // do this so configclients.jsp knows about all apps from reading the config
                                 props.setProperty(PREFIX + appName + ENABLED, "true");
                                 rewrite = true;
                             }
-                        } else {
+                        } catch (Throwable t) {
+                            System.err.println("ERROR: Failed to start " + appName + ' ' + t);
+                            t.printStackTrace();
                             notStarted.add(appName);
                         }
-                    } catch (IOException ioe) {
-                        System.err.println("Error resolving '" + fileNames[i] + "' in '" + dir);
+                    } else {
+                        notStarted.add(appName);
                     }
                 }
             }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        if (rewrite)
-            storeWebAppProperties(props);
-        try {
-            _server.start();
-        } catch (Throwable me) {
-            // NoClassFoundDefError from a webapp is a throwable, not an exception
-            System.err.println("WARNING: Error starting one or more listeners of the Router Console server.\n" +
-                               "If your console is still accessible at http://127.0.0.1:7657/,\n" +
-                               "this may be a problem only with binding to the IPV6 address ::1.\n" +
-                               "If so, you may ignore this error, or remove the\n" +
-                               "\"::1,\" in the \"clientApp.0.args\" line of the clients.config file.\n" +
-                               "Exception: " + me);
-            me.printStackTrace();
+        } else {
+            System.err.println("ERROR: Router console did not start, not starting webapps");
         }
 
-        if (baseHandler != null) {
+        if (rewrite)
+            storeWebAppProperties(props);
+
+        if (rootServletHandler != null && notStarted.size() > 0) {
             // map each not-started webapp to the error page
+            ServletHolder noWebApp = rootServletHandler.getServlet("net.i2p.router.web.jsp.nowebapp_jsp");
             for (int i = 0; i < notStarted.size(); i++) {
+                // we want a new handler for each one since if the webapp is started we remove the handler???
                 try {
-                     baseHandler.mapPathToServlet('/' + notStarted.get(i) + "/*",
-                                                  "net.i2p.router.web.jsp.nowebapp_jsp");
+                    if (noWebApp != null) {
+                        String path = '/' + notStarted.get(i);
+                        // LocaleWebAppsHandler adds a .jsp
+                        rootServletHandler.addServletWithMapping(noWebApp, path + ".jsp");
+                        rootServletHandler.addServletWithMapping(noWebApp, path + "/*");
+                    } else {
+                        System.err.println("Can't find nowebapp.jsp?");
+                    }
                 } catch (Throwable me) {
                      System.err.println(me);
+                     me.printStackTrace();
                 }
             }
         }
@@ -457,18 +641,22 @@ public class RouterConsoleRunner {
         return success;
     }
 
-    static void initialize(WebApplicationContext context) {
+    static void initialize(WebAppContext context) {
+        SecurityHandler sec = new SecurityHandler();
+        List<ConstraintMapping> constraints = new ArrayList(4);
         String password = getPassword();
         if (password != null) {
             HashUserRealm realm = new HashUserRealm("i2prouter");
             realm.put("admin", password);
             realm.addUserToRole("admin", "routerAdmin");
-            context.setRealm(realm);
-            context.setAuthenticator(authenticator);
-            context.addHandler(0, new SecurityHandler());
-            SecurityConstraint constraint = new SecurityConstraint("admin", "routerAdmin");
+            sec.setUserRealm(realm);
+            sec.setAuthenticator(authenticator);
+            Constraint constraint = new Constraint("admin", "routerAdmin");
             constraint.setAuthenticate(true);
-            context.addSecurityConstraint("/", constraint);
+            ConstraintMapping cm = new ConstraintMapping();
+            cm.setConstraint(constraint);
+            cm.setPathSpec("/");
+            constraints.add(cm);
         }
 
         // This forces a '403 Forbidden' response for TRACE and OPTIONS unless the
@@ -480,12 +668,27 @@ public class RouterConsoleRunner {
         // The other strange methods - PUT, DELETE, MOVE - are disabled by default
         // See also:
         // http://old.nabble.com/Disable-HTTP-TRACE-in-Jetty-5.x-td12412607.html
-        SecurityConstraint sc = new SecurityConstraint();
-        sc.setName("No trace or options");
-        sc.addMethod("TRACE");
-        sc.addMethod("OPTIONS");
-        sc.setAuthenticate(true);
-        context.addSecurityConstraint("/*", sc) ;
+
+        Constraint sc = new Constraint();
+        sc.setName("No trace");
+        ConstraintMapping cm = new ConstraintMapping();
+        cm.setMethod("TRACE");
+        cm.setConstraint(sc);
+        cm.setPathSpec("/");
+        constraints.add(cm);
+
+        sc = new Constraint();
+        sc.setName("No options");
+        cm = new ConstraintMapping();
+        cm.setMethod("OPTIONS");
+        cm.setConstraint(sc);
+        cm.setPathSpec("/");
+        constraints.add(cm);
+
+        ConstraintMapping cmarr[] = constraints.toArray(new ConstraintMapping[constraints.size()]);
+        sec.setConstraintMappings(cmarr);
+
+        context.setSecurityHandler(sec);
     }
     
     static String getPassword() {
@@ -510,11 +713,11 @@ public class RouterConsoleRunner {
     }
     
     /** @since 0.8.8 */
-    private class ServerShutdown implements Runnable {
+    private static class ServerShutdown implements Runnable {
         public void run() {
             try {
                 _server.stop();
-            } catch (InterruptedException ie) {}
+            } catch (Exception ie) {}
         }
     }
     
@@ -570,6 +773,33 @@ public class RouterConsoleRunner {
         public static WarFilenameFilter instance() { return _filter; }
         public boolean accept(File dir, String name) {
             return (name != null) && (name.endsWith(".war") && !name.equals(ROUTERCONSOLE + ".war"));
+        }
+    }
+
+    
+    /**
+     * Just to set the name and set Daemon
+     * @since Jetty 6
+     */
+    private static class CustomThreadPoolExecutor extends ThreadPool {
+        public CustomThreadPoolExecutor() {
+             super(MIN_THREADS, MAX_THREADS, MAX_IDLE_TIME, TimeUnit.MILLISECONDS,
+                   new SynchronousQueue(), new CustomThreadFactory(),
+                   new ThreadPoolExecutor.CallerRunsPolicy());
+        }
+    }
+
+    /**
+     * Just to set the name and set Daemon
+     * @since Jetty 6
+     */
+    private static class CustomThreadFactory implements ThreadFactory {
+
+        public Thread newThread(Runnable r) {
+            Thread rv = Executors.defaultThreadFactory().newThread(r);
+            rv.setName(THREAD_NAME);
+            rv.setDaemon(true);
+            return rv;
         }
     }
 

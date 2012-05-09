@@ -21,7 +21,7 @@ then
 	    continue
 	fi
 
-	if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"precise"* ]]
+	if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12.04"* ]]
 	then
 	    if [[ "$(gsettings get org.gnome.desktop.background picture-uri)" == "'file:///$line'" ]]
 	    then

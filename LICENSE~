@@ -1,0 +1,16 @@
+THIS FILE IS UNDER CONSTRUCTION. IT IS NOT FINALIZED.
+
+Unless stated otherwise, the code in this DEB package (named Pirate Pack or
+piratepack) is released into the public domain as decribed in
+piratepack/licenses/LICENSE_default.
+
+The packages listed in debian/control are the Debian/Ubuntu dependencies
+(mandatory andrecommmended) of Pirate Pack. Their licenses depend on which
+repository your operating system uses to download them, so you may consult
+your repository for these licenses.
+
+See piratepack/LICENSE for the other licenses for the code in piratepack.
+
+Signed,
+Pirate Linux Keymaster (Andrew K)
+keymaster@piratelinux.org

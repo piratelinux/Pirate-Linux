@@ -20,9 +20,9 @@ then
     cd ..
     rm -rf JRobinLite-1.5.9.1
 
-    tar -xzf wrapper_3.5.13_src.tar.gz
-    cp -r wrapper-patch/* wrapper_3.5.13_src/
-    cd wrapper_3.5.13_src
+    tar -xzf wrapper_3.5.14_src.tar.gz
+    cp -r wrapper-patch/* wrapper_3.5.14_src/
+    cd wrapper_3.5.14_src
     bits=32
     if [[ "$(arch)" == "x86_64" ]]
     then
@@ -53,25 +53,15 @@ then
     cp lib/libwrapper.so ../i2p-patch/installer/lib/wrapper/"$wrapperpath"/
     cp bin/wrapper ../i2p-patch/installer/lib/wrapper/"$wrapperpath"/i2psvc
     cd ..
-    rm -rf wrapper_3.5.13_src
+    rm -rf wrapper_3.5.14_src
 
-    if [ -e /opt/piratepack/share/jetty-5.1.15.tgz ]
+    if [ -e /opt/piratepack/patch/i2p-browser ]
     then
-	cp /opt/piratepack/share/jetty-5.1.15.tgz i2p-patch/apps/jetty/
+	cp -r /opt/piratepack/patch/i2p-browser/* .
     fi
 
-    if [ -e /opt/piratepack/share/jstl.jar ]
-    then
-	cp /opt/piratepack/share/jstl.jar i2p-patch/apps/susidns/src/WEB-INF/lib/
-    fi
-
-    if [ -e /opt/piratepack/share/standard.jar ]
-    then
-	cp /opt/piratepack/share/standard.jar i2p-patch/apps/susidns/src/WEB-INF/lib/
-    fi
-
-    tar -xjf i2psource_0.8.13-mod.tar.bz2
-    cd i2p-0.8.13
+    tar -xjf i2psource_0.9-mod.tar.bz2
+    cd i2p-0.9
     cp -r ../i2p-patch/* .
     cd core/c/jbigi
     ./build.sh dynamic
@@ -102,12 +92,12 @@ then
     ./postinstall.sh "$INSTALL_PATH"
     echo '#!/bin/bash' > i2p-browser
     echo "$maindir"/bin/'i2prouter start' >> i2p-browser
-    echo "sleep 1" >> i2p-browser
+    echo "sleep 0.1" >> i2p-browser
     echo 'firefox -P i2p -no-remote' >> i2p-browser
     echo 'killall i2psvc' >> i2p-browser
     chmod a+rx i2p-browser
     cd "$curdir"
-    rm -rf i2p-0.8.13
+    rm -rf i2p-0.9
 fi
 
 awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' i2p-irc > i2p-irc_tmp

@@ -1,3 +1,9 @@
+piratepack (1.4-4dev6) unstable; urgency=low
+
+  * Changed restricted extras to suggested
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Sat, 28 Apr 2012 22:58:36 -0600
+
 piratepack (1.4-4dev5) unstable; urgency=low
 
   * Tor and I2P chat, new location for local piratepack meta info
