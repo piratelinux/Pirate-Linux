@@ -92,7 +92,6 @@ then
     ./postinstall.sh "$INSTALL_PATH"
     echo '#!/bin/bash' > i2p-browser
     echo "$maindir"/bin/'i2prouter start' >> i2p-browser
-    echo "sleep 0.1" >> i2p-browser
     echo 'firefox -P i2p -no-remote' >> i2p-browser
     echo 'killall i2psvc' >> i2p-browser
     chmod a+rx i2p-browser

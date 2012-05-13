@@ -1,3 +1,15 @@
+piratepack (1.4-4dev8) unstable; urgency=low
+
+  * Updated packages
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Thu, 10 May 2012 20:39:21 -0600
+
+piratepack (1.4-4dev7) unstable; urgency=low
+
+  * I2P 0.9
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Wed, 09 May 2012 01:00:39 -0600
+
 piratepack (1.4-4dev6) unstable; urgency=low
 
   * Changed restricted extras to suggested

@@ -26,14 +26,14 @@ then
     cd ..
     rm -rf miniupnpc-1.6
 
-    tar -xzf boost_1_46_1.tar.gz
-    cd boost_1_46_1
+    tar -xzf boost_1_49_0.tar.gz
+    cd boost_1_49_0
     set +e
     ./bootstrap.sh --prefix="$maindir"/share/boost_build --with-libraries=filesystem,program_options,system,thread
-    ./bjam install
+    ./b2 install
     set -e
     cd ..
-    rm -rf boost_1_46_1
+    rm -rf boost_1_49_0
 
     tar -xzf qrencode-3.2.0.tar.gz
     cd qrencode-3.2.0
@@ -45,9 +45,10 @@ then
     cd ..
     rm -rf qrencode-3.20
 
-    tar -xzf bitcoin-bitcoin-v0.6.0-0-ga1c3d8f.tar.gz
-    cd bitcoin-bitcoin-b3b5ab1
+    tar -xzf bitcoin-0.6.2.tar.gz
+    cd bitcoin
     cp ../bitcoin-qt.pro .
+    cp ../genbuild.sh share/
     CUSTOM_INC="$maindir"/share/ssl_build/include
     CUSTOM_INC+=" "
     CUSTOM_INC+="$maindir"/share/db_build/include
@@ -102,7 +103,7 @@ then
     export BOOST_LIB_PATH=""
     cp bitcoind "$maindir"/share/bitcoin_build/client/
     cd ../..
-    rm -rf bitcoin-bitcoin-b3b5ab1
+    rm -rf bitcoin
 
     export PATH="$maindir"/share/qrencode_build/bin:"$PATH"
 

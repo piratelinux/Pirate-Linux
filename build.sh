@@ -3,7 +3,7 @@
 set -e
 
 ver="1.4"
-subver="4dev6"
+subver="4dev8"
 
 rm -rf ../deb/piratepack-"$ver"-"$subver"
 mkdir ../deb/piratepack-"$ver"-"$subver"

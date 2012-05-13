@@ -5,4 +5,4 @@ Terminal=false
 Type=Application
 Categories=Network;P2P;
 Comment=Connect privately to the Internet
-Exec=firefox ostra.ca
+Exec=firefox -P default -no-remote ostra.ca

@@ -8,35 +8,36 @@ maindir="$1"
 if [ -d "$maindir" ]
 then 
 
-    tar -xzf polipo-1.0.4.tar.gz
-    cd polipo-1.0.4
+    tar -xzf polipo-1.0.4.1.tar.gz
+    cd polipo-1.0.4.1
     cp ../polipo_Makefile Makefile
     set +e
     make PREFIX="$maindir"/share/polipo_build all
     make PREFIX="$maindir"/share/polipo_build install
     set -e
     cd ..
-    rm -rf polipo-1.0.4
+    rm -rf polipo-1.0.4.1
 
-    tar -xzf openssl-1.0.0f.tar.gz
-    cd openssl-1.0.0f
+    tar -xzf openssl-1.0.1b.tar.gz
+    cd openssl-1.0.1b
     ./config --prefix="$maindir"/share/ssl_build shared
     set +e
     make
+    make test
     make install
     set -e
     cd ..
-    rm -rf openssl-1.0.0f
+    rm -rf openssl-1.0.1b
 
-    tar -xzf libevent-2.0.16-stable.tar.gz
-    cd libevent-2.0.16-stable
+    tar -xzf libevent-2.0.19-stable.tar.gz
+    cd libevent-2.0.19-stable
     ./configure --prefix="$maindir"/share/event_build
     set +e
     make
     make install
     set -e
     cd ..
-    rm -rf libevent-2.0.16-stable
+    rm -rf libevent-2.0.19-stable
 
     tar -xzf tor-0.2.2.35.tar.gz
     cd tor-0.2.2.35
@@ -101,6 +102,14 @@ mv tor-browser_tmp tor-browser
 
 awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' tor-irc > tor-irc_tmp
 mv tor-irc_tmp tor-irc
+
+issue="$(cat /etc/issue)"
+
+if [[ "$issue" != *"Ubuntu"*"11.10"* ]] && [[ "$issue" != *"Ubuntu"*"12.04"* ]]
+then
+    awk '{sub(/purple[.]tar[.]gz/,"'"purple_old.tar.gz"'"); print}' tor-irc > tor-irc_tmp
+    mv tor-irc_tmp tor-irc
+fi
 
 mkdir "$maindir"/share/tor-browser_build
 

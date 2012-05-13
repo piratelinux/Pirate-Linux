@@ -2,7 +2,7 @@ THIS FILE IS UNDER CONSTRUCTION. IT IS NOT FINALIZED.
 
 Unless stated otherwise, the code in this DEB package (named Pirate Pack or
 piratepack) is released into the public domain as decribed in
-piratepack/licenses/LICENSE_default.
+piratepack/licenses/LICENSE_default. (CC0)
 
 The packages listed in debian/control are the dependencies (mandatory and
 recommended) of this package. Their licenses depend on which repository your
