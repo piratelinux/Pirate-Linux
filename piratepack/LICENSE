@@ -1,5 +1,7 @@
 THIS FILE IS UNDER CONSTRUCTION. IT IS NOT FINALIZED.
 
+All licenses for the code in this package are free licenses.
+
 Unless stated otherwise, the code in this package (named Pirate Pack or
 piratepack) is released into the public domain as decribed in
 licenses/LICENSE_default. (CC0)
@@ -89,11 +91,6 @@ The file piratepack/src/share/theme/background.jpg was taken from
 http://www.wallpapersland.net/2011/12/15/pirate-ship-and-sunset/pirate-ship-
 and-sunset/.
 
-The packages listed in debian/control are the dependencies (mandatory and
-recommmended) of Pirate Pack. Their licenses depend on which repository your
-operating system uses to download them, so you may consult your repository for
-these licenses.
-
 Signed,
-Pirate Linux Keymaster (Andrew K)
-keymaster@piratelinux.org
+Andrew K
+admin@piratelinux.org
