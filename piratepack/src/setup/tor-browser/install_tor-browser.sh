@@ -39,15 +39,15 @@ then
     cd ..
     rm -rf libevent-2.0.19-stable
 
-    tar -xzf tor-0.2.2.35.tar.gz
-    cd tor-0.2.2.35
+    tar -xzf tor-0.2.2.36.tar.gz
+    cd tor-0.2.2.36
     ./configure --prefix="$maindir"/share/tor_build --with-openssl-dir="$maindir"/share/ssl_build --with-libevent-dir="$maindir"/share/event_build --enable-static-openssl --enable-static-libevent
     set +e
     make
     make install
     set -e
     cd ..
-    rm -rf tor-0.2.2.35
+    rm -rf tor-0.2.2.36
 
     tar -xzf vidalia-0.2.17.tar.gz
     cd vidalia-0.2.17

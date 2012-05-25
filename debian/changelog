@@ -1,3 +1,9 @@
+piratepack (1.5-2) unstable; urgency=low
+
+  * Fixed cwallet compressed privkeys
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Fri, 25 May 2012 02:12:57 -0600
+
 piratepack (1.5-1) unstable; urgency=low
 
   * ISO beta release

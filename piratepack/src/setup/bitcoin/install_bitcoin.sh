@@ -107,8 +107,8 @@ then
 
     export PATH="$maindir"/share/qrencode_build/bin:"$PATH"
 
-    tar -xzf cwallet-0.1.tar.gz
-    cd cwallet-0.1
+    tar -xzf cwallet.tar.gz
+    cd cwallet
     set +e
     ./configure
     make
@@ -134,7 +134,7 @@ then
     cp icon.png "$maindir"/share/bitcoin_build/cwallet/
     cp icon.png ../../cwallet.png
     cd ../..
-    rm -rf cwallet-0.1
+    rm -rf cwallet
 
     set +e
     chmod a+rx "$maindir"/share/bitcoin_build/client/bitcoin-qt
