@@ -32,19 +32,18 @@ then
     ant -Dbits="$bits"
     cp lib/wrapper.jar ../i2p-patch/installer/lib/wrapper/all/
 
-    OS_ARCH=`uname -m`
-    X86_64=`echo "${OS_ARCH}" | grep x86_64`
+    OS_ARCH="$(uname -m)"
 
-    if [ `echo $OS_ARCH |grep armv7` ]; then
-        wrapperpath="linux-armv7"
-    elif [ `echo $OS_ARCH |grep arm` ]; then
-        wrapperpath="linux-armv5"
-    elif [ `echo $OS_ARCH |grep ppc` ]; then
-        wrapperpath="linux-ppc"
-    elif [ "X$X86_64" = "X" ]; then
-        wrapperpath="linux"
+    if [[ "$OS_ARCH" == *"armv7"* ]]; then
+	wrapperpath="linux-armv7"
+    elif [[ "$OS_ARCH" == *"arm"* ]]; then
+	wrapperpath="linux-armv5"
+    elif [[ "$OS_ARCH" == *"ppc"* ]]; then
+	wrapperpath="linux-ppc"
+    elif [[ "$OS_ARCH" == *"x86_64"* ]]; then
+	wrapperpath="linux64"
     else
-        wrapperpath="linux64"
+	wrapperpath="linux"
     fi
 
     mkdir -p ../i2p-patch/installer/lib/wrapper/"$wrapperpath"
