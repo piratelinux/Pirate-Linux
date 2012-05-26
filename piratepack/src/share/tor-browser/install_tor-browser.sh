@@ -150,6 +150,7 @@ then
 
     cd "$profiledir"
     echo 'user_pref("browser.startup.homepage", "https://check.torproject.org");' >> prefs.js
+    echo 'user_pref("network.websocket.enabled", false);' >> prefs.js
 
 fi
 

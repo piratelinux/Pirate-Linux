@@ -23,7 +23,9 @@ then
     ./config --prefix="$maindir"/share/ssl_build shared
     set +e
     make
+    set -e
     make test
+    set +e
     make install
     set -e
     cd ..
