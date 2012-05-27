@@ -1,3 +1,9 @@
+piratepack (1.5-5) unstable; urgency=low
+
+  * Fix pidgin settings
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Sun, 27 May 2012 08:59:03 -0600
+
 piratepack (1.5-4) unstable; urgency=low
 
   * Fix cwallet memory errors
