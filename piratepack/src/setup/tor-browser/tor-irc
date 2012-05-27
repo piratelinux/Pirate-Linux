@@ -17,8 +17,6 @@ uuid="$(uuidgen)"
 username="$(cat /dev/urandom| tr -dc 'a-z' | head -c 1)""${uuid:0:7}"
 tar -xzf "$maindir"/share/tor-browser/purple.tar.gz
 cd .purple
-awk '{sub(/anon/,"'"$username"'"); print}' accels > accels_tmp
-mv accels_tmp accels
 awk '{sub(/anon/,"'"$username"'"); print}' accounts.xml > accounts.xml_tmp
 mv accounts.xml_tmp accounts.xml
 awk '{sub(/anon/,"'"$username"'"); print}' blist.xml > blist.xml_tmp

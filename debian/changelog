@@ -1,3 +1,9 @@
+piratepack (1.5-4) unstable; urgency=low
+
+  * Fix cwallet memory errors
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Sat, 26 May 2012 23:02:12 -0600
+
 piratepack (1.5-3) unstable; urgency=low
 
   * Disable websocket for Tor and fix bugs
