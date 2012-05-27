@@ -34,6 +34,14 @@ fi
 
 cp -r "$curdir"/piratepack/main "$maindir"
 
+issue="$(cat /etc/issue)"
+if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12.04"* ]]
+then
+    cd "$maindir"/bin
+    awk '{sub(/purple[_]old[.]tar[.]gz/,"'"purple.tar.gz"'"); print}' tor-irc > tor-irc_tmp
+    mv tor-irc_tmp tor-irc
+fi
+
 mkdir -p "$basedir"/bin
 ln -sf "$maindir"/bin/piratepack "$basedir"/bin/piratepack-tmp
 mv -Tf "$basedir"/bin/piratepack-tmp "$basedir"/bin/piratepack
