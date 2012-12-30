@@ -45,8 +45,8 @@ then
     cd ..
     rm -rf qrencode-3.20
 
-    tar -xzf bitcoin-0.6.2.tar.gz
-    cd bitcoin
+    tar -xzf bitcoin-bitcoin-v0.7.1-0-geb49457.tar.gz
+    cd bitcoin-bitcoin-d082365
     cp ../bitcoin-qt.pro .
     cp ../genbuild.sh share/
     CUSTOM_INC="$maindir"/share/ssl_build/include
@@ -103,7 +103,7 @@ then
     export BOOST_LIB_PATH=""
     cp bitcoind "$maindir"/share/bitcoin_build/client/
     cd ../..
-    rm -rf bitcoin
+    rm -rf bitcoin-bitcoin-d082365
 
     export PATH="$maindir"/share/qrencode_build/bin:"$PATH"
 

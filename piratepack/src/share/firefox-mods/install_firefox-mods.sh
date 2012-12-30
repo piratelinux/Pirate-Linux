@@ -144,7 +144,7 @@ then
 			unzip "$line" -d "$extdir"/"${line:0:$linelensub}"
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
                     else
-			cp "$line" "$extdir"/staged
+			cp "$line" "$extdir"/staged/
 			echo "$extdir"/"$line" >> "$localdir"/.installed
 			echo "$extdir"/staged/"$line" >> "$localdir"/.installed
 			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
@@ -159,6 +159,11 @@ then
 	    fi
 	fi
     done
+
+    if [ -d "$extdir"/staged ]
+    then
+	rmdir --ignore-fail-on-non-empty "$extdir"/staged
+    fi
 
     cd "$curdir"
 

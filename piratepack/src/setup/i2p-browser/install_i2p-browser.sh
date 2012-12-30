@@ -20,9 +20,9 @@ then
     cd ..
     rm -rf JRobinLite-1.5.9.1
 
-    tar -xzf wrapper_3.5.14_src.tar.gz
-    cp -r wrapper-patch/* wrapper_3.5.14_src/
-    cd wrapper_3.5.14_src
+    tar -xzf wrapper_3.5.15_src.tar.gz
+    cp -r wrapper-patch/* wrapper_3.5.15_src/
+    cd wrapper_3.5.15_src
     bits=32
     if [[ "$(arch)" == "x86_64" ]]
     then
@@ -52,25 +52,26 @@ then
     cp lib/libwrapper.so ../i2p-patch/installer/lib/wrapper/"$wrapperpath"/
     cp bin/wrapper ../i2p-patch/installer/lib/wrapper/"$wrapperpath"/i2psvc
     cd ..
-    rm -rf wrapper_3.5.14_src
+    rm -rf wrapper_3.5.15_src
 
     if [ -e /opt/piratepack/patch/i2p-browser ]
     then
 	cp -r /opt/piratepack/patch/i2p-browser/* .
     fi
 
-    tar -xjf i2psource_0.9-mod.tar.bz2
-    cd i2p-0.9
+    tar -xjf i2psource_0.9.2_mod.tar.bz2
+    cd i2p-0.9.2
     cp -r ../i2p-patch/* .
     cd core/c/jbigi
     ./build.sh dynamic
-    cp lib/libjbigi.so ../../../installer/lib/jbigi/
+    cp lib/libjbigi.so ../../../installer/lib/jbigi/libjbigi-linux-none.so
     cd ../jcpuid
     ./build.sh
     cp lib/freenet/support/CPUInformation/libjcpuid*.so ../../../installer/lib/jbigi/
     cd ../../../
     ant pkg
     INSTALL_PATH="$maindir"/share/i2p-browser_build
+    rm -rf "$INSTALL_PATH"
     cp -r pkg-temp "$INSTALL_PATH"
     cd "$INSTALL_PATH"
     awk '{sub(/[%]INSTALL[_]PATH/,"'"$INSTALL_PATH"'"); print}' eepget > eepget_tmp
@@ -87,6 +88,8 @@ then
     mv runplain.sh_tmp runplain.sh
     awk '{sub(/[$]SYSTEM[_]java[_]io[_]tmpdir/,"'"/tmp"'"); print}' wrapper.config > wrapper.config_tmp
     mv wrapper.config_tmp wrapper.config
+    awk '{sub(/[%]USER[_]HOME/,"$HOME"); print}' i2prouter > i2prouter_tmp
+    mv i2prouter_tmp i2prouter
     chmod u+rx postinstall.sh
     ./postinstall.sh "$INSTALL_PATH"
     echo '#!/bin/bash' > i2p-browser
@@ -95,7 +98,7 @@ then
     echo 'killall i2psvc' >> i2p-browser
     chmod a+rx i2p-browser
     cd "$curdir"
-    rm -rf i2p-0.9
+    rm -rf i2p-0.9.2
 fi
 
 awk '{sub(/[$]maindir/,"'"$maindir"'"); print}' i2p-irc > i2p-irc_tmp

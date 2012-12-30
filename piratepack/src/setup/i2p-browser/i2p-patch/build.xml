@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project basedir="." default="all" name="i2p">
 
-    <!-- Things you might want to change -->
-    <!-- This keeps gcj a lot quieter -->
-    <!--
-        <property name="javac.compilerargs" value="-warn:-unchecked,raw,unused,serial" />
-    -->
-    <!-- Additional classpath. No longer required; we find pack200 classes at runtime.
-         See core/java/src/net/i2p/util/FileUtil.java for more info.
-    -->
-    <!--
-        <property name="javac.classpath" value="/PATH/TO/pack200.jar" />
-    -->
-
-    <!-- change this to false if you don't have gettext -->
-    <property name="require.gettext" value="true" />
-    <!-- Include property files so that values can be easily overridden. Currently just useful for javadoc hosters -->
+    <!-- Include property files so that values can be easily overridden.
+         Users should create an override.properties file to make changes.
+     -->
     <property file="override.properties"/>
     <property file="build.properties"/>
 
@@ -123,6 +111,11 @@
 
     <target name="buildAddressbook" depends="buildCore, buildJetty" >
         <ant dir="apps/addressbook/" target="war" />
+    </target>
+
+    <!-- jar only (no war) for Android -->
+    <target name="buildI2PTunnelJar" depends="buildStreaming" >
+        <ant dir="apps/i2ptunnel/java/" target="jar" />
     </target>
 
     <target name="buildI2PTunnel" depends="buildStreaming, buildJetty" >
@@ -415,30 +408,28 @@
             splitindex="true"
             doctitle="I2P Javadocs for Release ${release.number} Build ${i2p.build.number}${build.extra}"
             windowtitle="I2P Anonymous Network - Java Documentation - Version ${release.number}">
-            <group title="Core SDK (i2p.jar)" packages="net.i2p:net.i2p.*:net.i2p.client:net.i2p.client.*:net.i2p.internal:net.i2p.internal.*:freenet.support.CPUInformation:org.bouncycastle.crypto:org.bouncycastle.crypto.*:gnu.crypto.*:gnu.gettext:org.xlattice.crypto.filters:com.nettgryppa.security:net.metanotion:net.metanotion.*" />
+            <group title="Core SDK (i2p.jar)" packages="net.i2p:net.i2p.*:net.i2p.client:net.i2p.client.*:net.i2p.internal:net.i2p.internal.*:freenet.support.CPUInformation:org.bouncycastle.oldcrypto:org.bouncycastle.oldcrypto.*:gnu.crypto.*:gnu.gettext:com.nettgryppa.security:net.metanotion:net.metanotion.*" />
             <group title="Streaming Library" packages="net.i2p.client.streaming" />
-            <group title="Router" packages="net.i2p.router:net.i2p.router.*:net.i2p.data.i2np:org.cybergarage.*:org.freenetproject" />
+            <group title="Router" packages="net.i2p.router:net.i2p.router.*:net.i2p.data.i2np:org.cybergarage.*:org.freenetproject:org.xlattice.crypto.filters" />
             <group title="Router Console" packages="net.i2p.router.web" />
             <!-- apps and bridges starting here, alphabetical please -->
             <group title="Addressbook Application" packages="net.i2p.addressbook" />
             <group title="BOB Bridge" packages="net.i2p.BOB" />
             <group title="BOB Demos" packages="net.i2p.BOB.Demos.echo.echoclient:net.i2p.BOB.Demos.echo.echoserver" />
             <group title="Desktopgui Application" packages="net.i2p.desktopgui:net.i2p.desktopgui.*" />
-            <group title="I2PSnark Application" packages="org.klomp.snark:org.klomp.snark.*" />
+            <group title="I2PSnark Application" packages="org.klomp.snark:org.klomp.snark.*:net.i2p.kademlia" />
             <group title="I2PTunnel Application" packages="net.i2p.i2ptunnel:net.i2p.i2ptunnel.*" />
             <group title="Jetty Logging" packages="net.i2p.jetty" />
             <group title="SAM Bridge" packages="net.i2p.sam" />
             <group title="SAM Demos" packages="net.i2p.sam.client" />
             <group title="SusiDNS Application" packages="i2p.susi.dns" />
             <group title="SusiMail Application" packages="i2p.susi.webmail:i2p.susi.webmail.*:i2p.susi.debug:i2p.susi.util:org.mortbay.servlet:org.mortbay.util" />
-            <group title="Systray Application" packages="net.i2p.apps.systray" />
             <sourcepath>
                 <pathelement location="core/java/src" />
                 <pathelement location="router/java/src" />
                 <pathelement location="apps/ministreaming/java/src" />
                 <pathelement location="apps/streaming/java/src" />
                 <pathelement location="apps/i2ptunnel/java/src" />
-                <pathelement location="apps/systray/java/src" />
                 <pathelement location="apps/desktopgui/src" />
                 <pathelement location="apps/routerconsole/java/src" />
                 <pathelement location="apps/addressbook/java/src" />
@@ -483,11 +474,11 @@
             splitindex="true"
             doctitle="I2P Unit Test Javadocs for Release ${release.number} Build ${i2p.build.number}${build.extra}"
             windowtitle="I2P Anonymous Network - Java Documentation - Version ${release.number}">
-            <group title="Core SDK" packages="net.i2p:net.i2p.*:net.i2p.client:net.i2p.client.*:net.i2p.internal:net.i2p.internal.*:freenet.support.CPUInformation:org.bouncycastle.crypto:org.bouncycastle.crypto.*:gnu.crypto.*:gnu.gettext:org.xlattice.crypto.filters:com.nettgryppa.security:net.metanotion:net.metanotion.*" />
-            <group title="Router" packages="net.i2p.router:net.i2p.router.*:net.i2p.data.i2np:org.cybergarage.*:org.freenetproject" />
+            <group title="Core SDK" packages="net.i2p:net.i2p.*:net.i2p.client:net.i2p.client.*:net.i2p.internal:net.i2p.internal.*:freenet.support.CPUInformation:org.bouncycastle.oldcrypto:org.bouncycastle.oldcrypto.*:gnu.crypto.*:gnu.gettext:org:com.nettgryppa.security:net.metanotion:net.metanotion.*" />
+            <group title="Router" packages="net.i2p.router:net.i2p.router.*:net.i2p.data.i2np:org.cybergarage.*:org.freenetproject:org.xlattice.crypto.filters" />
             <sourcepath>
-                <pathelement location="core/java/test" />
-                <pathelement location="router/java/test" />
+                <pathelement location="core/java/test/junit" />
+                <pathelement location="router/java/test/junit" />
             </sourcepath>
             <classpath>
                 <pathelement location="build/i2p.jar" />
@@ -545,7 +536,7 @@
             <arg value="-f1" />
             <arg value="-d;" />
         </exec>
-        <exec executable="awk" outputproperty="build.extra" failifexecutionfails="false">
+        <exec executable="awk" osfamily="unix" outputproperty="build.extra" failifexecutionfails="false">
             <arg value="-F&quot;" />
             <arg value="/public final static String EXTRA/{print $2}" />
             <arg value="router/java/src/net/i2p/router/RouterVersion.java" />
@@ -614,7 +605,6 @@
         <ant dir="apps/addressbook/" target="distclean" />
         <ant dir="apps/susimail/" target="distclean" />
         <ant dir="apps/susidns/src/" target="distclean" />
-        <ant dir="apps/systray/java/" target="distclean" />
         <ant dir="apps/i2psnark/java/" target="distclean" />
         <ant dir="apps/jetty/" target="distclean" />
 	<delete dir="core/c/jbigi/bin" />
@@ -685,14 +675,14 @@
     <target name="preppkg" depends="preppkg-linux-only">
         <copy file="build/jbigi.jar" todir="pkg-temp/lib" />
         <copy todir="pkg-temp/lib/wrapper/solaris/">
-            <fileset dir="installer/lib/wrapper/solaris/" />
+            <fileset dir="installer/lib/wrapper/solaris/" excludes="*.txt" />
         </copy>
     </target>
 
     <target name="preppkg-nowindows" depends="preppkg-linux, preppkg-freebsd, preppkg-osx, jbigi-nowindows">
         <copy file="build/jbigi.jar" todir="pkg-temp/lib" />
         <copy todir="pkg-temp/lib/wrapper/solaris/">
-            <fileset dir="installer/lib/wrapper/solaris/" />
+            <fileset dir="installer/lib/wrapper/solaris/" excludes="*.txt" />
         </copy>
         <copy file="installer/lib/wrapper/all/wrapper.jar" todir="pkg-temp/lib" />
     </target>
@@ -702,16 +692,16 @@
         <!-- no use doing repack200 on jbigi.jar -->
         <copy file="build/jbigi.jar" todir="pkg-temp/lib" />
         <copy todir="pkg-temp/lib/wrapper/solaris/">
-            <fileset dir="installer/lib/wrapper/solaris/" />
+            <fileset dir="installer/lib/wrapper/solaris/" excludes="*.txt" />
         </copy>
     </target>
 
     <target name="preppkg-freebsd" depends="preppkg-unix">
         <copy todir="pkg-temp/lib/wrapper/freebsd/">
-            <fileset dir="installer/lib/wrapper/freebsd/" />
+            <fileset dir="installer/lib/wrapper/freebsd/" excludes="*.txt" />
         </copy>
         <copy todir="pkg-temp/lib/wrapper/freebsd64/">
-            <fileset dir="installer/lib/wrapper/freebsd64" />
+            <fileset dir="installer/lib/wrapper/freebsd64" excludes="*.txt" />
         </copy>
     </target>
 
@@ -742,22 +732,22 @@
 
     <target name="preppkg-linux-x86" depends="preppkg-unix">
         <copy todir="pkg-temp/lib/wrapper/linux/">
-            <fileset dir="installer/lib/wrapper/linux/" />
+            <fileset dir="installer/lib/wrapper/linux/" excludes="*.txt" />
         </copy>
         <copy todir="pkg-temp/lib/wrapper/linux64/">
-            <fileset dir="installer/lib/wrapper/linux64/" />
+            <fileset dir="installer/lib/wrapper/linux64/" excludes="*.txt" />
         </copy>
     </target>
 
     <target name="preppkg-linux-nonx86" depends="preppkg-unix">
         <copy todir="pkg-temp/lib/wrapper/linux-armv7/">
-            <fileset dir="installer/lib/wrapper/linux-armv7/" />
+            <fileset dir="installer/lib/wrapper/linux-armv7/" excludes="*.txt" />
         </copy>
 	<copy todir="pkg-temp/lib/wrapper/linux-ppc/">
-	    <fileset dir="installer/lib/wrapper/linux-ppc/" />
+	    <fileset dir="installer/lib/wrapper/linux-ppc/" excludes="*.txt" />
 	</copy>
         <copy todir="pkg-temp/lib/wrapper/linux-armv5/">
-            <fileset dir="installer/lib/wrapper/linux-armv5/" />
+            <fileset dir="installer/lib/wrapper/linux-armv5/" excludes="*.txt" />
         </copy>
     </target>
 
@@ -767,8 +757,11 @@
 	    <fileset dir="installer/resources/Start I2P Router.app" />
 	</copy>
         <copy todir="pkg-temp/lib/wrapper/macosx/">
-            <fileset dir="installer/lib/wrapper/macosx/" />
+            <fileset dir="installer/lib/wrapper/macosx/" excludes="*.txt" />
         </copy>
+        <copy file="installer/resources/net.i2p.router.plist.template" todir="pkg-temp/" />
+        <copy file="installer/resources/install_i2p_service_osx.command" todir="pkg-temp/" />
+        <copy file="installer/resources/uninstall_i2p_service_osx.command" todir="pkg-temp/" />
     </target>
 
     <target name="preppkg-osx-only" depends="preppkg-osx, jbigi-osx-only" >
@@ -778,8 +771,6 @@
     
     <target name="preppkg-windows" depends="preppkg-base, buildexe">
         <copy file="build/i2p.exe" todir="pkg-temp/" failonerror="false" />
-        <copy file="apps/systray/java/lib/systray4j.dll" todir="pkg-temp/lib" />
-        <copy file="apps/systray/java/resources/iggy.xpm" todir="pkg-temp/icons" />
         <copy file="installer/resources/eepget.bat" todir="pkg-temp/" />
         <copy file="installer/resources/i2prouter.bat" todir="pkg-temp/" />
         <copy file="installer/resources/fixperms.bat" todir="pkg-temp/" />
@@ -789,10 +780,10 @@
         <copy file="installer/resources/uninstall_i2p_service_winnt.bat" todir="pkg-temp/" />
         <copy file="installer/lib/wrapper/all/wrapper.jar" todir="pkg-temp/lib" />
         <copy todir="pkg-temp/lib/wrapper/win32/">
-            <fileset dir="installer/lib/wrapper/win32/" />
+            <fileset dir="installer/lib/wrapper/win32/" excludes="*.txt" />
         </copy>
 	<copy todir="pkg-temp/lib/wrapper/win64/">
-	    <fileset dir="installer/lib/wrapper/win64/" />
+	    <fileset dir="installer/lib/wrapper/win64/" excludes="*.txt" />
         </copy>
     </target>
 
@@ -845,7 +836,6 @@
         <copy file="installer/resources/blocklist.txt" todir="pkg-temp/" />
         <copy file="installer/resources/clients.config" todir="pkg-temp/" />
         <copy file="installer/resources/i2ptunnel.config" todir="pkg-temp/" />
-        <copy file="installer/resources/systray.config" todir="pkg-temp/" />
         <copy file="installer/resources/wrapper.config" todir="pkg-temp/" />
         <copy file="installer/resources/hosts.txt" todir="pkg-temp/" />
         <copy file="INSTALL-headless.txt" todir="pkg-temp/" />
@@ -854,6 +844,9 @@
         <mkdir dir="pkg-temp/scripts" />
         <copy file="apps/proxyscript/i2pProxy.pac" todir="pkg-temp/scripts/" />
         <copy file="installer/resources/startconsole.html" todir="pkg-temp/docs/" />
+        <copy file="installer/resources/start.ico" todir="pkg-temp/docs/" />
+        <copy file="installer/resources/console.ico" todir="pkg-temp/docs/" />
+        <copy file="installer/resources/uninstall.ico" todir="pkg-temp/docs/" />
         <!-- Eepsite stuff here -->
         <mkdir dir="pkg-temp/eepsite" />
         <copy todir="pkg-temp/eepsite/" >
@@ -973,18 +966,22 @@
 
     <target name="pack200">
         <!-- pack200 will only pack to a .pack file, and only from a .jar file, so we put another .jar on the end -->
+        <!-- can't pack an empty jar or one without classes, it will fail to unpack on Java 5;
+          -  see http://bugs.sun.com/view_bug.do?bug_id=6712743
+          -->
         <!-- *nix here -->
         <exec executable="sh" osfamily="unix" failonerror="true">
             <arg value="-c" />
-            <arg value="for i in pkg-temp/lib/*.jar pkg-temp/webapps/*war; do echo pack200 $i; mv $i $i.jar; pack200 -g $i.pack $i.jar; rm -f $i.jar; done" />
+            <arg value="for i in pkg-temp/lib/*.jar pkg-temp/webapps/*war; do if [ $i = pkg-temp/lib/jasper-compiler.jar -o $i = pkg-temp/lib/jbigi.jar ]; then continue; fi; echo pack200 $i; mv $i $i.jar; pack200 -g $i.pack $i.jar; rm -f $i.jar; done" />
         </exec>
         <exec executable="sh" osfamily="mac" failonerror="true">
             <arg value="-c" />
-            <arg value="for i in pkg-temp/lib/*.jar pkg-temp/webapps/*war; do echo pack200 $i; mv $i $i.jar; pack200 -g $i.pack $i.jar; rm -f $i.jar; done" />
+            <arg value="for i in pkg-temp/lib/*.jar pkg-temp/webapps/*war; do if [ $i = pkg-temp/lib/jasper-compiler.jar -o $i = pkg-temp/lib/jbigi.jar ]; then continue; fi; echo pack200 $i; mv $i $i.jar; pack200 -g $i.pack $i.jar; rm -f $i.jar; done" />
         </exec>
         <!-- windoz here : i admit, i hate escaped symbols in xml, indeed = =! -->
         <exec executable="cmd" osfamily="windows" failonerror="true">
             <arg value="/c" />
+            <!-- TODO implement fix above -->
             <arg value="for %i in (pkg-temp\webapps\*.war) do move %i %i.jar &amp;&amp; pack200 -g pkg-temp\webapps\%~ni.war.pack %i.jar &amp;&amp; del %i.jar" />
         </exec>
         <exec executable="cmd" osfamily="windows" failonerror="true">
@@ -1014,12 +1011,6 @@
                 <arg value="/c" />
                 <arg value="for %i in (pkg-temp\lib\*.jar) do pack200 -r %i" />
         </exec>
-    </target>
-
-    <target name="updateTest" depends="prepupdate">
-        <ant dir="core/java/" target="jarTest" />
-        <copy file="core/java/build/i2ptest.jar" todir="pkg-temp/lib" />
-        <zip destfile="i2pupdate.zip" basedir="pkg-temp" />
     </target>
 
     <target name="prepupdate" depends="build2, prepupdateSmall, prepConsoleDocUpdates, prepCertificates, prep-script-translation">
@@ -1275,25 +1266,30 @@
     </target>
     <!-- end custom installers -->
 
+    <!-- unit tests -->
+    <target name="updateTest" depends="prepupdate">
+        <ant dir="core/java/" target="jarTest" />
+        <copy file="core/java/build/i2ptest.jar" todir="pkg-temp/lib" />
+        <zip destfile="i2pupdate.zip" basedir="pkg-temp" />
+    </target>
     <target name="test" depends="buildProperties, jbigi" >
-        <mkdir dir="reports/core/junit/" />
         <ant dir="core/java/" target="test" />
     </target>
     <target name="junit.report" depends="buildProperties" >
         <ant dir="core/java/" target="junit.report" />
     </target>
-    <target name="clover.report" depends="buildProperties" >
+    <target name="clover.report" depends="buildProperties" if="with.clover">
         <ant dir="core/java/" target="clover.report" />
     </target>
-    <target name="test.report" depends="junit.report, clover.report"/>
+    <target name="cobertura.report" depends="buildProperties" if="with.cobertura">
+        <ant dir="core/java/" target="cobertura.report" />
+    </target>
+    <target name="test.report" depends="junit.report, clover.report, cobertura.report"/>
     <target name="fulltest" depends="buildProperties" >
 		<ant dir="core/java/" target="fulltest" />
 		<ant dir="router/java/" target="fulltest" />
     </target>
-    <target name="fullclovertest" depends="buildProperties" >
-		<ant dir="core/java/" target="fullclovertest" />
-		<ant dir="router/java/" target="fullclovertest" />
-    </target>
+    <!-- end unit tests -->
 
     <target name="testscripts" >
         <exec executable="tests/scripts/checkcerts.sh" failonerror="true" />
@@ -1352,7 +1348,6 @@
             <arg value="build/streaming.jar"/>
             <arg value="build/susidns.war"/>
             <arg value="build/susimail.war"/>
-            <arg value="build/systray.jar"/>
         </exec>
         <echo message="Findbugs output stored in i2p.fba" />
         <echo message="Now run: findbugs i2p.fba" />
@@ -1629,6 +1624,8 @@
 			<copy file="installer/resources/initialNews/initialNews.xml" tofile="pkg-temp/docs/news.xml" overwrite="true" />
 			<copy file="installer/resources/readme/readme.html" tofile="pkg-temp/docs/readme.html" />
 			<copy file="installer/resources/startconsole.html" todir="pkg-temp/docs/" />
+			<copy file="installer/resources/start.ico" todir="pkg-temp/docs/" />
+			<copy file="installer/resources/console.ico" todir="pkg-temp/docs/" />
 			<!-- HTTP Header files, english only,
 				if you need a different lang do it in a seperate target -->
 			<copy todir="pkg-temp/docs/" >
@@ -1661,7 +1658,6 @@
 <!-- *3* os dependent procedure/commands -->
 	<target name = "preppkg-portable-win32" depends="preppkg-portable-win32-jbigi,preppkg-portable-basic">
 			<!-- systray4.j  - why do we need trayicons for portable version ? dependency hardcoded in console -->
-		<copy file="apps/systray/java/lib/systray4j.dll" todir="pkg-temp/lib" />
 			<!--wrapper - dont even think about it. i2p cosumes appreantly more mem without it on win32-->
 		<copy file="installer/lib/wrapper/win32/wrapper.dll" todir="pkg-temp/lib" />
 		<copy file="installer/lib/wrapper/all/wrapper.jar" todir="pkg-temp/lib" />

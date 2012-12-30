@@ -1,9 +1,8 @@
 [Desktop Entry]
-Name=I2P Web Browser
+Name=I2P Browser
 Icon=i2p-browser.png
 Terminal=false
 Type=Application
 Categories=Network;P2P;
 Comment=Browse the Dark Web
-Exec=/home/ak/tst/i2p-browser/maindir/bin/i2p-browser
-Exec=/home/ak/tst/i2p-browser/maindir/bin/i2p-browser
+Exec=$maindir/bin/i2p-browser

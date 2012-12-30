@@ -18,8 +18,8 @@ then
     cd ..
     rm -rf polipo-1.0.4.1
 
-    tar -xzf openssl-1.0.1b.tar.gz
-    cd openssl-1.0.1b
+    tar -xzf openssl-1.0.1c.tar.gz
+    cd openssl-1.0.1c
     ./config --prefix="$maindir"/share/ssl_build shared
     set +e
     make
@@ -29,30 +29,30 @@ then
     make install
     set -e
     cd ..
-    rm -rf openssl-1.0.1b
+    rm -rf openssl-1.0.1c
 
-    tar -xzf libevent-2.0.19-stable.tar.gz
-    cd libevent-2.0.19-stable
+    tar -xzf libevent-2.0.20-stable.tar.gz
+    cd libevent-2.0.20-stable
     ./configure --prefix="$maindir"/share/event_build
     set +e
     make
     make install
     set -e
     cd ..
-    rm -rf libevent-2.0.19-stable
+    rm -rf libevent-2.0.20-stable
 
-    tar -xzf tor-0.2.2.36.tar.gz
-    cd tor-0.2.2.36
+    tar -xzf tor-0.2.2.39.tar.gz
+    cd tor-0.2.2.39
     ./configure --prefix="$maindir"/share/tor_build --with-openssl-dir="$maindir"/share/ssl_build --with-libevent-dir="$maindir"/share/event_build --enable-static-openssl --enable-static-libevent
     set +e
     make
     make install
     set -e
     cd ..
-    rm -rf tor-0.2.2.36
+    rm -rf tor-0.2.2.39
 
-    tar -xzf vidalia-0.2.17.tar.gz
-    cd vidalia-0.2.17
+    tar -xzf vidalia-0.2.20.tar.gz
+    cd vidalia-0.2.20
     mkdir build
     cd build
     set +e
@@ -62,7 +62,7 @@ then
     mkdir "$maindir"/share/vidalia_build
     cp src/vidalia/vidalia "$maindir"/share/vidalia_build/
     cd ../..
-    rm -rf vidalia-0.2.17
+    rm -rf vidalia-0.2.20
 fi
 
 set +e
@@ -107,7 +107,7 @@ mv tor-irc_tmp tor-irc
 
 issue="$(cat /etc/issue)"
 
-if [[ "$issue" != *"Ubuntu"*"11.10"* ]] && [[ "$issue" != *"Ubuntu"*"12.04"* ]]
+if [[ "$issue" != *"Ubuntu"*"11.10"* ]] && [[ "$issue" != *"Ubuntu"*"12."* ]]
 then
     awk '{sub(/purple[.]tar[.]gz/,"'"purple_old.tar.gz"'"); print}' tor-irc > tor-irc_tmp
     mv tor-irc_tmp tor-irc
@@ -139,16 +139,12 @@ then
     ln -s "$maindir"/share/tor-browser_build/tor-irc "$maindir"/bin/tor-irc
 fi
 
-cp "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
-unzip {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi -d {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
-cp -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}-mods/installer/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}/* {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
-cd {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
-zip -r {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi .
-rm -f ../{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
-rm -f "$maindir"/share/tor-browser/{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi
-cp {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}.xpi "$maindir"/share/tor-browser/
-cd ..
-rm -rf {e0204bd5-9d31-402b-a99d-a6aa8ffebdca}
+mkdir jondo
+mv jondofox_linux_en.tar.bz2 jondo/
+cd jondo
+tar -xjf jondofox_linux_en.tar.bz2
+tar -czf profile.tar.gz profile
+cp profile.tar.gz "$maindir"/share/tor-browser/
 
 cd "$curdir"
 

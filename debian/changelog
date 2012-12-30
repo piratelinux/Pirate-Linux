@@ -1,3 +1,21 @@
+piratepack (1.5-7) unstable; urgency=low
+
+  * JondoFox used instead of Torbutton
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Mon, 29 Oct 2012 21:58:05 -0600
+
+piratepack (1.5-6) unstable; urgency=low
+
+  * Original key used
+
+ -- Pirate Linux Keymaster <keymaster@piratelinux.org>  Fri, 21 Sep 2012 17:38:38 -0600
+
+piratepack (1.5-5tmp) unstable; urgency=low
+
+  * Temporary key used
+
+ -- Pirate Linux Keymaster Temp <keymaster_tmp@piratelinux.org>  Sun, 02 Sep 2012 16:18:21 +0200
+
 piratepack (1.5-5) unstable; urgency=low
 
   * Fix pidgin settings

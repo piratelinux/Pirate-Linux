@@ -30,27 +30,34 @@ cd
 
 profiledir=""
 
+set +e
 while read -r line
 do
     profiledir="$homedir"/"$line"
     break
-done < <(find ".mozilla/firefox/"*".default" -maxdepth 0)
+done < <(find ".mozilla/firefox/"*".default" -maxdepth 0 2>> /dev/null)
+set -e
 
-cd "$profiledir"
-
-match="$(grep homepage.*piratelinux.org prefs.js)"
-if [[ "$match" != "" ]]
+if [[ "$profiledir" != "" ]] && [ -f "$profiledir"/prefs.js ]
 then
-    echo 'user_pref("browser.startup.homepage", "about:blank");' >> prefs.js
-fi
 
-match="$(grep port.*8124 prefs.js)"
-if [[ "$match" != "" ]]
-then
-    echo 'user_pref("network.proxy.http", "");' >> prefs.js
-    echo 'user_pref("network.proxy.http_port", 0);' >> prefs.js
-    echo 'user_pref("network.proxy.ssl", "");' >> prefs.js
-    echo 'user_pref("network.proxy.ssl_port", 0);' >> prefs.js
+    cd "$profiledir"
+    
+    match="$(grep homepage.*piratelinux.org prefs.js)"
+    if [[ "$match" != "" ]]
+    then
+	echo 'user_pref("browser.startup.homepage", "about:blank");' >> prefs.js
+    fi
+    
+    match="$(grep port.*8124 prefs.js)"
+    if [[ "$match" != "" ]]
+    then
+	echo 'user_pref("network.proxy.http", "");' >> prefs.js
+	echo 'user_pref("network.proxy.http_port", 0);' >> prefs.js
+	echo 'user_pref("network.proxy.ssl", "");' >> prefs.js
+	echo 'user_pref("network.proxy.ssl_port", 0);' >> prefs.js
+    fi
+
 fi
 
 cd

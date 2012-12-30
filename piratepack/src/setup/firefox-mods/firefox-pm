@@ -5,7 +5,7 @@ set -e
 cd
 homedir="$(pwd)"
 localdir="$homedir"/.piratepack/firefox-mods
-extdir="$maindir"/share/firefox-mods/whoami
+extdir="$maindir"/share/firefox-mods
 extname="whoami@didierstevens.aq"
 
 version="4"

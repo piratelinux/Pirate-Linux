@@ -35,7 +35,7 @@ fi
 cp -r "$curdir"/piratepack/main "$maindir"
 
 issue="$(cat /etc/issue)"
-if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12.04"* ]]
+if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12."* ]]
 then
     cd "$maindir"/share/tor-browser_build
     awk '{sub(/purple[_]old[.]tar[.]gz/,"'"purple.tar.gz"'"); print}' tor-irc > tor-irc_tmp

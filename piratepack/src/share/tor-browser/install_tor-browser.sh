@@ -75,82 +75,97 @@ do
 done < <(find ".mozilla/firefox/"*".tor" -maxdepth 0)
 
 if [[ "$profiledir" != "" ]]
-then 
-    cd "$profiledir"
-
-    version="4"
-    set +e
-    versioncmd=$(firefox -version)
-    set -e
-
-    if [[ "$versioncmd" == *"Firefox 3"* ]] || [[ "$versioncmd" == *"Iceweasel 3"* ]]
+then
+    if [ ! -f "$profiledir"/extensions/{437be45a-4114-11dd-b9ab-71d256d89593}.xpi ] && [ ! -d "$profiledir"/extensions/{437be45a-4114-11dd-b9ab-71d256d89593} ]
     then
-        version="3"
-    fi
 
-    if [ ! -d extensions ]
-    then
-	mkdir extensions
-    fi
-    chmod u+rwx extensions
-    cd extensions
-    extdir="$(pwd)"
-    if [[ "$version" != "3" ]] 
-    then
-	if [ ! -d staged ]
+	cd
+
+	if [ ! -d .piratepack/backup ]
 	then
-	    mkdir staged
+            mkdir .piratepack/backup
 	fi
-	chmod u+rwx staged
-    fi
-    cd "$curdir"
-    find *.xpi | while read line; do
-	linelen=${#line}
-        linelensub=$(($linelen - 4))
-	if [ ! -f "$extdir"/"$line" ] && [ ! -d "$extdir"/"${line:0:$linelensub}" ]
+	chmod u+rwx .piratepack/backup
+
+	set +e
+	numbackup="$(ls -d .piratepack/backup/firefox-tor_* 2>> /dev/null | wc -l)"
+	set -e
+	if [ "$numbackup" -ge "0" ]
 	then
-	    if [ ! -f "$extdir"/staged/"${line:0:$linelensub}.xpi" ] && [ ! -d "$extdir"/staged/"${line:0:$linelensub}" ] 
-	    then
-		if [ -d "${line:0:$linelensub}" ]
-		then
-		    if [[ "$version" == "3" ]]
-		    then
-			unzip "$line" -d "$extdir"/"${line:0:$linelensub}"
-			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
-		    else
-			unzip "$line" -d "$extdir"/staged/"${line:0:$linelensub}"
-			echo "$extdir"/"$line" >> "$localdir"/.installed
-                        echo "$extdir"/staged/"$line" >> "$localdir"/.installed
-			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
-			echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
-		    fi
-		else
-		    if [[ "$version" == "3" ]]
-                    then
-			unzip "$line" -d "$extdir"/"${line:0:$linelensub}"
-			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
-                    else
-			cp "$line" "$extdir"/staged
-			echo "$extdir"/"$line" >> "$localdir"/.installed
-			echo "$extdir"/staged/"$line" >> "$localdir"/.installed
-			echo "$extdir"/"${line:0:$linelensub}" >> "$localdir"/.installed
-			echo "$extdir"/staged/"${line:0:$linelensub}" >> "$localdir"/.installed
-		    fi
-		fi
-		if [[ "$version" != "3" ]]
-		then
-		    cp "${line:0:$linelensub}".json "$extdir"/staged
-		    echo "$extdir"/staged/"${line:0:$linelensub}".json >> "$localdir"/.installed
-		fi
-	    fi
+            chmod -R u+r "$profiledir"
+            cp -r "$profiledir" .piratepack/backup/"firefox-tor"_"$(($numbackup + 1))"
+            chmod -R a-w .piratepack/backup/"firefox-tor"_"$(($numbackup + 1))"
+            rm -rf "$profiledir"/* "$profiledir"/.[!.]* "$profiledir"/..[!.]* "$profiledir"/...*
 	fi
-    done
 
-    cd "$curdir"
+	cd "$localdir"
+	tar -xzf "$curdir"/profile.tar.gz
 
-    cd "$profiledir"
-    echo 'user_pref("browser.startup.homepage", "https://check.torproject.org");' >> prefs.js
-    echo 'user_pref("network.websocket.enabled", false);' >> prefs.js
+	mv profile/* "$profiledir"/
+	rmdir profile
+
+	cd "$profiledir"
+
+	echo 'user_pref("network.websocket.enabled", false);' >> prefs.js
+	echo 'user_pref("extensions.jondofox.proxy.state", "tor");' >> prefs.js
+	echo 'user_pref("extensions.jondofox.observatory.proxy", 1);' >> prefs.js
+    fi
+
+    if [ ! -f "$profiledir"/extensions/whoami@didierstevens.aq.xpi ] && [ ! -d "$profiledir"/extensions/whoami@didierstevens.aq ]
+    then
+	version="4"
+	set +e
+	versioncmd="$(firefox -version)"
+	set -e
+
+	if [[ "$versioncmd" == *"Firefox 3"* ]] || [[ "$versioncmd" == *"Iceweasel 3"* ]]
+	then
+            version="3"
+	fi
+
+	cd "$profiledir"
+
+	if [ ! -d extensions ]
+	then
+            mkdir extensions
+	fi
+	chmod u+rwx extensions
+	cd extensions
+
+	if [[ "$version" != "3" ]]
+	then
+            if [ ! -d staged ]
+            then
+		mkdir staged
+            fi
+            chmod u+rwx staged
+	fi
+
+	cd "$curdir"
+	cd ../"firefox-mods"
+
+	if [[ "$version" == "3" ]]
+        then
+            unzip 'whoami@didierstevens.aq.xpi' -d "$profiledir"/extensions/'whoami@didierstevens.aq'
+            echo "$profiledir"/extensions/'whoami@didierstevens.aq' >> "$localdir"/.installed
+	else
+	    cp 'whoami@didierstevens.aq.xpi' "$profiledir"/extensions/staged/
+	    echo "$profiledir"/extensions/'whoami@didierstevens.aq.xpi' >> "$localdir"/.installed
+	    echo "$profiledir"/extensions/staged/'whoami@didierstevens.aq.xpi' >> "$localdir"/.installed
+	    echo "$profiledir"/extensions/'whoami@didierstevens.aq' >> "$localdir"/.installed
+	    echo "$profiledir"/extensions/staged/'whoami@didierstevens.aq' >> "$localdir"/.installed
+	fi
+	if [[ "$version" != "3" ]]
+        then
+            cp 'whoami@didierstevens.aq.json' "$profiledir"/extensions/staged/
+            echo "$profiledir"/extensions/staged/'whoami@didierstevens.aq.json' >> "$localdir"/.installed
+        fi
+    fi
+
+    if [ -d "$profiledir"/extensions/staged ]
+    then
+	rmdir --ignore-fail-on-non-empty "$profiledir"/extensions/staged
+    fi
 
 fi
 

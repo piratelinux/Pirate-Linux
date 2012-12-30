@@ -11,9 +11,8 @@ else
     exit 1
 fi
 
-DESC="v0.6.2"
-
-TIME="2012-05-08 12:58:39 -0400"
+DESC="v0.7.1"
+TIME="$(date +"%Y-%m-%d %T %z")"
 
 if [ -n "$DESC" ]; then
     NEWINFO="#define BUILD_DESC \"$DESC\""

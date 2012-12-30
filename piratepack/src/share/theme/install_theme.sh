@@ -11,7 +11,7 @@ issue="$(cat /etc/issue)"
 
 curimage=""
 
-if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12.04"* ]]
+if [[ "$issue" == *"Ubuntu"*"11.10"* ]] || [[ "$issue" == *"Ubuntu"*"12."* ]]
 then
 
     gsettings set org.gnome.desktop.background color-shading-type "solid"

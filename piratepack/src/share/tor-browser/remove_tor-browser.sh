@@ -20,8 +20,8 @@ fi
 
 set +e
 
-chmod -Rf u+rw "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
-rm -rf "$localdir"/* "$localdir"/.[!.]* "$localdir"/...*
+chmod -Rf u+rw "$localdir"/* "$localdir"/.[!.]* "$localdir"/..[!.]* "$localdir"/...*
+rm -rf "$localdir"/* "$localdir"/.[!.]* "$localdir"/..[!.]* "$localdir"/...*
 
 rm -f .local/share/applications/tor-browser.desktop
 rm -f .local/share/icons/tor-browser.png
