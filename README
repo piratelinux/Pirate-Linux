@@ -1,4 +1,4 @@
-Pirate Linux is a Linux based operating system that enhances privacy, free speech, and transparency. It is based on Gentoo and the Gentoo-hardened kernel. Visit our home page at https://piratelinux.org
+Pirate Linux is a Linux based operating system that enhances privacy, free speech, and transparency. It is based on Gentoo and the Gentoo-hardened kernel. Visit our home page at https://piratelinux.org.
 
 To build the OS, you will need:
 
@@ -12,7 +12,7 @@ Once you're ready, issue the command:
 
 ./build.sh [nJobs]
 
-where [nJobs] is the number of parallel jobs to use for emerging packages. It is an optional argument, and will not affect the make.conf of the final image (it will have MAKEOPTS="-j1").
+where [nJobs] is the number of parallel jobs to use for compiling packages. It is an optional argument, and will not affect the make.conf of the final image (it will have MAKEOPTS="-j1").
 
 For example:
 
