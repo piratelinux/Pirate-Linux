@@ -1,0 +1,15 @@
+>=dev-libs/libxml2-2.9.1-r1 python
+net-misc/openssh -bindist
+dev-libs/openssl -bindist
+>=gnome-base/gvfs-1.18.3 udisks
+>=sys-libs/zlib-1.2.8-r1 minizip
+=dev-libs/libxml2-2.9.1-r1 icu
+=dev-lang/python-2.7.5-r3 sqlite
+=app-text/ghostscript-gpl-9.10-r2 cups
+=dev-libs/leveldb-1.9.0-r5 -snappy
+=dev-libs/openssl-1.0.1f -bindist
+=media-libs/harfbuzz-0.9.23 icu
+>=virtual/udev-208-r1 gudev
+=media-gfx/imagemagick-6.8.8.5 truetype
+=media-libs/libpng-1.6.8 apng
+=sys-fs/udev-208 gudev

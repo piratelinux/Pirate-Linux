@@ -1,0 +1,5 @@
+>=net-misc/piratepack-i2p-1.6.3_alpha ~amd64
+>=sys-apps/piratepack-1.6.3_alpha ~amd64
+>=app-misc/cwallet-1.2.1_alpha ~amd64
+=dev-java/eclipse-ecj-3.7.2-r1 ~amd64
+=dev-java/ant-eclipse-ecj-3.7.2 ~amd64

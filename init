@@ -1,0 +1,26 @@
+#!/bin/busybox sh
+
+rescue_shell() {
+	       /bin/busybox echo "Something went wrong. Dropping you to a shell."
+	       /bin/busybox --install -s
+	       exec /bin/busybox sh
+}
+
+/bin/busybox mount -t proc none /proc
+/bin/busybox mount -t sysfs none /sys
+/bin/busybox mount -t devtmpfs none /dev
+
+/bin/busybox mkdir /mnt/cdrom
+/bin/busybox mount -t iso9660 -o ro /dev/sr0 /mnt/cdrom || rescue_shell
+
+/bin/busybox mkdir /mnt/ramdisk
+/bin/busybox mount -t tmpfs -o size=3g tmpfs /mnt/ramdisk || rescue_shell
+
+/bin/busybox echo "Unsquashing filesystem"
+/bin/unsquashfs -f -d /mnt/ramdisk /mnt/cdrom/live/filesystem.squashfs || rescue shell
+
+/bin/busybox umount /proc
+/bin/busybox umount /sys
+/bin/busybox umount /dev
+
+exec /bin/busybox switch_root /mnt/ramdisk /sbin/init

@@ -1,5 +1,0 @@
-piratepack.tar.gz /usr/lib/piratepack/
-install_piratepack.sh /usr/lib/piratepack/
-remove_piratepack.sh /usr/lib/piratepack/
-debian/piratepack.xpm /usr/share/pixmaps/
-debian/piratepack.desktop /usr/share/applications/

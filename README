@@ -1,59 +1,23 @@
-PIRATEPACK - MAIN DOCUMENTATION
+Pirate Linux is a Linux based operating system that enhances privacy, free speech, and transparency. It is based on Gentoo and the Gentoo-hardened kernel. Visit our home page at https://piratelinux.org
 
-The main source code for piratepack is contained in piratepack.tar.gz
-The installation script is install_piratepack.sh
-The removal script is remove_piratepack.sh
-The DEB build script is build.sh
-The license for piratepack is described in LICENSE
+To build the OS, you will need:
 
+- A standard Linux toolset (binutils)
+- chroot (requires root access)
+- squashfs-tools (for mksquashfs and unsquashfs)
+- grub-2 and libisoburn (for grub2-mkrescue)
+- An internet connection with /etc/resolv.conf available (All downloaded files will be checked against checksums signed by the official Gentoo portage snapshot sigining key, included as snapshot.asc, or the official Gentoo release signing key for the case of the stage-3 tarball)
 
-MAIN SOURCE CODE (piratepack.tar.gz)
+Once you're ready, issue the command:
 
-If you extract this (tar -xzf), you get a directory named "piratepack".
+./build.sh [nJobs]
 
-piratepack/README contains the version on the first line.
+where [nJobs] is the number of parallel jobs to use for emerging packages. It is an optional argument, and will not affect the make.conf of the final image (it will have MAKEOPTS="-j1").
 
-piratepack/src/main.c contains the source code for the piratepack binary
+For example:
 
-piratepack/src/setup contains files used by the installation script
+./build.sh 5
 
-piratepack/src/share contains files that will be used by the piratepack once
-installed. The installation script may modify/add files in there for
-preparation.
+will build Pirate Linux with at most 5 parallel jobs, and should take about 6 hours to complete on a standard desktop. Once the build process is complete, you will see: "Successfully built Pirate Linux". The resulting ISO containing the OS is pirate-linux.iso. It should be similar to the latest prebuilt ISO available in the Downloads section of our website. Read https://piratelinux.org/?p=567 for more documentation for how to use this ISO.
 
-
-INSTALLATION SCRIPT (install_piratepack.sh)
-
-Usage: install_piratepack.sh [base directory]
-
-Note: The base directory is where most of the global piratepack files are
-stored. The default base directory is /opt/piratepack. Call it "basedir".
-
-The script installs the piratepack for all users. Assuming the dependency
-requirements are met, it compiles all binary executables inside
-piratepack/setup from source. The executables are placed in basedir/bin
-(symbolic link).
-
-The script adds a symbolic link /usr/bin/piratepack linking to basedir/bin/piratepack.
-
-The script adds the line:
-$basedir/bin/piratepack --refresh
-to /etc/profile in order to keep piratepack updated for all users
-
-
-DEB BUILD SCRIPT
-
-Usage: build.sh
-
-This will create the main piratepack DEB package and place it into ../deb/
-
-
-AFTER INSTALLATION
-
-When a user logs in, the command "piratepack --refresh" executes to update
-or enable piratepack for the first time. Local piratepack files are stored in
-$HOME/.piratepack
-
-Executing "piratepack" loads the piratepack GUI. This allows a user to manually
-enable/disable piratepack. piratepack can also be accessed from the gnome menu
-if it was installed using the DEB file.
+Pirate Linux is released into the public domain (CC0), so feel to do what you want with it. For more details, see the LICENSE file.

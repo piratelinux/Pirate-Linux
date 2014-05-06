@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Cwallet
-Icon=cwallet.png
-Terminal=false
-Type=Application
-Categories=Utility
-Comment=Backup bitcoin to paper
-Exec=/opt/piratepack/ver-1.5-6_1/bin/cwallet-gui --addpath /opt/piratepack/ver-1.5-6_1/bin

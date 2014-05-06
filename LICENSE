@@ -1,16 +1,1 @@
-All licenses for the code in this package are free licenses.
-
-Unless stated otherwise, the code in this package (named Pirate Pack or
-piratepack) is released into the public domain as decribed in
-piratepack/licenses/LICENSE_default. (CC0)
-
-The packages listed in debian/control are the dependencies (mandatory and
-recommended) of the DEB package. Their licenses depend on which repository your
-operating system uses to download them, so you may consult your repository for
-these licenses.
-
-See piratepack/LICENSE for the other licenses for the code in this package.
-
-Signed,
-Andrew K
-admin@piratelinux.org
+This work is released to the public domain under CC0. To the extent possible under law, Andrew K has waived all copyright and related or neighboring rights to Pirate Linux (https://piratelinux.org). This work is published from Canada. To view a copy of this (CC0) deed, visit https://creativecommons.org/publicdomain/zero/1.0/. Note: Any third-party content contained within this package may be copyrighted, but is released under a free license that allows its use in this package.

@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>                                                                                                     
+<repositories version="1.0">
+  <repo priority="50" quality="experimental" status="unofficial">
+    <name>piratepack-testing</name>
+    <description>Piratepack Testing Overlay.</description>
+    <homepage>https://piratelinux.org</homepage>
+    <owner>
+      <email>gentoo@piratelinux.org</email>
+    </owner>
+    <source type="git">git://github.com/piratelinux/piratepack-overlay-testing.git</source>
+  </repo>
+</repositories>

@@ -1,3 +1,0 @@
-?package(piratepack):needs="X11" section="Applications/System/Administration"\
-  title="piratepack" command="piratepack"\
-  icon="/usr/share/pixmaps/piratepack.xpm"
