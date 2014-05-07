@@ -19,7 +19,7 @@ download_stage3() {
     then
 	wget http://distfiles.gentoo.org/releases/amd64/autobuilds/20140313/hardened/stage3-amd64-hardened-20140313.tar.bz2
     fi
-    sha512sum stage3-amd64-hardened-"$stage3ver".tar.bz2 | grep $(awk 'NR==2 { print $1 }' stage3-amd64-hardened-"$stage3ver".tar.bz2.DIGESTS) || (echo "Invalid file was downloaded. Please try again." && exit 1)
+    sha512sum stage3-amd64-hardened-"$stage3ver".tar.bz2 | grep $(awk 'NR==2 { print $1 }' stage3-amd64-hardened-"$stage3ver".tar.bz2.DIGESTS) || (echo "Invalid file was downloaded. Please try again." && rm stage3-amd64-hardened-"$stage3ver".tar.bz2 && exit 1)
     cd ..
 }
 
