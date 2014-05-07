@@ -15,7 +15,10 @@ fi
 download_stage3() {
     echo "Downloading stage3 tarball ..."
     cd stage3
-    wget http://distfiles.gentoo.org/releases/amd64/autobuilds/20140313/hardened/stage3-amd64-hardened-20140313.tar.bz2
+    if [ ! -f stage3-amd64-hardened-"$stage3ver".tar.bz2 ]
+    then
+	wget http://distfiles.gentoo.org/releases/amd64/autobuilds/20140313/hardened/stage3-amd64-hardened-20140313.tar.bz2
+    fi
     sha512sum stage3-amd64-hardened-"$stage3ver".tar.bz2 | grep $(awk 'NR==2 { print $1 }' stage3-amd64-hardened-"$stage3ver".tar.bz2.DIGESTS) || (echo "Invalid file was downloaded. Please try again." && exit 1)
     cd ..
 }
@@ -133,6 +136,7 @@ postconfigure_outside() {
 }
 
 squash_filesystem() {
+    echo "Squashing filesystem ..."
     rm -f target/live/filesystem.squashfs
     mksquashfs source target/live/filesystem.squashfs
 }
