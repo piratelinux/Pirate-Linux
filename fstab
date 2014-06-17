@@ -14,7 +14,5 @@
 # <fs>			<mountpoint>	<type>		<opts>		<dump/pass>
 
 # NOTE: If your BOOT partition is ReiserFS, add the notail option to opts.
-/dev/loop0		/               squashfs        defaults             0 0
-none                    /proc           proc            defaults             0 0
-none                    /dev/shm        tmpfs           defaults             0 0
-
+tmpfs	   	/            tmpfs    noatime,size=3g	   0 0
+/dev/cdrom  	/mnt/cdrom   auto     noauto,user	   0 0

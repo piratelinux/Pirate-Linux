@@ -13,3 +13,6 @@ dev-libs/openssl -bindist
 =media-gfx/imagemagick-6.8.8.5 truetype
 =media-libs/libpng-1.6.8 apng
 =sys-fs/udev-208 gudev
+media-gfx/zbar v4l xv imagemagick
+>=app-text/poppler-0.24.5 cairo
+sys-block/gparted fat

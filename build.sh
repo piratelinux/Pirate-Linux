@@ -12,14 +12,14 @@ then
     njobs="$1"
 fi
 
-download_stage3() {
+download_files() {
     echo "Downloading stage3 tarball ..."
     cd stage3
     if [ ! -f stage3-amd64-hardened-"$stage3ver".tar.bz2 ]
     then
-	wget http://distfiles.gentoo.org/releases/amd64/autobuilds/20140313/hardened/stage3-amd64-hardened-20140313.tar.bz2
+        wget http://distfiles.gentoo.org/releases/amd64/autobuilds/20140313/hardened/stage3-amd64-hardened-20140313.tar.bz2
     fi
-    sha512sum stage3-amd64-hardened-"$stage3ver".tar.bz2 | grep $(awk 'NR==2 { print $1 }' stage3-amd64-hardened-"$stage3ver".tar.bz2.DIGESTS) || (echo "Invalid file was downloaded. Please try again." && rm stage3-amd64-hardened-"$stage3ver".tar.bz2 && exit 1)
+    sha512sum stage3-amd64-hardened-"$stage3ver".tar.bz2 | grep $(awk 'NR==2 { print $1 }' stage3-amd64-hardened-"$stage3ver".tar.bz2.DIGESTS) || (echo "Invalid file was downloaded. Please try again." && rm stage3-amd64-hardened-"$stage3ve\r".tar.bz2 && exit 1)
     cd ..
 }
 
@@ -31,7 +31,7 @@ unpack_stage3() {
 
 preconfigure_outside() {
     echo "Preconfiguring outside ..."
-    sed 's/j1/j'"$njobs"'/' <make.conf >source/etc/portage/make.conf
+    sed 's/^MAKEOPTS[=].*$/MAKEOPTS="-j'"$njobs"'"/' <make.conf >source/etc/portage/make.conf
     cp -L /etc/resolv.conf source/etc/
     mkdir source/root/tmp
     mkdir source/root/logs
@@ -39,6 +39,9 @@ preconfigure_outside() {
     mkdir target
     mkdir target/live
     mkdir target/boot
+    cd overlays
+    tar -xzf piratepack-testing.tar.gz
+    cd ..
 }
 
 mount_filesystems() {
@@ -92,29 +95,42 @@ configure_inside() {
     rm source/root/tmp/fstab
 }
 
-rebuild_world() {
-    echo "Rebuilding world ..."
-    cp piratepack.xml source/root/tmp/
-    cp -r piratepack-testing source/root/tmp/
+rebuild_world_1() {
+    echo "Rebuilding world part 1 ..."
+    cp -r overlays source/root/tmp/
     cp world source/root/tmp/
     cp package.accept_keywords source/root/tmp/
     cp package.use source/root/tmp/
     cp package.license source/root/tmp/
     cp snapshot.asc source/root/tmp/
+    cp -r etc source/root/tmp/
     cp -r home source/root/tmp/
     cp locale.nopurge source/root/tmp/
-    cp world.sh source/root/tmp/
-    chroot source/ /root/tmp/world.sh
-    rm source/root/tmp/world.sh
+    cp world1.sh source/root/tmp/
+    cp world2.sh source/root/tmp/
+    cp public.key source/root/tmp/
+    cp cupsd.conf source/root/tmp/
+    cp -r mime source/root/tmp/
+    chroot source/ /root/tmp/world1.sh
+}
+
+rebuild_world_2() {
+    echo "Rebuilding world part 2 ..."
+    chroot source/ /root/tmp/world2.sh
+    rm -r source/root/tmp/mime
+    rm source/root/tmp/cupsd.conf
+    rm source/root/tmp/public.key
+    rm source/root/tmp/world2.sh
+    rm source/root/tmp/world1.sh
     rm source/root/tmp/locale.nopurge
     rm -r source/root/tmp/home
+    rm -r source/root/tmp/etc
     rm source/root/tmp/snapshot.asc
     rm source/root/tmp/package.license
     rm source/root/tmp/package.use
     rm source/root/tmp/package.accept_keywords
     rm source/root/tmp/world
-    rm -r source/root/tmp/piratepack-testing
-    rm source/root/tmp/piratepack.xml
+    rm -r source/root/tmp/overlays
     cp source/root/logs/localepurge.log logs/
 }
 
@@ -130,13 +146,12 @@ postconfigure_outside() {
     rm source/etc/resolv.conf
     rmdir source/root/tmp
     rm -r source/root/logs
-    sed 's/j'"$njobs"'/j1/' <source/etc/portage/make.conf >make.conf.tmp
+    sed 's/^MAKEOPTS[=].*$/MAKEOPTS="-j1"/' <source/etc/portage/make.conf >make.conf.tmp
     cp make.conf.tmp source/etc/portage/make.conf
     rm make.conf.tmp
 }
 
 squash_filesystem() {
-    echo "Squashing filesystem ..."
     rm -f target/live/filesystem.squashfs
     mksquashfs source target/live/filesystem.squashfs
 }
@@ -181,7 +196,16 @@ rebuild_initramfs() {
     cp squashfs4.2/squashfs-tools/unsquashfs initramfs/bin/
     rm -r squashfs4.2
 
-    cp init initramfs/
+    uuid=$(uuidgen)
+    echo "$uuid" > target/.uuid
+    sed 's/[$]uuid/'"$uuid"'/' <init.sh >init.sh_tmp
+
+    filesystem_squashfs_shasum=$(sha512sum target/live/filesystem.squashfs | awk '{print $1;}')
+    sed 's/[$]filesystem[_]squashfs[_]shasum/'"$filesystem_squashfs_shasum"'/' <init.sh_tmp >init.sh_tmp_2
+
+    rm init.sh_tmp
+    chmod u+x init.sh_tmp_2
+    mv init.sh_tmp_2 initramfs/init
 
     cd initramfs
     find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../target/live/initramfs.cpio.gz
@@ -192,6 +216,9 @@ rebuild_initramfs() {
 rebuild_iso() {
     echo "Rebuilding ISO ..."
     cp -r grub target/boot/
+    mkdir -p target/efi/boot
+    grub2-mkimage -o target/efi/boot/bootx64.efi -O x86_64-efi part_msdos part_gpt fat ext2 normal iso9660
+    grub2-mkimage -o target/efi/boot/bootia32.efi -O i386-efi part_msdos part_gpt fat ext2 normal iso9660
     grub2-mkrescue -o pirate-linux.iso target
 }
 
@@ -201,17 +228,20 @@ clean() {
     rm -r target
     rm -r logs
     rm pirate-linux.iso
+    chmod -R u+w overlays/piratepack-testing
+    rm -r overlays/piratepack-testing
 }
 
 main() {
-    download_stage3
+    download_files
     unpack_stage3
     preconfigure_outside
     mount_filesystems
     preconfigure_inside
     rebuild_kernel
     configure_inside
-    rebuild_world
+    rebuild_world_1
+    rebuild_world_2
     unmount_filesystems
     postconfigure_outside
     squash_filesystem
