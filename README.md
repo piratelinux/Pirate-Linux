@@ -22,6 +22,6 @@ For example:
 ```
 ./build.sh 5
 ```
-will build Pirate Linux with at most 5 parallel jobs, and should take about 6 hours to complete on a standard desktop with 4 cores. Once the build process is complete, you will see: "Successfully built Pirate Linux". The resulting ISO containing the OS is pirate-linux.iso. It should be similar to the latest prebuilt ISO available in the Downloads section of our website. Read https://piratelinux.org/?p=567 for more documentation for how to use this ISO.
+will build Pirate Linux with at most 5 parallel compiling jobs, and should take about 6 hours to complete on a standard desktop with 4 cores. Once the build process is complete, you will see: "Successfully built Pirate Linux". The resulting ISO containing the OS is pirate-linux.iso. It should be similar to the latest prebuilt ISO available in the Downloads section of our website. Read https://piratelinux.org/?p=567 for more documentation for how to use this ISO.
 
 Pirate Linux is released into the public domain (CC0), so feel to do what you want with it. For more details, see the LICENSE file.
