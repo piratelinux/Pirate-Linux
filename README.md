@@ -16,7 +16,7 @@ Once you're ready, issue the command:
 ```
 ./build.sh [nJobs]
 ```
-where `[nJobs]` is the number of parallel jobs to use for emerging packages (the MAKEOPTS variable). It is an optional argument, and will not affect the make.conf of the final image (it will have MAKEOPTS="-j1").
+where `[nJobs]` is the number of parallel jobs to use for compiling packages (the MAKEOPTS variable). It is an optional argument, and will not affect the make.conf of the final image (it will have MAKEOPTS="-j1").
 
 For example:
 ```
