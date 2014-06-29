@@ -16,13 +16,15 @@ mount -t tmpfs -o noatime,size=3g tmpfs /mnt/ramdisk || rescue_shell
 
 mkdir /mnt/target
 
+echo "Scanning disks ..."
+
 target_dev=0
 ntrials=0
 while [[ "$target_dev" == "0" ]]
 do
     for dev in $(tail -n +2 /proc/partitions | awk '{print $4}')
     do
-	if mount -o ro /dev/"$dev" /mnt/target
+	if mount -o ro /dev/"$dev" /mnt/target 2>> /dev/null
 	then
 	    if [ -e /mnt/target/.uuid ]
 	    then
